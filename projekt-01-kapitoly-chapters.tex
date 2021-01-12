@@ -85,8 +85,58 @@ Ve své standardní formě ray tracing neumožňuje generování měkkých stín
 \end{czechalgorithm}
 \end{center}
 
+\subsubsection{Ray marching}
+Za zmínku stojí také algoritmus ray marching (sphere tracing). Namísto přímého výpočtu průsečíku se scénou - jak tomu je u spousty ray tracing implementací - postupuje paprsek ve scéně postupně, dokud nedojde k průsečíku. 
+
+Článek \cite{sphere_tracing} popisuje algoritmus následovně. Podmínkou funkčnosti algoritmu je mít možnost vypočítat z každého bodu ve scéně vzdálenost k jejímu povrchu. Pro tento účel lze využít takzvaných signed distance functions (SDF). Pro každý paprsek, kdy generování paprsků probíhá stejně jako u již zmíněného ray tracing, se iteruje napříč scénou dokud do ní paprsek nenarazí, nepřekoná maximální počet iterací či vykreslovací vzdálenost (algoritmus \ref{alg:ray_marching}). 
+
+
+\begin{center}
+\begin{czechalgorithm}[H] \label{alg:ray_marching}
+    i = 0
+    
+    t = t\_min
+    
+    \While{t < t\_max \And i < MAX\_ITERATIONS}{
+    
+        distance\_to\_scene = dist\_func(ray)
+        
+        \uIf{distance < \varepsilon}{
+        
+            return t
+            
+        }
+        t += distance\_to\_scene
+        
+        i += 1
+    }
+    return t\_max
+ \caption{Ray marching}
+\end{czechalgorithm}
+\end{center}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.8]{obrazky-figures/ray_marching.png}
+    \caption{Ray marching. \textbf{Zdroj: \cite{Keinert2014EnhancedST}}}
+    \label{fig:ray_marching}
+\end{figure}
+
 
 \subsection{Radiozita}
+Metody radiozity byly vyvinuty již v padesátých letech minulého století pro simulaci tepelného přenosu. Později byla popsána varianta pro vykreslování v článku \cite{radiosity}. Metoda je založena na jednoduchém principu; vzhledem k tomu, že každý povrch ve scéně může odrážet světlo, se dá tento povrch považovat za zdroj světla. Radiozita povrchu je dána rovnicí:
+
+
+\begin{equation} \label{eq:voxel_coords}
+\begin{gathered}
+B_i = E_i + \rho_i \sum^N_{j = 1}B_jF_{ij} \text{ pro } i = 1 \text{ do } N
+\end{gathered}
+\end{equation}
+
+Kde $B$ je celkové množství energie vyzařované z povrchu, $E$ je množství energie vyzařované v povrchu bez vlivu okolí, $\rho$ je faktor reflexivity, $F$ je faktor určující jaká část energie dorazila na povrch a $N$ je počet povrchů ve scéně. 
+
+Z mého průzkumu vypadá, že je radiozita primárně používána pro předvýpočet globální iluminace v některých scénách a dále není počítána znova. Důvodem je pravděpodobně poměrně velká náročnost algoritmu.
+
 
 \section{Voxel}
 Jak uvádí kniha \cite{gfx_principles_practice}, voxel, nebo-li \textbf{vo}lume \textbf{el}ement, reprezentuje hodnotu na pravidelné mřížce ve 3D prostoru (obrázek \ref{fig:3d_grid}). Díky tomu, že je prostor rozdělen mřížkou pravidelně, lze voxel definovat pomocí třísložkového vektoru (rovnice \ref{eq:voxel_coords}). Pro účely vykreslování jsou voxelům přiřazovány další vlastnosti, jako například barva nebo materiál.
