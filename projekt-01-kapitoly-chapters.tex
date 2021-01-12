@@ -115,6 +115,8 @@ Za zmínku stojí také algoritmus ray marching (sphere tracing). Namísto pří
 \end{czechalgorithm}
 \end{center}
 
+Pro tento algoritmus existuje značné množství optimalizací \cite{Keinert2014EnhancedST}. Jako je například 'over-relaxation', kdy dochází k zaměrně většímu kroku a případnému návratu zpět. Dalším příkladem je namísto sledování paprsku použít kužel, což značně snižuje množství iterací algoritmu.
+
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.8]{obrazky-figures/ray_marching.png}
@@ -167,7 +169,7 @@ Dalším častým využitím je modelování terénu; Voxely přináší možnos
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.2]{obrazky-figures/minecraft.jpg}
+    \includegraphics[scale=0.15]{obrazky-figures/minecraft.jpg}
     \caption{Minecraft. \textbf{Zdroj: \url{https://forums-cdn.spongepowered.org/uploads/default/original/2X/8/83abd20efc6cf5104c2f8c5459808bcd1addef7a.jpg}}}
     \label{fig:minecraft}
 \end{figure}
