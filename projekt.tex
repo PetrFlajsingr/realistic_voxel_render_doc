@@ -70,7 +70,12 @@
 
 
 \usepackage{url}
-
+ \usepackage[fleqn]{amsmath}
+\usepackage[algoruled,boxed,lined,longend]{algorithm2e}
+\usepackage[export]{adjustbox}
+\usepackage{pgfplots}
+\usepgfplotslibrary{units}\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
+\newcommand{\tab}[1]{\hspace{.07\textwidth}\rlap{#1}}
 
 % =======================================================================
 % balíček "hyperref" vytváří klikací odkazy v pdf, pokud tedy použijeme pdflatex
@@ -216,6 +221,11 @@ Uvedl jsem všechny literární prameny, publikace a další zdroje, ze kterých
   \else
     \setlength{\parskip}{0pt}
   \fi
+  
+  \newenvironment{czechalgorithm}[1][htb]
+  {\renewcommand{\algorithmcfname}{Algoritmus}% Update algorithm name
+   \begin{algorithm}[#1]%
+  }{\end{algorithm}}
 
   % vynechani stranky v oboustrannem rezimu
   % Skip the page in the two-sided mode
