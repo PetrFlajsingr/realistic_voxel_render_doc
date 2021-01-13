@@ -335,16 +335,22 @@ Existuje spousta dalších formátů, značné množství pro 3D tisk, ale také
 
 
 \section{Hierarchické struktury}
-Jak již bylo zmíněno, pro efektivní práci s velkým množstvím voxelů je potřeba využít akceleračních struktur pro práci s nimi. V této sekci najdete popis některých struktur, které se dají pro voxely použít.
+Jak již bylo zmíněno, pro efektivní práci s velkým množstvím voxelů je potřeba využít akceleračních struktur. V této sekci najdete popis některých struktur, které se dají pro voxely použít.
 
 \subsection{Mřížka}
 Mřížka, nebo také grid, je poměrně jednoduchá struktura pro dělbu prostoru. Na nejnižší úrovni může mřížka odpovídat té, pomocí které dělí prostor samotné voxely. V takové případě byl ale nedošlo k žádnému zrychlení. Pro akceleraci je prostor obsahující voxely rozdělen do několika částí (tzv. chunks). V těchto oblastech jsou voxely sdružovány a při hledání požadované položky můžeme nejdřív vybrat správný chunk a pak teprve vyhledávat v omezené množině voxelů. Samotná struktura má minimální paměťové nároky, ale nepřináší velké zrychlení, alespoň ve srovnání s ostatními metodami. Jednoduchá trojrozměrná mřížka je na obrázku \ref{fig:3d_grid}.
 
 \subsection{Octree}
+Octree, poprvé představen v knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jež reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v prostoru. Pokud uzel kompletně popisuje oblast kterou reprezentuje, jedná se o list nebo koncový uzel, v opačném případě musí obsahovat 8 potomků pro podoblasti. 
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.1]{obrazky-figures/Octree2.pdf}
+	\caption{Octree. \textbf{Zdroj: \url{https://en.wikipedia.org/wiki/Octree#/media/File:Octree2.svg}}}
+	\label{fig:slabs}
+\end{figure}
 
-\subsection{Sparse voxel octree}
-
+Při hledání objektů v prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon. 
 
 \chapter{Návrh řešení}
 \label{navrh}
