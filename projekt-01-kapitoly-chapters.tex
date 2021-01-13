@@ -194,12 +194,12 @@ Příklady některých možných vlastností materiálů:
 Aliasing je nechtěný efekt při zpracování signálu, kdy dochází ke vzniku artefaktů při vzorkování. Při vykreslování se jedná především o problém při vzorkování textur a artefakty na hranách objektu či přechodu mezi nimi (obrázek \ref{fig:aliasing}). Existuje spousta metod pro odstranění tohoto efektu. Podle \cite{aa_survey} můžeme metody pro antialiasing dělit do následujících kategorií:
 
 \begin{itemize}
-    \item Full-Scene Anti-Aliasing (FSAA)
-    \item Image Post-Processing Anti-Aliasing (IAA)
-    \item Geometric Anti-Aliasing (GAA)
+	\item Full-Scene Anti-Aliasing (FSAA)
+	\item Image Post-Processing Anti-Aliasing (IAA)
+	\item Geometric Anti-Aliasing (GAA)
 \end{itemize}
 
-Každá z těchto kategorií má trochu jiný přístup k problému aliasingu s různými limitacemi. 
+Každá z těchto kategorií má trochu jiný přístup k problému aliasingu s různými limitacemi.
 
 \begin{figure}[H]
 	\centering
@@ -208,7 +208,7 @@ Každá z těchto kategorií má trochu jiný přístup k problému aliasingu s 
 	\label{fig:aliasing}
 \end{figure}
 
-Příkladem FSAA je \textbf{Super Sampling Anti-Aliasing (SSAA)}, kde je počet pixelů pro renderování navýšen oproti cílové velikosti renderovaného obrázku. Při dokončení jsou přilehlé pixely a jejich barva/hloubka zprůměrovány. Tato metoda dosahuje výborných výsledků, ale je velmi výpočetně náročná. Optimalizovanou alternativou je \textbf{-Sampling Ant-Aliasing (MSAA)}. Jedná se o metodu fungující na stejném principu, ale namísto navýšení rozlišení celého renderovaného snímku dochází k výběru oblastí, u kterých je velká pravděpodobnost vzniku aliasingu a super sampling probíhá pouze v těch oblastech. 
+Příkladem FSAA je \textbf{Super Sampling Anti-Aliasing (SSAA)}, kde je počet pixelů pro renderování navýšen oproti cílové velikosti renderovaného obrázku. Při dokončení jsou přilehlé pixely a jejich barva/hloubka zprůměrovány. Tato metoda dosahuje výborných výsledků, ale je velmi výpočetně náročná. Optimalizovanou alternativou je \textbf{-Sampling Ant-Aliasing (MSAA)}. Jedná se o metodu fungující na stejném principu, ale namísto navýšení rozlišení celého renderovaného snímku dochází k výběru oblastí, u kterých je velká pravděpodobnost vzniku aliasingu a super sampling probíhá pouze v těch oblastech.
 
 Z rodiny IAA uveďme\textbf{ Morphological Anti-Aliasing (MLAA)}. Tato metoda si dává za cíl minimalizovat aliasing z okrajů a siluet. Algoritmus detekuje podezřelé oblasti podle rozdílu sousedních pixelů a používá rozmazání s okolím. Detekce aliasingu může být i složitější, jako například vyhledávání specifických tvarů.
 
@@ -369,7 +369,7 @@ Jak již bylo zmíněno, pro efektivní práci s velkým množstvím voxelů je 
 Mřížka, nebo také grid, je poměrně jednoduchá struktura pro dělbu prostoru. Na nejnižší úrovni může mřížka odpovídat té, pomocí které dělí prostor samotné voxely. V takovém případě by však nedošlo k žádnému zrychlení. Pro akceleraci je prostor obsahující voxely rozdělen do několika částí (tzv. chunks). V těchto oblastech jsou voxely sdružovány a při hledání požadované položky můžeme nejdřív vybrat správný chunk a pak teprve vyhledávat v omezené množině voxelů. Samotná struktura má minimální paměťové nároky, ale nepřináší velké zrychlení, alespoň ve srovnání s ostatními metodami. Jednoduchá trojrozměrná mřížka je na obrázku \ref{fig:3d_grid}.
 
 \subsection{Octree}
-Octree, poprvé představen v knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jenž reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v prostoru. Pokud uzel kompletně popisuje oblast kterou reprezentuje, jedná se o list nebo koncový uzel, v opačném případě musí obsahovat 8 potomků pro podoblasti. Při hledání objektů v prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon. 
+Octree, poprvé představen v knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jenž reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v prostoru. Pokud uzel kompletně popisuje oblast kterou reprezentuje, jedná se o list nebo koncový uzel, v opačném případě musí obsahovat 8 potomků pro podoblasti. Při hledání objektů v prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon.
 
 \begin{figure}[H]
 	\centering
@@ -384,19 +384,19 @@ Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelov�
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:svo}
-	    voxel = tree.get\_root()\\
+		voxel = tree.get\_root()\\
 		\While{not terminated}{\\
-		    (hit, t) = intersect\_cube(ray, voxel)\\
-		    \uIf{hit}{\\
-		        \uIf{is\_voxel\_small(voxel, pixel\_size) || is\_voxel\_leaf(voxel)}{\\
-		            return t\\
-		        }\\
-		        stack.push(voxel)\\
-		        voxel = select\_child(voxel)\\
-		        continue
-		    } \uElse {\\
-		        voxel = stack.pop()
-		    }\\
+			(hit, t) = intersect\_cube(ray, voxel)\\
+			\uIf{hit}{\\
+				\uIf{is\_voxel\_small(voxel, pixel\_size) || is\_voxel\_leaf(voxel)}{\\
+					return t\\
+				}\\
+				stack.push(voxel)\\
+				voxel = select\_child(voxel)\\
+				continue
+			} \uElse {\\
+				voxel = stack.pop()
+			}\\
 		}\\
 		return false
 		\caption{Sparse voxel octree ray casting}
@@ -423,36 +423,36 @@ Tato kapitola obsahuje seznam použitých nástrojů a knihoven. Popisuje také 
 Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli mé pokročilé znalosti jazyka a také jako možnost naučit se nově přidané funkce v poslední revizi jazyka. Pro překlad projektu jsem použil \texttt{CMake}\footnote{\url{https://cmake.org/}} v kombinaci s \texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí jsem využil \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Při práci na projektu jsem také využil tyto knihovny třetích stran:
 
 \begin{itemize}
-\begin{AutoMultiColItemize}
-    \item \texttt{spdlog}\footnote{\url{https://github.com/gabime/spdlog}}
-    \item \texttt{range-v3}\footnote{\url{https://github.com/ericniebler/range-v3}}
-    \item \texttt{magic\_enum}\footnote{\url{https://github.com/Neargye/magic_enum}}
-    \item \texttt{argparse}\footnote{\url{https://github.com/p-ranav/argparse}}
-    \item \texttt{toml++}\footnote{\url{https://marzer.github.io/tomlplusplus/}}
-    \item \texttt{backward-cpp}\footnote{\url{https://github.com/bombela/backward-cpp}}
-    \item \texttt{cppcoro}\footnote{\url{https://github.com/lewissbaker/cppcoro}}
-    \item \texttt{\{fmt\}}\footnote{\url{https://github.com/fmtlib/fmt}}
-    \item \texttt{stb}\footnote{\url{https://github.com/nothings/stb}}
-    \item \texttt{Dear ImGui}\footnote{\url{https://github.com/ocornut/imgui}}
-    \end{AutoMultiColItemize}
+	\begin{AutoMultiColItemize}
+		\item \texttt{spdlog}\footnote{\url{https://github.com/gabime/spdlog}}
+		\item \texttt{range-v3}\footnote{\url{https://github.com/ericniebler/range-v3}}
+		\item \texttt{magic\_enum}\footnote{\url{https://github.com/Neargye/magic_enum}}
+		\item \texttt{argparse}\footnote{\url{https://github.com/p-ranav/argparse}}
+		\item \texttt{toml++}\footnote{\url{https://marzer.github.io/tomlplusplus/}}
+		\item \texttt{backward-cpp}\footnote{\url{https://github.com/bombela/backward-cpp}}
+		\item \texttt{cppcoro}\footnote{\url{https://github.com/lewissbaker/cppcoro}}
+		\item \texttt{\{fmt\}}\footnote{\url{https://github.com/fmtlib/fmt}}
+		\item \texttt{stb}\footnote{\url{https://github.com/nothings/stb}}
+		\item \texttt{Dear ImGui}\footnote{\url{https://github.com/ocornut/imgui}}
+	\end{AutoMultiColItemize}
 \end{itemize}
 
 Dále jsem použil následující nástroje pro statickou analýzu kódu, formátování atp.:
 \begin{itemize}
-\begin{AutoMultiColItemize}
-    \item \texttt{cppcheck}\footnote{\url{http://cppcheck.sourceforge.net/}}
-    \item \texttt{cpplint}\footnote{\url{https://github.com/cpplint/cpplint}}
-    \item \texttt{sanitisers}\footnote{\url{https://github.com/google/sanitizers}}
-    \item \texttt{valgrind}\footnote{\url{https://valgrind.org/}}
-    \item \texttt{clang-format}\footnote{\url{https://clang.llvm.org/docs/ClangFormat.html}}
-    \end{AutoMultiColItemize}
+	\begin{AutoMultiColItemize}
+		\item \texttt{cppcheck}\footnote{\url{http://cppcheck.sourceforge.net/}}
+		\item \texttt{cpplint}\footnote{\url{https://github.com/cpplint/cpplint}}
+		\item \texttt{sanitisers}\footnote{\url{https://github.com/google/sanitizers}}
+		\item \texttt{valgrind}\footnote{\url{https://valgrind.org/}}
+		\item \texttt{clang-format}\footnote{\url{https://clang.llvm.org/docs/ClangFormat.html}}
+	\end{AutoMultiColItemize}
 \end{itemize}
 
 \subsection{pf\_glfw\_vulkan}
-Tato knihovna poskytuje dvě základní funkce: 
+Tato knihovna poskytuje dvě základní funkce:
 \begin{itemize}
-    \item vytvoření okna pomocí \texttt{GLFW}\footnote{\url{https://www.glfw.org/}}
-    \item komunikace s GPU za pomocí \texttt{Vulkan API}\footnote{\url{https://www.khronos.org/vulkan/}}
+	\item vytvoření okna pomocí \texttt{GLFW}\footnote{\url{https://www.glfw.org/}}
+	\item komunikace s GPU za pomocí \texttt{Vulkan API}\footnote{\url{https://www.khronos.org/vulkan/}}
 \end{itemize}
 
 Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunikaci za pomocí událostí, které knihovna programu předává. Tato třída splňuje concept\footnote{\url{https://en.cppreference.com/w/cpp/language/constraints}} \texttt{Window}, který je také obsažen v knihovně. Za pomocí \texttt{Window} je implementována komunikace mezi \texttt{Vulkan} a okenním systémem - díky tomuto rozdělení si může uživatel vytvořit komunikační vrstvu mezi knihovnou a jiným okenním systémem, jako například \texttt{SDL}\footnote{\url{https://www.libsdl.org/}}. Pro tento účel implementuje knihovna vlastní notifikační systém událostí ve třídě \texttt{EventDispatchImpl}.
