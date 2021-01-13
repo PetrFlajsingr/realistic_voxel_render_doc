@@ -432,6 +432,8 @@ Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https
     \item \texttt{backward-cpp}\footnote{\url{https://github.com/bombela/backward-cpp}}
     \item \texttt{cppcoro}\footnote{\url{https://github.com/lewissbaker/cppcoro}}
     \item \texttt{\{fmt\}}\footnote{\url{https://github.com/fmtlib/fmt}}
+    \item \texttt{stb}\footnote{\url{https://github.com/nothings/stb}}
+    \item \texttt{Dear ImGui}\footnote{\url{https://github.com/ocornut/imgui}}
     \end{AutoMultiColItemize}
 \end{itemize}
 
@@ -447,12 +449,15 @@ Dále jsem použil následující nástroje pro statickou analýzu kódu, formá
 \end{itemize}
 
 \subsection{pf\_glfw\_vulkan}
-Tato knihovna poskytuje dvě základní funkce: vytvoření okna pomocí \texttt{GLFW}\footnote{\url{https://www.glfw.org/}} a komunikace s GPU za pomocí \texttt{Vulkan API}\footnote{\url{https://www.khronos.org/vulkan/}}. 
+Tato knihovna poskytuje dvě základní funkce: 
+\begin{itemize}
+    \item vytvoření okna pomocí \texttt{GLFW}\footnote{\url{https://www.glfw.org/}}
+    \item komunikace s GPU za pomocí \texttt{Vulkan API}\footnote{\url{https://www.khronos.org/vulkan/}}
+\end{itemize}
 
 Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunikaci za pomocí událostí, které knihovna programu předává. Tato třída splňuje concept\footnote{\url{https://en.cppreference.com/w/cpp/language/constraints}} \texttt{Window}, který je také obsažen v knihovně. Za pomocí \texttt{Window} je implementována komunikace mezi \texttt{Vulkan} a okenním systémem - díky tomuto rozdělení si může uživatel vytvořit komunikační vrstvu mezi knihovnou a jiným okenním systémem, jako například \texttt{SDL}\footnote{\url{https://www.libsdl.org/}}. Pro tento účel implementuje knihovna vlastní notifikační systém událostí ve třídě \texttt{EventDispatchImpl}.
 
-Část knihovny pro interakci s \texttt{Vulkan} je o hodně rozsáhlejší. Při návrhu knihovny bylo nejvíce kladeno na její jednoduchost a zároveň i 
-bezpečnost užívání. Z tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v závislosti na nějakém vytvořeném dříve (například \texttt{vk::Instance} -> \texttt{vk::PhysicalDevice} -> \texttt{vk::LogicalDevice}) si v sobě každý nově vytvořený potomek ukládá ukazatel na svého 'rodiče'. Díky tomu nemůže dojít k uvolnění objektů omylem, pokud budeme používat některého z jeho potomků. Knihovna obsahuje vlastní verzi velkého množství \texttt{Vulkan} objektů. Zároveň je knihovna plně typově bezpečná, příkladem může být přístup k datům \texttt{vk::Buffer}, kdy k datům přístupujeme pomocí mapovacího objektu, který hojně využívá template funkcí pro kontrolu offsetu a správné práce s pamětí.
+Část knihovny pro interakci s \texttt{Vulkan} je o poznání rozsáhlejší. Při návrhu knihovny byl kladen zřetel především na její jednoduchost a zároveň bezpečnost jejího užívání. Z tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v závislosti na nějakém vytvořeném dříve (například \texttt{vk::Instance} -> \texttt{vk::PhysicalDevice} -> \texttt{vk::Device}) si v sobě každý nově vytvořený potomek ukládá ukazatel na svého 'rodiče'. To zaručuje, že nemůže dojít k uvolnění objektů omylem, pokud budeme používat některého z jeho potomků. Knihovna obsahuje vlastní verzi velkého množství \texttt{Vulkan} objektů a zároveň je plně typově bezpečná. Příkladem může být přístup k datům \texttt{vk::Buffer}, kdy k datům přistupujeme pomocí mapovacího objektu, který hojně využívá template funkcí pro kontrolu offsetu a správné práce s pamětí.
 
 Všechny objekty jsou potomkem \texttt{VulkanObject}, což je rozhraní, které poskytuje základní debug informace o objektu. Vytváření objektů je vždy prováděno pomocí \texttt{struct} konfiguračních dat. Předpokládá se užití \texttt{designated initialisers}\footnote{\url{https://en.cppreference.com/w/cpp/language/aggregate_initialization#Designated_initializers}}. Ukázka vytvoření logického zařízení:
 
@@ -471,6 +476,8 @@ logicalDevice = vkDevice->createLogicalDevice({
 \end{lstlisting}
 
 Pro objekty, u nichž by konfigurační struktura vyžadovala nadměrně velké množství argumentů, jsou v knihovně dostupné builder třídy, například \texttt{GraphicsPipelineBuilder} nebo \texttt{RenderPassBuilder}.
+
+Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funkčnosti.
 
 
 \subsection{pf\_imgui}
