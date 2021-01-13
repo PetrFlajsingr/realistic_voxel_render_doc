@@ -64,23 +64,16 @@ Ve své standardní formě ray tracing neumožňuje generování měkkých stín
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:rt_1}
-		ray = build\_ray(camera.position, image\_plane)
-
-		min\_distance = MAX
-
-		hit\_primitive = false
-
-		\ForEach{\text{primitive in scene}} {
-
-			(intersected, distance) = intersect(ray, primitive)
-
-			\uIf{intersected \And distance < min\_distance}{
-
-				hit\_primitive = primitive
-
-				min\_distance = distance
-			}
-		}
+		ray = build\_ray(camera.position, image\_plane)\\
+		min\_distance = MAX\\
+		hit\_primitive = false\\
+		\ForEach{\text{primitive in scene}} {\\
+			(intersected, distance) = intersect(ray, primitive)\\
+			\uIf{intersected \And distance < min\_distance}{\\
+				hit\_primitive = primitive\\
+				min\_distance = distance\\
+			}\\
+		}\\
 		\caption{Ray tracing}
 	\end{czechalgorithm}
 \end{center}
@@ -93,24 +86,17 @@ Za zmínku stojí také algoritmus ray marching (sphere tracing). Namísto pří
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:ray_marching}
-		i = 0
-
-		t = t\_min
-
-		\While{t < t\_max \And i < MAX\_ITERATIONS}{
-
-			distance\_to\_scene = dist\_func(ray)
-
-			\uIf{distance < \varepsilon}{
-
-				return t
-
-			}
-			t += distance\_to\_scene
-
-			i += 1
-		}
-		return t\_max
+		i = 0\\
+		t = t\_min\\
+		\While{t < t\_max \And i < MAX\_ITERATIONS}{\\
+			distance\_to\_scene = dist\_func(ray)\\
+			\uIf{distance\_to\_scene < \varepsilon}{\\
+				return t\\
+			}\\
+			t += distance\_to\_scene\\
+			i += 1\\
+		}\\
+		return t\_max\\
 		\caption{Ray marching}
 	\end{czechalgorithm}
 \end{center}
@@ -138,6 +124,70 @@ Metody radiozity byly vyvinuty již v padesátých letech minulého století pro
 Kde $B$ je celkové množství energie vyzařované z povrchu, $E$ je množství energie vyzařované v povrchu bez vlivu okolí, $\rho$ je faktor reflexivity, $F$ je faktor určující jaká část energie dorazila na povrch a $N$ je počet povrchů ve scéně.
 
 Z mého průzkumu vypadá, že je radiozita primárně používána pro předvýpočet globální iluminace v některých scénách a dále není počítána znova. Důvodem je pravděpodobně poměrně velká náročnost algoritmu.
+
+\subsection{Materiály}
+Pro simulaci interakce světla s povrchy je nutné mít tyto povrchy popsány určitými parametry. Použité parametry závisí na osvětlovacím modelu a také renderovacímu algoritmu. Publikace \cite{materials} popisuje interakci světla s povrchem rovnicí:
+
+\begin{equation} \label{eq:surface_photon}
+	\begin{gathered}
+		(x, y, \theta, \phi, t, \lambda)_{in} \xrightarrow{} (x, y, \theta, \phi, t, \lambda)_{out}
+	\end{gathered}
+\end{equation}
+
+kde levá strana reprezentuje foton interagující s povrchem a pravá strana foton vycházející ven. $(x, y)$ je pozice na povrchu, $(\theta, \phi)$ je příchozí/odchozí směr, $t$ je čas interakce a $\lambda$ je vlnová délka. Pro zjednodušení lze z rovnice odstranit čas, čímž předpokládáme, že se vzhled povrchu s časem nemění. Při diskretizaci vlnových délek je možné dosáhnout dalšího zjednodušení, čímž dostaneme takzvanou BSSRDF (bidirectional scattering surface distribution function). Dalším zjednodušením může být ignorování podpovrchového rozptylu světla (subsurface scattering), čímž získáme již známe BRDF (bidirectional reflectance distribution function) (rovnice \ref{eq:brdf}).
+
+\begin{equation} \label{eq:brdf}
+	\begin{gathered}
+		f_r(\vec{c}, \hat{\omega_i} \xrightarrow{} \hat{\omega_0}) = \frac{dL_0(\vec{x}, \hat{\omega_0)}}{dE(\vec{x}, \hat{\omega_i}} \\
+		= \frac{dL_0(\vec{x}, \hat{\omega_0)}}{L_i(\vec{x}, \hat{\omega_i)\cos \theta_i d\omega_i}} 
+	\end{gathered}
+\end{equation}
+
+Kde $L_0$ je podíl intenzity světla vycházející z povrchu na bodu $\vec{x}$ ve směru $\hat{\omega_0}$ a intenzity světla přichozího do bodu $\vec{x}$ ze směru $\hat{\omega_i}$. 
+
+Podle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika základních kategorií podle typu interakce se světlem:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+materiál              & dominantní distribuce \\ \hline
+průhledný nemetalický & difůzní odraz         \\ \hline
+metalický             & zrcadlový odraz       \\ \hline
+průsvitný             & difůzní přenos        \\ \hline
+průhledný             & běžný přenos          \\ \hline
+\end{tabular}
+\caption{Typy materiálů a jejich interakce se světlem}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{obrazky-figures/reflection_types.png}
+	\caption{Typy odrazu světla (difuzní, zrcadlové, lesklé). \textbf{Zdroj: \cite{materials}}}
+	\label{fig:3d_grid}
+\end{figure}
+
+Dalším podstatným parametrem je tvar povrchu. Tvar povrchu výrazně mění to, jak dochází k odrazu světla. Vzhledem k potenciální složitosti této vlastnosti se používající například následující metody:
+
+\begin{itemize}
+	\item Mapování normál (normal mapping)
+	\item Parallax mapping
+\end{itemize}
+
+Příklady některých možných vlastností materiálů:
+
+\begin{itemize}
+	\item barva
+	\item hrubost
+	\item metalické
+	\item mapa normál
+	\item emisivita
+	\item průhlednost
+	\item odraživost
+	\item spousta dalších...
+\end{itemize}
+
+
 
 
 \section{Voxel}
@@ -184,11 +234,10 @@ Pro vykreslování voxelových scén pomocí rasterizace je nutné ji převést 
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:instanced_cube}
-		voxel\_array = cull\_voxels(all\_voxels)
-
-		\ForEach{\text{voxel in voxel\_array}} {
-			render\_cube(voxel.position)
-		}
+		voxel\_array = cull\_voxels(all\_voxels)\\
+		\ForEach{\text{voxel in voxel\_array}} {\\
+			render\_cube(voxel.position)\\
+		}\\
 		\caption{Instancované vykreslování}
 	\end{czechalgorithm}
 \end{center}
@@ -197,14 +246,11 @@ Pro vykreslování voxelových scén pomocí rasterizace je nutné ji převést 
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:marching_cubes}
-		\ForEach{voxel in area} {
-			case = calculate\_case(voxel)
-
-			triangles = generate\_triangles(voxel.position, case)
-
-			result.add(triangles)
-
-		}
+		\ForEach{voxel in area} {\\
+			case = calculate\_case(voxel)\\
+			triangles = generate\_triangles(voxel.position, case)\\
+			result.add(triangles)\\
+		}\\
 		\caption{Marching cubes}
 	\end{czechalgorithm}
 \end{center}
@@ -218,36 +264,22 @@ Při vykreslování pomocí paprsků lze problém rozdělit na dvě části. Prv
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:ray_box_primitive}
-		corner_1 = voxel.position
-
-		corner_2 = voxel.position + voxel\_length
-
-		coeffs[0] = (corner_1.x - ray.origin.x) / ray.direction.x
-
-		coeffs[1] = (corner_1.y - ray.origin.y) / ray.direction.y
-
-		coeffs[2] = (corner_1.z - ray.origin.z) / ray.direction.z
-
-		coeffs[3] = (corner_2.x - ray.origin.x) / ray.direction.x
-
-		coeffs[4] = (corner_2.y - ray.origin.y) / ray.direction.y
-
-		coeffs[5] = (corner_2.z - ray.origin.z) / ray.direction.z
-
-		hit = false
-
-		distance = \inf
-
-		\ForEach{\text{coef in coefs}} {
-
-			\uIf {coef >= 0} {
-				hit = true
-
-				hit\_point = ray.origin + ray.direction * coef;
-
-				\uIf{is\_in\_box\_bounds(corner_1, hit\_point)}{
-
-					distance = coef;
+		corner_1 = voxel.position\\
+		corner_2 = voxel.position + voxel\_length\\
+		coeffs[0] = (corner_1.x - ray.origin.x) / ray.direction.x\\
+		coeffs[1] = (corner_1.y - ray.origin.y) / ray.direction.y\\
+		coeffs[2] = (corner_1.z - ray.origin.z) / ray.direction.z\\
+		coeffs[3] = (corner_2.x - ray.origin.x) / ray.direction.x\\
+		coeffs[4] = (corner_2.y - ray.origin.y) / ray.direction.y\\
+		coeffs[5] = (corner_2.z - ray.origin.z) / ray.direction.z\\
+		hit = false\\
+		distance = \inf\\
+		\ForEach{\text{coef in coefs}} {\\
+			\uIf {coef >= 0} {\\
+				hit = true\\
+				hit\_point = ray.origin + ray.direction * coef;\\
+				\uIf{is\_in\_box\_bounds(corner_1, hit\_point)}{\\
+					distance = coef\\
 				}
 			}
 		}
