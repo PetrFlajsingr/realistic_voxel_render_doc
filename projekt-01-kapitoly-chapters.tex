@@ -1,8 +1,3 @@
-% Tento soubor nahraďte vlastním souborem s obsahem práce.
-%=========================================================================
-% Autoři: Michal Bidlo, Bohuslav Křena, Jaroslav Dytrych, Petr Veigend a Adam Herout 2019
-
-
 \chapter{Úvod}
 \label{uvod}
 
@@ -13,7 +8,7 @@ Cílem této kapitoly je seznámit čtenáře s koncepty nutnými pro pochopení
 \section{Realistické zobrazování}
 Tato sekce popisuje princip a použití různých technik realistického zobrazování používaného v současné počítačové grafice. Jsou zde uvedeny pouze relevantní informace související s tématem a předpokládá se znalost základních termínů.
 
-Realistické zobrazování je podle knihy \cite{gfx_principles_practice} definováno jako tvoření obrazu podle definovaného modelu scény a osvětlení v ní přítomné. Jednotlivé pixely ve vytvořeném snímku (anlg. rendered image) se dají chápat jako množství světla procházejícího podél paprsků ve scéně; to odpovídá integrálu vstupující světelné energie v bodě, případně v regionu.
+Realistické zobrazování je podle knihy \cite{gfx_principles_practice} definováno jako tvoření obrazu podle definovaného modelu scény a osvětlení v ní přítomné. Jednotlivé pixely ve vytvořeném snímku (angl. rendered image) se dají chápat jako množství světla procházejícího podél paprsků ve scéně; to odpovídá integrálu vstupující světelné energie v bodě, případně v regionu.
 
 Dle knihy \cite{real_time_render}, základní komponentou zobrazování v počítačové grafice je zobrazovací řetězec (angl. rendering pipeline). Funkcí zobrazovacího řetězce je vygenerování dvourozměrného snímku daného virtuální kamerou, scénou obsahující vykreslované modely a zdroji světla.
 
@@ -41,7 +36,7 @@ kde $L(P, \omega)$ je příchozí ($L_{in}$) či odchozí ($L_{out}$) světlo v 
 Existuje mnoho metod realistického zobrazování, následuje základní popis vybraných.
 
 \subsection{Ray tracing}
-Nebo sledování paprsku. Pravděpodobně nejznámější metoda globálního osvětlení. Kniha \cite{advanced_global} popisuje ray tracing jako algoritmus počítající radianční hodnotu $L_{pixel}$ pro každý pixel ve výsledném obrázku. Tato hodnota je váženou hodnotou osvětlení ve scéně obsaženou v cestě paprsku:
+Nebo-li sledování paprsku. Pravděpodobně nejznámější metoda globálního osvětlení. Kniha \cite{advanced_global} popisuje ray tracing jako algoritmus počítající radianční hodnotu $L_{pixel}$ pro každý pixel ve výsledném obrázku. Tato hodnota je váženou hodnotou osvětlení ve scéně obsaženou v cestě paprsku:
 
 \begin{equation} \label{eq:rt_1}
 	\begin{gathered}
@@ -58,9 +53,9 @@ kde $p$ je bod na rovině obrázku a $h(p)$ váhová či filtrační funkce, $x$
 \end{figure}
 
 
-Jak název napovídá, ray tracing používá paprsky k výpočtu barvy výsledného obrázku. Paprsek je polopřímka a je tedy definován počátečním bodem $\Vec{o}$ (origin) a směrem $\Vec{d}$ (direction). Nutnou funkcí pro funkčnost tohoto algoritmu je výpočet průsečíku paprsku s primitivy, pomocí kterých je scéna vytvořena. Možnosti výpočtu průsečíku paprsku s voxelem je popsána v sekci \ref{sec:voxel_intersection}. Jednoduchý ray tracing je popsán v algoritmu \ref{alg:rt_1}. Takto naivní implementace je samozřejmě velice neefektivní a pro běžně používané scény je nutné použít akcelerační struktury pro urychlení hledání průsečíku\cite{accelerated_rt}. Pro realistické zobrazování jsou krom primárních paprsků o paprsky sekundární. Tyto paprsky jsou použity například pro odrazy, refrakci a stíny.
+Jak název napovídá, ray tracing používá paprsky k výpočtu barvy výsledného obrázku. Paprsek je polopřímka a je tedy definován počátečním bodem $\Vec{o}$ (origin) a směrem $\Vec{d}$ (direction). Nutnou funkcí pro funkčnost tohoto algoritmu je výpočet průsečíku paprsku s primitivy, pomocí kterých je scéna vytvořena. Možnosti výpočtu průsečíku paprsku s voxelem je popsána v sekci \ref{sec:voxel_intersection}. Jednoduchý ray tracing je popsán v algoritmu \ref{alg:rt_1}. Takto naivní implementace je samozřejmě velice neefektivní a pro běžně používané scény je nutné použít akcelerační struktury pro urychlení hledání průsečíku\cite{accelerated_rt}. Pro realistické zobrazování jsou krom primárních paprsků generovány i paprsky sekundární. Tyto paprsky jsou použity například pro odrazy, refrakci a stíny.
 
-Ve své standardní formě ray tracing neumožňuje generování měkkých stínů a spousty dalších sekundárních efektů.  Pro dosažení tíženého efektu lze využít například \textbf{Monte carlo ray tracing}(stochaistic ray tracing nebo distributed ray tracing) \cite{distributed_rt}. Namísto jediného paprsku pro výpočet stínů, odrazů a refrakcí je využito paprsků více a výsledky jejich výpočtu jsou následně průměrovány. Metoda umožňuje vytvoření mnoha dalších efektů, jako například hloubka pole, rozmazání pohybu atd.
+Ve své standardní formě ray tracing neumožňuje generování měkkých stínů a spousty dalších sekundárních efektů.  Pro dosažení tíženého efektu lze využít například \textbf{Monte carlo ray tracing} (stochaistic ray tracing nebo distributed ray tracing) \cite{distributed_rt}. Namísto jediného paprsku pro výpočet stínů, odrazů a refrakcí je využito paprsků více a výsledky jejich výpočtu jsou následně průměrovány. Metoda umožňuje vytvoření mnoha dalších efektů, jako například hloubka pole, rozmazání pohybu atd.
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:rt_1}
@@ -112,11 +107,11 @@ Pro tento algoritmus existuje značné množství optimalizací \cite{Keinert201
 
 
 \subsubsection{Light field probes}
-Metoda globální iluminace využívající ray tracing představena v publikaci \cite{light_field_probes}. Pracuje na předpokladu, že kontinuální světelné pole scény $\mathcal{L}(x, \omega)$, kde $x \in \mathcal{R}^3$ je bod v prostoru a $\omega \in S$ je odchozí směr, reprezentuje distribuci osvětlení ve scéně pro všechny body a směry ve scéně. Light field probes reprezentuje tuto distribuci pomocí diskrétní reprezentace.
+Metoda globální iluminace využívající ray tracing představena v publikaci \cite{light_field_probes}. Pracuje na předpokladu, že kontinuální světelné pole scény $\mathcal{L}(x, \omega)$, kde $x \in \mathcal{R}^3$ je bod v prostoru a $\omega \in S$ je odchozí směr, reprezentuje distribuci osvětlení ve scéně pro všechny body a směry ve scéně. Light field probes reprezentuje tuto distribuci pomocí diskrétního vyobrazení.
 
-Prostor ve scéně je rozdělen pomocí pravidelné mřížky a a do každé diskrétní pozice $x'$ je umístěna instance jedné light field probe, která mapuje směry $\omega$ kolem $x'$ na: intenzitu osvětlení $\mathcal{L}(x, \omega)$, normály $\vec{n}_x$ v bodech $x''$ nejblíže bodu $x'$ a hloubkovou mapu mezi $x'$ a body $x''$. Výpočet těchto hodnot dochází při prípravě scény.
+Prostor ve scéně je rozdělen pomocí pravidelné mřížky a do každé diskrétní pozice $x'$ je umístěna instance jedné sondy (probe), která mapuje směry $\omega$ kolem $x'$ na: intenzitu osvětlení $\mathcal{L}(x, \omega)$, normály $\vec{n}_x$ v bodech $x''$ nejblíže bodu $x'$ a hloubkovou mapu mezi $x'$ a body $x''$. Výpočet těchto hodnot dochází při přípravě scény.
 
-Algoritmus vykreslování postupuje napříč před-připravenými probes. Při průchodu paprskem dochází k výběru probe, trasování uvnitř ní a následně opakuje tento proces skrze scénu dokud nedojde k jisté intersekci nebo minutí geometrie scény.
+Algoritmus vykreslování postupuje napříč před-připravenými sondami. Při průchodu paprskem dochází k výběru sondy, trasování uvnitř ní a následně opakuje tento proces skrze scénu dokud nedojde k jisté intersekci nebo minutí geometrie scény.
 
 \subsection{Radiozita}
 Metody radiozity byly vyvinuty již v padesátých letech minulého století pro simulaci tepelného přenosu. Později byla popsána varianta pro vykreslování v článku \cite{radiosity}. Metoda je založena na jednoduchém principu; vzhledem k tomu, že každý povrch ve scéně může odrážet světlo, se dá tento povrch považovat za zdroj světla. Radiozita povrchu je dána rovnicí:
@@ -152,7 +147,7 @@ kde levá strana reprezentuje foton interagující s povrchem a pravá strana fo
 
 Kde $L_0$ je podíl intenzity světla vycházející z povrchu na bodu $\vec{x}$ ve směru $\hat{\omega_0}$ a intenzity světla přichozího do bodu $\vec{x}$ ze směru $\hat{\omega_i}$.
 
-Podle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika základních kategorií podle typu interakce se světlem:
+Dle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika základních kategorií podle typu interakce se světlem:
 
 \begin{table}[H]
 	\centering
@@ -174,7 +169,7 @@ Podle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika z�
 	\label{fig:3d_grid}
 \end{figure}
 
-Dalším podstatným parametrem je tvar povrchu. Tvar povrchu výrazně mění to, jak dochází k odrazu světla. Vzhledem k potenciální složitosti této vlastnosti se používající například následující metody:
+Dalším podstatným parametrem je tvar povrchu. Tvar povrchu výrazně mění to, jak dochází k odrazu světla. Vzhledem k potenciální složitosti této vlastnosti se používají například následující metody:
 
 \begin{itemize}
 	\item Mapování normál (normal mapping)
@@ -193,6 +188,39 @@ Příklady některých možných vlastností materiálů:
 	\item odraživost
 	\item spousta dalších...
 \end{itemize}
+
+
+\subsection{Antialiasing}
+Aliasing je nechtěný efekt při zpracování signálu, kdy dochází ke vzniku artefaktů při vzorkování. Při vykreslování se jedná především o problém při vzorkování textur a artefakty na hranách objektu či přechodu mezi nimi (obrázek \ref{fig:aliasing}). Existuje spousta metod pro odstranění tohoto efektu. Podle \cite{aa_survey} můžeme metody pro antialiasing dělit do následujících kategorií:
+
+\begin{itemize}
+    \item Full-Scene Anti-Aliasing (FSAA)
+    \item Image Post-Processing Anti-Aliasing (IAA)
+    \item Geometric Anti-Aliasing (GAA)
+\end{itemize}
+
+Každá z těchto kategorií má trochu jiný přístup k problému aliasingu s různými limitacemi. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=2]{obrazky-figures/aliasing.png}
+	\caption{Aliasing. }
+	\label{fig:aliasing}
+\end{figure}
+
+Příkladem FSAA je \textbf{Super Sampling Anti-Aliasing (SSAA)}, kde je počet pixelů pro renderování navýšen oproti cílové velikosti renderovaného obrázku. Při dokončení jsou přilehlé pixely a jejich barva/hloubka zprůměrovány. Tato metoda dosahuje výborných výsledků, ale je velmi výpočetně náročná. Optimalizovanou alternativou je \textbf{-Sampling Ant-Aliasing (MSAA)}. Jedná se o metodu fungující na stejném principu, ale namísto navýšení rozlišení celého renderovaného snímku dochází k výběru oblastí, u kterých je velká pravděpodobnost vzniku aliasingu a super sampling probíhá pouze v těch oblastech. 
+
+Z rodiny IAA uveďme\textbf{ Morphological Anti-Aliasing (MLAA)}. Tato metoda si dává za cíl minimalizovat aliasing z okrajů a siluet. Algoritmus detekuje podezřelé oblasti podle rozdílu sousedních pixelů a používá rozmazání s okolím. Detekce aliasingu může být i složitější, jako například vyhledávání specifických tvarů.
+
+
+Vybraný zástupce GAA je \textbf{Geometric PostProcessing AA (GPAA)}. Při renderování obrazu dochází k ukládání informací o geometrii scény do separátního bufferu. Podle vzdálenosti sousedních pixelů ve finálním kroku dochází k rozhodnutí, zda je nutné provádět anti-aliasing. Pokud ano, jsou vypočteny hodnoty okolních pixelů a dochází k rozmazání.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=3]{obrazky-figures/ssaa_diff.png}
+	\caption{Rozdíl kvality obrázku po použití SSAA.}
+	\label{fig:aliasing}
+\end{figure}
 
 
 
@@ -222,7 +250,7 @@ Voxely jsou často využívány v medicíně \cite{medical_vox}, například pro
 	\label{fig:mri_vox}
 \end{figure}
 
-Dalším častým využitím je modelování terénu; Voxely přináší možnost reprezentovat převisy, čímž je terén značně realističtější, než při aplikaci často používaných výškových map. Pravděpodobně nejznámější software používající voxely pro terén je Minecraft (obrázek \ref{fig:minecraft}). Za zmínku stojí také hra Teardown (2020)\footnote{\url{https://www.teardowngame.com/}}, kde je celý herní svět vytvořen pomocí voxelů a umožňuje téměř neomezenou destrukci.
+Dalším častým využitím je modelování terénu; voxely přináší možnost reprezentovat převisy, čímž je terén značně realističtější, než při aplikaci často používaných výškových map. Pravděpodobně nejznámější software používající voxely pro terén je \texttt{Minecraft} (obrázek \ref{fig:minecraft}). Za zmínku stojí také hra \texttt{Teardown} (2020)\footnote{\url{https://www.teardowngame.com/}}, kde je celý herní svět vytvořen pomocí voxelů a umožňuje téměř neomezenou destrukci.
 
 \begin{figure}[H]
 	\centering
@@ -338,10 +366,10 @@ Existuje spousta dalších formátů, značné množství pro 3D tisk, ale také
 Jak již bylo zmíněno, pro efektivní práci s velkým množstvím voxelů je potřeba využít akceleračních struktur. V této sekci najdete popis některých struktur, které se dají pro voxely použít.
 
 \subsection{Mřížka}
-Mřížka, nebo také grid, je poměrně jednoduchá struktura pro dělbu prostoru. Na nejnižší úrovni může mřížka odpovídat té, pomocí které dělí prostor samotné voxely. V takové případě byl ale nedošlo k žádnému zrychlení. Pro akceleraci je prostor obsahující voxely rozdělen do několika částí (tzv. chunks). V těchto oblastech jsou voxely sdružovány a při hledání požadované položky můžeme nejdřív vybrat správný chunk a pak teprve vyhledávat v omezené množině voxelů. Samotná struktura má minimální paměťové nároky, ale nepřináší velké zrychlení, alespoň ve srovnání s ostatními metodami. Jednoduchá trojrozměrná mřížka je na obrázku \ref{fig:3d_grid}.
+Mřížka, nebo také grid, je poměrně jednoduchá struktura pro dělbu prostoru. Na nejnižší úrovni může mřížka odpovídat té, pomocí které dělí prostor samotné voxely. V takovém případě by však nedošlo k žádnému zrychlení. Pro akceleraci je prostor obsahující voxely rozdělen do několika částí (tzv. chunks). V těchto oblastech jsou voxely sdružovány a při hledání požadované položky můžeme nejdřív vybrat správný chunk a pak teprve vyhledávat v omezené množině voxelů. Samotná struktura má minimální paměťové nároky, ale nepřináší velké zrychlení, alespoň ve srovnání s ostatními metodami. Jednoduchá trojrozměrná mřížka je na obrázku \ref{fig:3d_grid}.
 
 \subsection{Octree}
-Octree, poprvé představen v knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jež reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v prostoru. Pokud uzel kompletně popisuje oblast kterou reprezentuje, jedná se o list nebo koncový uzel, v opačném případě musí obsahovat 8 potomků pro podoblasti. Při hledání objektů v prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon. 
+Octree, poprvé představen v knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jenž reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v prostoru. Pokud uzel kompletně popisuje oblast kterou reprezentuje, jedná se o list nebo koncový uzel, v opačném případě musí obsahovat 8 potomků pro podoblasti. Při hledání objektů v prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon. 
 
 \begin{figure}[H]
 	\centering
