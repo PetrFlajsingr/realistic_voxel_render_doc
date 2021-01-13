@@ -341,7 +341,7 @@ Jak již bylo zmíněno, pro efektivní práci s velkým množstvím voxelů je 
 Mřížka, nebo také grid, je poměrně jednoduchá struktura pro dělbu prostoru. Na nejnižší úrovni může mřížka odpovídat té, pomocí které dělí prostor samotné voxely. V takové případě byl ale nedošlo k žádnému zrychlení. Pro akceleraci je prostor obsahující voxely rozdělen do několika částí (tzv. chunks). V těchto oblastech jsou voxely sdružovány a při hledání požadované položky můžeme nejdřív vybrat správný chunk a pak teprve vyhledávat v omezené množině voxelů. Samotná struktura má minimální paměťové nároky, ale nepřináší velké zrychlení, alespoň ve srovnání s ostatními metodami. Jednoduchá trojrozměrná mřížka je na obrázku \ref{fig:3d_grid}.
 
 \subsection{Octree}
-Octree, poprvé představen v knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jež reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v prostoru. Pokud uzel kompletně popisuje oblast kterou reprezentuje, jedná se o list nebo koncový uzel, v opačném případě musí obsahovat 8 potomků pro podoblasti. 
+Octree, poprvé představen v knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jež reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v prostoru. Pokud uzel kompletně popisuje oblast kterou reprezentuje, jedná se o list nebo koncový uzel, v opačném případě musí obsahovat 8 potomků pro podoblasti. Při hledání objektů v prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon. 
 
 \begin{figure}[H]
 	\centering
@@ -350,7 +350,31 @@ Octree, poprvé představen v knize \cite{rensselaer1980octree}, je popsán jako
 	\label{fig:slabs}
 \end{figure}
 
-Při hledání objektů v prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon. 
+
+\subsubsection{Sparse voxel octree}
+Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelových scén. Důležitou částí generování octree pro tento algoritmus je minimalizace uzlů, které nejsou viditelné, či spojení stejných uzlů do jednoho bloku na vyšší úrovni \cite{Laine2011EfficientSV}. Výhodou je velmi snadná aplikace level of detail napříč stromem. Podle velikosti pixelu je možné zastavit průchod stromem před dosažením nejnižší úrovně a vypočítat výslednou barvu z uzlu na vyšší úrovni. Algoritmus \ref{alg:svo} popisuje jednoduchou verzi algoritmu.
+
+\begin{center}
+	\begin{czechalgorithm}[H] \label{alg:svo}
+	    voxel = tree.get\_root()\\
+		\While{not terminated}{\\
+		    (hit, t) = intersect\_cube(ray, voxel)\\
+		    \uIf{hit}{\\
+		        \uIf{is\_voxel\_small(voxel, pixel\_size) || is\_voxel\_leaf(voxel)}{\\
+		            return t\\
+		        }\\
+		        stack.push(voxel)\\
+		        voxel = select\_child(voxel)\\
+		        continue
+		    } \uElse {\\
+		        voxel = stack.pop()
+		    }\\
+		}\\
+		return false
+		\caption{Sparse voxel octree ray casting}
+	\end{czechalgorithm}
+\end{center}
+
 
 \chapter{Návrh řešení}
 \label{navrh}
