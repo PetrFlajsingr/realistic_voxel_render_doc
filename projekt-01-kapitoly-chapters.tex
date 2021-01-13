@@ -403,6 +403,8 @@ Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelov�
 	\end{czechalgorithm}
 \end{center}
 
+\section{Vulkan API}
+
 
 \chapter{Návrh řešení}
 \label{navrh}
@@ -414,6 +416,67 @@ popis light field probes
 
 \chapter{Implementace}
 \label{implementace}
+
+Tato kapitola obsahuje seznam použitých nástrojů a knihoven. Popisuje také implementaci knihoven vytvořených při práci na praktické části tohoto projektu.
+
+\section{Použité knihovny a nástroje}
+Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli mé pokročilé znalosti jazyka a také jako možnost naučit se nově přidané funkce v poslední revizi jazyka. Pro překlad projektu jsem použil \texttt{CMake}\footnote{\url{https://cmake.org/}} v kombinaci s \texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí jsem využil \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Při práci na projektu jsem také využil tyto knihovny třetích stran:
+
+\begin{itemize}
+\begin{AutoMultiColItemize}
+    \item \texttt{spdlog}\footnote{\url{https://github.com/gabime/spdlog}}
+    \item \texttt{range-v3}\footnote{\url{https://github.com/ericniebler/range-v3}}
+    \item \texttt{magic\_enum}\footnote{\url{https://github.com/Neargye/magic_enum}}
+    \item \texttt{argparse}\footnote{\url{https://github.com/p-ranav/argparse}}
+    \item \texttt{toml++}\footnote{\url{https://marzer.github.io/tomlplusplus/}}
+    \item \texttt{backward-cpp}\footnote{\url{https://github.com/bombela/backward-cpp}}
+    \item \texttt{cppcoro}\footnote{\url{https://github.com/lewissbaker/cppcoro}}
+    \item \texttt{\{fmt\}}\footnote{\url{https://github.com/fmtlib/fmt}}
+    \end{AutoMultiColItemize}
+\end{itemize}
+
+Dále jsem použil následující nástroje pro statickou analýzu kódu, formátování atp.:
+\begin{itemize}
+\begin{AutoMultiColItemize}
+    \item \texttt{cppcheck}\footnote{\url{http://cppcheck.sourceforge.net/}}
+    \item \texttt{cpplint}\footnote{\url{https://github.com/cpplint/cpplint}}
+    \item \texttt{sanitisers}\footnote{\url{https://github.com/google/sanitizers}}
+    \item \texttt{valgrind}\footnote{\url{https://valgrind.org/}}
+    \item \texttt{clang-format}\footnote{\url{https://clang.llvm.org/docs/ClangFormat.html}}
+    \end{AutoMultiColItemize}
+\end{itemize}
+
+\subsection{pf\_glfw\_vulkan}
+Tato knihovna poskytuje dvě základní funkce: vytvoření okna pomocí \texttt{GLFW}\footnote{\url{https://www.glfw.org/}} a komunikace s GPU za pomocí \texttt{Vulkan API}\footnote{\url{https://www.khronos.org/vulkan/}}. 
+
+Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunikaci za pomocí událostí, které knihovna programu předává. Tato třída splňuje concept\footnote{\url{https://en.cppreference.com/w/cpp/language/constraints}} \texttt{Window}, který je také obsažen v knihovně. Za pomocí \texttt{Window} je implementována komunikace mezi \texttt{Vulkan} a okenním systémem - díky tomuto rozdělení si může uživatel vytvořit komunikační vrstvu mezi knihovnou a jiným okenním systémem, jako například \texttt{SDL}\footnote{\url{https://www.libsdl.org/}}. Pro tento účel implementuje knihovna vlastní notifikační systém událostí ve třídě \texttt{EventDispatchImpl}.
+
+Část knihovny pro interakci s \texttt{Vulkan} je o hodně rozsáhlejší. Při návrhu knihovny bylo nejvíce kladeno na její jednoduchost a zároveň i 
+bezpečnost užívání. Z tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v závislosti na nějakém vytvořeném dříve (například \texttt{vk::Instance} -> \texttt{vk::PhysicalDevice} -> \texttt{vk::LogicalDevice}) si v sobě každý nově vytvořený potomek ukládá ukazatel na svého 'rodiče'. Díky tomu nemůže dojít k uvolnění objektů omylem, pokud budeme používat některého z jeho potomků. Knihovna obsahuje vlastní verzi velkého množství \texttt{Vulkan} objektů. Zároveň je knihovna plně typově bezpečná, příkladem může být přístup k datům \texttt{vk::Buffer}, kdy k datům přístupujeme pomocí mapovacího objektu, který hojně využívá template funkcí pro kontrolu offsetu a správné práce s pamětí.
+
+Všechny objekty jsou potomkem \texttt{VulkanObject}, což je rozhraní, které poskytuje základní debug informace o objektu. Vytváření objektů je vždy prováděno pomocí \texttt{struct} konfiguračních dat. Předpokládá se užití \texttt{designated initialisers}\footnote{\url{https://en.cppreference.com/w/cpp/language/aggregate_initialization#Designated_initializers}}. Ukázka vytvoření logického zařízení:
+
+\begin{lstlisting}[language=C++, caption={Tvorba logického zařízení}]
+// tvorba instance vynechana kvuli velkemu mnozstvi argumentu
+device = instance->selectDevice(DefaultDeviceSuitabilityScorer());
+surface = instance->createSurface(window);
+logicalDevice = vkDevice->createLogicalDevice({
+    .id = "dev1",
+    .deviceFeatures = vk::PhysicalDeviceFeatures{},
+    .queueTypes = {vk::QueueFlagBits::eCompute},
+    .presentQueueEnabled = true,
+    .requiredDeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME},
+    .validationLayers = getValidationLayers(),
+    .surface = *surface});
+\end{lstlisting}
+
+Pro objekty, u nichž by konfigurační struktura vyžadovala nadměrně velké množství argumentů, jsou v knihovně dostupné builder třídy, například \texttt{GraphicsPipelineBuilder} nebo \texttt{RenderPassBuilder}.
+
+
+\subsection{pf\_imgui}
+
+
+
 nacitani a tvorba SVO
 
 

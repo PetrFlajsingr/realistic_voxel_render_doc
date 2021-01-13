@@ -67,6 +67,19 @@
 % to avoid unnecessary replacements in the API descriptions etc.
 \csdoublequotesoff
 
+\usepackage{dblfnote}
+\usepackage{listings}
+\usepackage{xcolor}
+% set the default code style
+\lstset{
+    frame=tb, % draw a frame at the top and bottom of the code block
+    tabsize=2, % tab space width
+    showstringspaces=false, % don't mark spaces in strings
+    numbers=left, % display line numbers on the left
+    commentstyle=\color{green}, % comment color
+    keywordstyle=\color{blue}, % keyword color
+    stringstyle=\color{red} % string color
+}
 
 
 \usepackage{url}
@@ -74,6 +87,33 @@
 \usepackage[algoruled,boxed,lined,longend]{algorithm2e}
 \usepackage[export]{adjustbox}
 \usepackage{pgfplots}
+\usepackage{etoolbox,refcount}
+\usepackage{multicol}
+\newcounter{countitems}
+\newcounter{nextitemizecount}
+\newcommand{\setupcountitems}{%
+  \stepcounter{nextitemizecount}%
+  \setcounter{countitems}{0}%
+  \preto\item{\stepcounter{countitems}}%
+}
+\makeatletter
+\newcommand{\computecountitems}{%
+  \edef\@currentlabel{\number\c@countitems}%
+  \label{countitems@\number\numexpr\value{nextitemizecount}-1\relax}%
+}
+\newcommand{\nextitemizecount}{%
+  \getrefnumber{countitems@\number\c@nextitemizecount}%
+}
+\newcommand{\previtemizecount}{%
+  \getrefnumber{countitems@\number\numexpr\value{nextitemizecount}-1\relax}%
+}
+\makeatother    
+\newenvironment{AutoMultiColItemize}{%
+\ifnumcomp{\nextitemizecount}{>}{3}{\begin{multicols}{2}}{}%
+\setupcountitems\begin{itemize}}%
+{\end{itemize}%
+\unskip\computecountitems\ifnumcomp{\previtemizecount}{>}{3}{\end{multicols}}{}}
+
 \usepgfplotslibrary{units}\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
 \newcommand{\tab}[1]{\hspace{.07\textwidth}\rlap{#1}}
 
