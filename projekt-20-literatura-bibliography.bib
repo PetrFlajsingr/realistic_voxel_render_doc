@@ -214,3 +214,35 @@
 }
 
 @book{hunter_harold_1987, place={New York}, title={The measurement of appearance}, publisher={J. Wiley}, author={Hunter, Richard Sewall. and Harold, Richard Wesley.}, year={1987}}
+
+
+@inproceedings{light_field_probes,
+author = {McGuire, Morgan and Mara, Mike and Nowrouzezahrai, Derek and Luebke, David},
+title = {Real-Time Global Illumination Using Precomputed Light Field Probes},
+year = {2017},
+isbn = {9781450348867},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3023368.3023378},
+doi = {10.1145/3023368.3023378},
+abstract = {We introduce a new data structure and algorithms that employ it to compute real-time global illumination from static environments. Light field probes encode a scene's full light field and internal visibility. They extend current radiance and irradiance probe structures with per-texel visibility information similar to a G-buffer and variance shadow map. We apply ideas from screen-space and voxel cone tracing techniques to this data structure to efficiently sample radiance on world space rays, with correct visibility information, directly within pixel and compute shaders. From these primitives, we then design two GPU algorithms to efficiently gather real-time, viewer-dependent global illumination onto both static and dynamic objects. These algorithms make different tradeoffs between performance and accuracy. Supplemental GLSL source code is included.},
+booktitle = {Proceedings of the 21st ACM SIGGRAPH Symposium on Interactive 3D Graphics and Games},
+articleno = {2},
+numpages = {11},
+keywords = {global illumination, irradiance, light field},
+location = {San Francisco, California},
+series = {I3D '17}
+}
+
+@inproceedings{dynamic_rt_structures,
+author = {Reinhard, Erik and Smits, Brian E. and Hansen, Chuck},
+title = {Dynamic Acceleration Structures for Interactive Ray Tracing},
+year = {2000},
+isbn = {3211835350},
+publisher = {Springer-Verlag},
+address = {Berlin, Heidelberg},
+booktitle = {Proceedings of the Eurographics Workshop on Rendering Techniques 2000},
+pages = {299–306},
+numpages = {8}
+}
+
