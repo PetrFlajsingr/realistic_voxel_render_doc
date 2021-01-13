@@ -139,25 +139,25 @@ kde levá strana reprezentuje foton interagující s povrchem a pravá strana fo
 \begin{equation} \label{eq:brdf}
 	\begin{gathered}
 		f_r(\vec{c}, \hat{\omega_i} \xrightarrow{} \hat{\omega_0}) = \frac{dL_0(\vec{x}, \hat{\omega_0)}}{dE(\vec{x}, \hat{\omega_i}} \\
-		= \frac{dL_0(\vec{x}, \hat{\omega_0)}}{L_i(\vec{x}, \hat{\omega_i)\cos \theta_i d\omega_i}} 
+		= \frac{dL_0(\vec{x}, \hat{\omega_0)}}{L_i(\vec{x}, \hat{\omega_i)\cos \theta_i d\omega_i}}
 	\end{gathered}
 \end{equation}
 
-Kde $L_0$ je podíl intenzity světla vycházející z povrchu na bodu $\vec{x}$ ve směru $\hat{\omega_0}$ a intenzity světla přichozího do bodu $\vec{x}$ ze směru $\hat{\omega_i}$. 
+Kde $L_0$ je podíl intenzity světla vycházející z povrchu na bodu $\vec{x}$ ve směru $\hat{\omega_0}$ a intenzity světla přichozího do bodu $\vec{x}$ ze směru $\hat{\omega_i}$.
 
 Podle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika základních kategorií podle typu interakce se světlem:
 
 \begin{table}[H]
-\centering
-\begin{tabular}{|l|l|}
-\hline
-materiál              & dominantní distribuce \\ \hline
-průhledný nemetalický & difůzní odraz         \\ \hline
-metalický             & zrcadlový odraz       \\ \hline
-průsvitný             & difůzní přenos        \\ \hline
-průhledný             & běžný přenos          \\ \hline
-\end{tabular}
-\caption{Typy materiálů a jejich interakce se světlem}
+	\centering
+	\begin{tabular}{|l|l|}
+		\hline
+		materiál              & dominantní distribuce \\ \hline
+		průhledný nemetalický & difůzní odraz         \\ \hline
+		metalický             & zrcadlový odraz       \\ \hline
+		průsvitný             & difůzní přenos        \\ \hline
+		průhledný             & běžný přenos          \\ \hline
+	\end{tabular}
+	\caption{Typy materiálů a jejich interakce se světlem}
 \end{table}
 
 \begin{figure}[H]
