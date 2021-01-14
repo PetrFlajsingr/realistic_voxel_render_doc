@@ -62,13 +62,13 @@ Ve své standardní formě ray tracing neumožňuje generování měkkých stín
 		ray = build\_ray(camera.position, image\_plane)\\
 		min\_distance = MAX\\
 		hit\_primitive = false\\
-		\ForEach{\text{primitive in scene}} {\\
+		\ForEach{\text{primitive in scene}} {
 			(intersected, distance) = intersect(ray, primitive)\\
-			\uIf{intersected \And distance < min\_distance}{\\
+			\uIf{intersected \And distance < min\_distance}{
 				hit\_primitive = primitive\\
 				min\_distance = distance\\
-			}\\
-		}\\
+			}
+		}
 		\caption{Ray tracing}
 	\end{czechalgorithm}
 \end{center}
@@ -404,7 +404,18 @@ Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelov�
 \end{center}
 
 \section{Vulkan API}
+Vulkan je API pro 3D grafiku a výpočty pomocí GPU \cite{vulkan_web}. Cílem Vulkan je poskytnout uživateli možnost vyvíjet vysoce výkonné grafické aplikace. V porovnání s OpenGL či podobnými staršími API přináší výrazně vyšší výkon, ovšem je s ním také práce poněkud časově náročnější, jelikož Vulkan pracuje na výrazně nižší úrovni. Byl také navržen s předpokladem, že bude používán z více vláken. Některé výhody Vulkan oproti předchozím grafickým API:
 
+\begin{itemize}
+    \item Jednotné API jak pro mobilní zařízení tak pro PC.
+    \item Dostupnost na velkém množství operačních systému (podobně jako OpenGL).
+    \item Nízký overhead driverů.
+    \item Pro shadery používá binární formát SPIR-V\footnote{\url{https://www.khronos.org/opengl/wiki/SPIR-V}}, díky čemuž můžou vývojáři distribuovat pouze binární formu shaderů.
+    \item Sjednocení grafického (graphics pipeline) a výpočetního (compute shaders) API.
+    \item Ray tracing pomocí rozšíření (tuto funkci podporuje i DirectX12).
+\end{itemize}
+
+Současnou verzí API je Vulkan 1.2.166\cite{vulkanspec}.
 
 \chapter{Návrh řešení}
 \label{navrh}
