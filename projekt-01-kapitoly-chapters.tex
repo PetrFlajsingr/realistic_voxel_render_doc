@@ -505,7 +505,7 @@ Dále jsem použil následující nástroje pro statickou analýzu kódu, formá
 	\end{AutoMultiColItemize}
 \end{itemize}
 
-\subsection{pf\_common}
+\section{pf\_common}
 Knihovna poskytující často používané funkce:
 \begin{itemize}
 	\item \texttt{Concept}y pro template meta programování a statický polymorfimus.
@@ -518,7 +518,7 @@ Knihovna poskytující často používané funkce:
 
 Je implementována jako header-only knihovna\footnote{\url{https://en.wikipedia.org/wiki/Header-only}}.
 
-\subsection{pf\_glfw\_vulkan}
+\section{pf\_glfw\_vulkan}
 Tato knihovna poskytuje dvě základní funkce:
 \begin{itemize}
 	\item vytvoření okna pomocí \texttt{GLFW}\footnote{\url{https://www.glfw.org/}}
@@ -552,7 +552,7 @@ Pro objekty, u~nichž by konfigurační struktura vyžadovala nadměrně velké 
 Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funkčnosti.
 
 
-\subsection{pf\_imgui}
+\section{pf\_imgui}
 \texttt{pf\_imgui} je event-driven UI knihovna postavena na Dear Imgui. Cílem je zjednodušení práce při vytváření uživatelského rozhraní a také přidání některých funkcí. Obrázek \ref{fig:imgui_classes} obsahuje diagram tříd rozhraní, které elementy v~\texttt{pf\_imgui} poskytují. Funkce, které jsou oproti Dear Imgui přidané jsou:
 
 \begin{itemize}
@@ -586,7 +586,7 @@ imgui.createChild<Button>("btn_id", "Open file").addClickListener([&imgui] {
 \end{lstlisting}
 
 
-\subsection{Načítání modelů a jejich transformace}
+\section{Načítání modelů a jejich transformace}
 Pro vykreslování modelů je nutné je transformovat do octree. Jelikož neexistuje žádný standardní formát pro voxely, je potřeba implementovat import pro různé formáty. Aplikace je prozatím schopna importovat formát \texttt{vox}(sekce \ref{sec:format})). 
 
 Načítání dat je rozděleno na dvě části. V první části jsou ze vstupního souboru načteny využité materiály a je vytvořen seznam voxelů. Tohle je jediná část, kterou je nutné implementovat speciálně pro nové formáty. Zbytek převodu je popsán v algoritmu \ref{alg:vox_to_svo}.
@@ -642,7 +642,7 @@ Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Po
 Finálním krokem je transformace vytvořeného stromu do jeho binární reprezentace popsané v sekci \ref{sec:voxel_representation}.
 
 
-\subsection{Uživatelské rozhraní}
+\section{Uživatelské rozhraní}
 Jelikož demonstrační aplikace modely pouze zobrazuje, není moc velké množství parametrů, které by se daly nastavovat. Program přijímá jako argument cestu ke konfiguračnímu souboru, který musí obsahovat velikost okna a cesty ke zdrojům (modely).
 
 UI aplikace je rozděleno do čtyř částí:
