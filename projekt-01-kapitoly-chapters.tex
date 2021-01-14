@@ -459,6 +459,19 @@ Dále jsem použil následující nástroje pro statickou analýzu kódu, formá
 	\end{AutoMultiColItemize}
 \end{itemize}
 
+\subsection{pf\_common}
+Knihovna poskytující často používané funkce:
+\begin{itemize}
+    \item \texttt{Concept}y pro template meta programování a statický polymorfimus.
+    \item Jednoduché coroutines (\texttt{iota}, \texttt{range}...)
+    \item Implementace výjimek se stack trace reporting.
+    \item Některé idiomy \texttt{c++} - \texttt{RAII}, \texttt{Visitor}...
+    \item Funkce pro binární serializaci dat a práci s binárními daty.
+    \item Mnoho dalších...
+\end{itemize}
+
+Je implementována jako header-only knihovna \footnote{\url{https://en.wikipedia.org/wiki/Header-only}}.
+
 \subsection{pf\_glfw\_vulkan}
 Tato knihovna poskytuje dvě základní funkce:
 \begin{itemize}
@@ -500,6 +513,10 @@ Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funk
 	\item Některé elementy navíc, například \texttt{Memo}.
 \end{itemize}
 
+Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V knihovně je obsaženo podstatné množství elementů, jsou implementovány wrappery pro téměř všechny elementy dostupné v Dear Imgui. Také jsou přidány grafy z knihoven \texttt{implot}\footnote{\url{https://github.com/epezent/implot}}, \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}. 
+
+Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti. Například implementace \texttt{CheckBox} vyžaduje jen 7 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru.
+
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.5]{obrazky-figures/pfimgui_classes.pdf}
@@ -507,15 +524,13 @@ Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funk
 	\label{fig:imgui_classes}
 \end{figure}
 
-Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V knihovně je obsaženo podstatné množství elementů, jsou implementovány wrappery pro téměř všechny elementy dostupné v Dear Imgui. Také jsou přidány grafy z knihoven \texttt{implot}\footnote{\url{https://github.com/epezent/implot}}, \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
-
-Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti. Například implementace \texttt{CheckBox} vyžaduje jen 7 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru.
 
 Ukázka vytvoření tlačítka, které reaguje na kliknutí otevřením dialogu pro výběr \texttt{txt} souboru:
 
 \begin{lstlisting}[language=C++, caption={Tvorba logického zařízení}]
 imgui.createChild<Button>("btn_id", "Open file").addClickListener([&imgui] {
-    imgui.openFileDialog("Select file", {{"txt"}, "txt  files"}, 
+    imgui.openFileDialog("Select file", 
+        {.ext = {"txt"}, .description = "txt  files"}, 
         [] (const auto &files) {
             for (const auto &file : files) { print(file); }
         }, [] { print("No file selected"); });
