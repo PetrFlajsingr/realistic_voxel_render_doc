@@ -407,12 +407,12 @@ Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelov�
 Vulkan je API pro 3D grafiku a výpočty pomocí GPU \cite{vulkan_web}. Cílem Vulkan je poskytnout uživateli možnost vyvíjet vysoce výkonné grafické aplikace. V porovnání s OpenGL či podobnými staršími API přináší výrazně vyšší výkon, ovšem je s ním také práce poněkud časově náročnější, jelikož Vulkan pracuje na výrazně nižší úrovni. Byl také navržen s předpokladem, že bude používán z více vláken. Některé výhody Vulkan oproti předchozím grafickým API:
 
 \begin{itemize}
-    \item Jednotné API jak pro mobilní zařízení tak pro PC.
-    \item Dostupnost na velkém množství operačních systému (podobně jako OpenGL).
-    \item Nízký overhead driverů.
-    \item Pro shadery používá binární formát SPIR-V\footnote{\url{https://www.khronos.org/opengl/wiki/SPIR-V}}, díky čemuž můžou vývojáři distribuovat pouze binární formu shaderů.
-    \item Sjednocení grafického (graphics pipeline) a výpočetního (compute shaders) API.
-    \item Ray tracing pomocí rozšíření (tuto funkci podporuje i DirectX12).
+	\item Jednotné API jak pro mobilní zařízení tak pro PC.
+	\item Dostupnost na velkém množství operačních systému (podobně jako OpenGL).
+	\item Nízký overhead driverů.
+	\item Pro shadery používá binární formát SPIR-V\footnote{\url{https://www.khronos.org/opengl/wiki/SPIR-V}}, díky čemuž můžou vývojáři distribuovat pouze binární formu shaderů.
+	\item Sjednocení grafického (graphics pipeline) a výpočetního (compute shaders) API.
+	\item Ray tracing pomocí rozšíření (tuto funkci podporuje i DirectX12).
 \end{itemize}
 
 Současnou verzí API je Vulkan 1.2.166\cite{vulkanspec}.
@@ -495,9 +495,9 @@ Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funk
 \texttt{pf\_imgui} je event-driven UI knihovna postavena na Dear Imgui. Cílem je zjednodušení práce při vytváření uživatelského rozhraní a také přidání některých funkcí. Obrázek \ref{fig:imgui_classes} obsahuje diagram tříd rozhraní, které elementy v \texttt{pf\_imgui} poskytují. Funkce, které jsou oproti Dear Imgui přidané jsou:
 
 \begin{itemize}
-    \item Pozorování změn hodnot pomocí callback funkcí (observer pattern).
-    \item Ukládání hodnot do konfiguračního souboru. Tyto změny jsou načteny vždy při zapnutí programu.
-    \item Některé elementy navíc, například \texttt{Memo}.
+	\item Pozorování změn hodnot pomocí callback funkcí (observer pattern).
+	\item Ukládání hodnot do konfiguračního souboru. Tyto změny jsou načteny vždy při zapnutí programu.
+	\item Některé elementy navíc, například \texttt{Memo}.
 \end{itemize}
 
 \begin{figure}[H]
@@ -507,7 +507,7 @@ Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funk
 	\label{fig:imgui_classes}
 \end{figure}
 
-Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V knihovně je obsaženo podstatné množství elementů, jsou implementovány wrappery pro téměř všechny elementy dostupné v Dear Imgui. Také jsou přidány grafy z knihoven \texttt{implot}\footnote{\url{https://github.com/epezent/implot}}, \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}. 
+Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V knihovně je obsaženo podstatné množství elementů, jsou implementovány wrappery pro téměř všechny elementy dostupné v Dear Imgui. Také jsou přidány grafy z knihoven \texttt{implot}\footnote{\url{https://github.com/epezent/implot}}, \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
 
 Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti. Například implementace \texttt{CheckBox} vyžaduje jen 7 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru.
 
