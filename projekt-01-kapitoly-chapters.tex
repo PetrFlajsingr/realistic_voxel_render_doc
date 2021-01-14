@@ -225,7 +225,7 @@ Vybraný zástupce GAA je \textbf{Geometric PostProcessing AA (GPAA)}. Při rend
 
 
 
-\section{Voxel}
+\section{Voxel} \label{voxels}
 Jak uvádí kniha \cite{gfx_principles_practice}, voxel, nebo-li \textbf{vo}lume \textbf{el}ement, reprezentuje hodnotu na pravidelné mřížce ve 3D prostoru (obrázek \ref{fig:3d_grid}). Díky tomu, že je prostor rozdělen mřížkou pravidelně, lze voxel definovat pomocí třísložkového vektoru (rovnice \ref{eq:voxel_coords}). Pro účely vykreslování jsou voxelům přiřazovány další vlastnosti, jako například barva nebo materiál.
 
 \begin{equation} \label{eq:voxel_coords}
@@ -368,7 +368,7 @@ Jak již bylo zmíněno, pro efektivní práci s velkým množstvím voxelů je 
 \subsection{Mřížka}
 Mřížka, nebo také grid, je poměrně jednoduchá struktura pro dělbu prostoru. Na nejnižší úrovni může mřížka odpovídat té, pomocí které dělí prostor samotné voxely. V takovém případě by však nedošlo k žádnému zrychlení. Pro akceleraci je prostor obsahující voxely rozdělen do několika částí (tzv. chunks). V těchto oblastech jsou voxely sdružovány a při hledání požadované položky můžeme nejdřív vybrat správný chunk a pak teprve vyhledávat v omezené množině voxelů. Samotná struktura má minimální paměťové nároky, ale nepřináší velké zrychlení, alespoň ve srovnání s ostatními metodami. Jednoduchá trojrozměrná mřížka je na obrázku \ref{fig:3d_grid}.
 
-\subsection{Octree}
+\subsection{Octree} \label{octree}
 Octree, poprvé představen v knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jenž reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v prostoru. Pokud uzel kompletně popisuje oblast kterou reprezentuje, jedná se o list nebo koncový uzel, v opačném případě musí obsahovat 8 potomků pro podoblasti. Při hledání objektů v prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon.
 
 \begin{figure}[H]
@@ -419,11 +419,43 @@ Současnou verzí API je Vulkan 1.2.166\cite{vulkanspec}.
 
 \chapter{Návrh řešení}
 \label{navrh}
-oduvodneni SVO
+V této kapitole je popsán návrh aplikace pro realistické zobrazování voxelových scén. Kapitola je rozdělena na část popisu reprezentace voxelových dat a dále jejich vykreslování pomocí sparse voxel octree algoritmu.
 
-popis ray casting algoritmu
+\section{Reprezentace voxelových dat}
+Jak bylo popsáno v sekci \ref{voxels}, voxely jsou reprezentovány svou pozicí a jejich materiální vlastnosti různými parametry. Logickým krokem je rozdělení těchto dvou věcí. V některých strukturách můžeme kódovat implicitně a nemusíme tedy plýtvat paměťovým prostorem. 
 
-popis light field probes
+Pro implicitní zakódování pozice lze využít octree (sekce \ref{octree}). Nejnižší úroveň stromu reprezentuje samotné voxely a jediným nutným parametrem je počáteční pozice stromu a velikost prostoru, který obaluje. Samotný strom by mohl být vytvořen se statickým rozestupem rodičů a potomků, kde by se výpočet indexu následníka mohl řídit rovnicí:
+
+\begin{equation} \label{eq:simple_octree_index}
+	\begin{gathered}
+		I_{child_j} = (i * 8) + j
+	\end{gathered}
+\end{equation}
+
+Kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. Při použití tohoto rozložení by ovšem musela být celá oblast uvnitř octree rozdělena na nejmenší bloky a docházelo by k obrovskému plýtvání paměti.
+
+Úsporný způsob pro reprezentaci octree byl představen v \cite{Laine2011EfficientSV}. Metoda kóduje informace o uzlu bitově na data o velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si můžeme dovolit reprezentovat ho menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velých stromech nemusí být 15 bitů dostačující. \texttt{Valid mask} je bitová maska o velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, ovšem nám dává vědět, jestli je potomek na indexu terminujícím uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1.3]{obrazky-figures/octree_child_data.png}
+	\caption{Položka reprezentující uzel octree. \textbf{Zdroj: \cite{Laine2011EfficientSV}}}
+	\label{fig:octree_child}
+\end{figure}
+
+
+
+\section{Vykreslování}
+
+\section{Interakce}
+
+reprezentace dat
+
+ray casting alg
+
+prunik s boxem
+
+
 
 \chapter{Implementace}
 \label{implementace}
@@ -444,6 +476,7 @@ Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https
 		\item \texttt{cppcoro}\footnote{\url{https://github.com/lewissbaker/cppcoro}}
 		\item \texttt{\{fmt\}}\footnote{\url{https://github.com/fmtlib/fmt}}
 		\item \texttt{stb}\footnote{\url{https://github.com/nothings/stb}}
+		\item \texttt{glm}\footnote{\url{https://github.com/g-truc/glm}}
 		\item \texttt{Dear ImGui}\footnote{\url{https://github.com/ocornut/imgui}}
 	\end{AutoMultiColItemize}
 \end{itemize}
@@ -455,6 +488,7 @@ Dále jsem použil následující nástroje pro statickou analýzu kódu, formá
 		\item \texttt{cpplint}\footnote{\url{https://github.com/cpplint/cpplint}}
 		\item \texttt{sanitisers}\footnote{\url{https://github.com/google/sanitizers}}
 		\item \texttt{valgrind}\footnote{\url{https://valgrind.org/}}
+		\item \texttt{Ccache}\footnote{\url{https://ccache.dev/}}
 		\item \texttt{clang-format}\footnote{\url{https://clang.llvm.org/docs/ClangFormat.html}}
 	\end{AutoMultiColItemize}
 \end{itemize}
@@ -470,7 +504,7 @@ Knihovna poskytující často používané funkce:
     \item Mnoho dalších...
 \end{itemize}
 
-Je implementována jako header-only knihovna \footnote{\url{https://en.wikipedia.org/wiki/Header-only}}.
+Je implementována jako header-only knihovna\footnote{\url{https://en.wikipedia.org/wiki/Header-only}}.
 
 \subsection{pf\_glfw\_vulkan}
 Tato knihovna poskytuje dvě základní funkce:
@@ -481,7 +515,9 @@ Tato knihovna poskytuje dvě základní funkce:
 
 Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunikaci za pomocí událostí, které knihovna programu předává. Tato třída splňuje concept\footnote{\url{https://en.cppreference.com/w/cpp/language/constraints}} \texttt{Window}, který je také obsažen v knihovně. Za pomocí \texttt{Window} je implementována komunikace mezi \texttt{Vulkan} a okenním systémem - díky tomuto rozdělení si může uživatel vytvořit komunikační vrstvu mezi knihovnou a jiným okenním systémem, jako například \texttt{SDL}\footnote{\url{https://www.libsdl.org/}}. Pro tento účel implementuje knihovna vlastní notifikační systém událostí ve třídě \texttt{EventDispatchImpl}.
 
-Část knihovny pro interakci s \texttt{Vulkan} je o poznání rozsáhlejší. Při návrhu knihovny byl kladen zřetel především na její jednoduchost a zároveň bezpečnost jejího užívání. Z tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v závislosti na nějakém vytvořeném dříve (například \texttt{vk::Instance} -> \texttt{vk::PhysicalDevice} -> \texttt{vk::Device}) si v sobě každý nově vytvořený potomek ukládá ukazatel na svého 'rodiče'. To zaručuje, že nemůže dojít k uvolnění objektů omylem, pokud budeme používat některého z jeho potomků. Knihovna obsahuje vlastní verzi velkého množství \texttt{Vulkan} objektů a zároveň je plně typově bezpečná. Příkladem může být přístup k datům \texttt{vk::Buffer}, kdy k datům přistupujeme pomocí mapovacího objektu, který hojně využívá template funkcí pro kontrolu offsetu a správné práce s pamětí.
+Část knihovny pro interakci s \texttt{Vulkan} je o poznání rozsáhlejší. Při návrhu knihovny byl kladen zřetel především na její jednoduchost a zároveň bezpečnost jejího užívání. Z tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v závislosti na nějakém vytvořeném dříve (například \texttt{vk::Instance} -> \texttt{vk::PhysicalDevice} -> \texttt{vk::Device}) si v sobě každý nově vytvořený potomek ukládá ukazatel na svého 'rodiče'. To zaručuje, že nemůže dojít k uvolnění objektů omylem, pokud budeme používat některého z jeho potomků. 
+
+Knihovna obsahuje vlastní verzi velkého množství \texttt{Vulkan} objektů a zároveň je plně typově bezpečná. Příkladem může být přístup k datům \texttt{vk::Buffer}, kdy k datům přistupujeme pomocí mapovacího objektu, který hojně využívá template funkcí pro kontrolu offsetu a správné práce s pamětí.
 
 Všechny objekty jsou potomkem \texttt{VulkanObject}, což je rozhraní, které poskytuje základní debug informace o objektu. Vytváření objektů je vždy prováděno pomocí \texttt{struct} konfiguračních dat. Předpokládá se užití \texttt{designated initialisers}\footnote{\url{https://en.cppreference.com/w/cpp/language/aggregate_initialization#Designated_initializers}}. Ukázka vytvoření logického zařízení:
 
