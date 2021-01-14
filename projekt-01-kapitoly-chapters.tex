@@ -589,7 +589,23 @@ imgui.createChild<Button>("btn_id", "Open file").addClickListener([&imgui] {
 
 
 \subsection{Uživatelské rozhraní}
+Jelikož demonstrační aplikace modely pouze zobrazuje, není moc velké množství parametrů, které by se daly nastavovat. Program přijímá jako argument cestu ke konfiguračnímu souboru, který musí obsahovat velikost okna a cesty ke zdrojům (modely).
 
+UI aplikace je rozděleno do čtyř částí:
+
+\begin{itemize}
+    \item Stats - zobrazení statistik vykreslování (počet snímků za sekundu, do budoucna flame graph), informace o kameře a její parametry.
+    \item Render settings - výběr typu zobrazení (stínování, normály, počet iterací, hloubka v stromě...), ovládání světla, výběr zobrazovaného modelu.
+    \item Debug - memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
+    \item Debug images - okno pro zobrazení dalších textur, které jsou vykresleny.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{obrazky-figures/svo_ui.png}
+	\caption{Uživatelské rozhraní demonstrační aplikace.}
+	\label{fig:svo_ui}
+\end{figure}
 
 
 \chapter{Testování a vyhodnocení}
