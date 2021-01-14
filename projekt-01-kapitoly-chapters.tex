@@ -443,6 +443,8 @@ Kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. P�
 	\label{fig:octree_child}
 \end{figure}
 
+Samozřejmě krom informací o obsazenosti prostoru je nutné ukládat i informace o materiálu. První možností by bylo rozšířit záznamy ve stromu o tato data, ale s velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, byla by zhoršena lokalita paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položka slouží k vyhledávání specifického záznamu v separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
+
 
 
 \section{Vykreslování}
