@@ -379,7 +379,7 @@ Octree, poprvé představen v knize \cite{rensselaer1980octree}, je popsán jako
 \end{figure}
 
 
-\subsubsection{Sparse voxel octree}
+\subsubsection{Sparse voxel octree}\label{svo_alg}
 Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelových scén. Důležitou částí generování octree pro tento algoritmus je minimalizace uzlů, které nejsou viditelné, či spojení stejných uzlů do jednoho bloku na vyšší úrovni \cite{Laine2011EfficientSV}. Výhodou je velmi snadná aplikace level of detail napříč stromem. Podle velikosti pixelu je možné zastavit průchod stromem před dosažením nejnižší úrovně a vypočítat výslednou barvu z uzlu na vyšší úrovni. Algoritmus \ref{alg:svo} popisuje jednoduchou verzi algoritmu.
 
 \begin{center}
@@ -445,17 +445,27 @@ Kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. P�
 
 Samozřejmě krom informací o obsazenosti prostoru je nutné ukládat i informace o materiálu. První možností by bylo rozšířit záznamy ve stromu o tato data, ale s velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, byla by zhoršena lokalita paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položka slouží k vyhledávání specifického záznamu v separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
 
-
-
 \section{Vykreslování}
+Pro rendering voxelové scény existuje několik možností, vhodným kandidátem je přístup sparse voxel octree (sekce \ref{svo_alg}). Při vržení paprsku dochází k procházení stromu a vcházení pouze do podoblastí, které mohou obsahovat vyhledávaný voxel. Algoritmus je velice úsporný oproti primitivním metodám. 
 
-\section{Interakce}
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{obrazky-figures/color_iter_svo.png}
+	\caption{Render voxelizované 'Utah teapot'. Vlevo barevný výstup, vpravo počet iterací. }
+	\label{fig:octree_child}
+\end{figure}
 
-reprezentace dat
+Vzhledem ke způsobu uložení dat, který byl představen v minulé sekci, je v rámci algoritmu dopočítávat množství indexů uzlů na základě masek (\texttt{valid mask} a \texttt{leaf mask}). Jedná se ale zpravidla pouze o operace sčítání či odčítání a nejsou tedy příliš výpočetně náročné.
 
-ray casting alg
+Pro výpočet průsečíku s voxelem je vhodné využít optimálnější metody popsané v sekci \ref{sec:voxel_intersection}. Pro tuto metodu existuje množství optimalizací, které budou posléze v projektu využity. Například optimalizace uvedena v publikaci \cite{Majercik2018Voxel}. Důležitou součástí pro stínování je také získání normály povrchu. Vzhledem k tomu, že mám prozatím v úmyslu zachovat 'krychlovitý' tvar voxelů je tento výpočet triviální, vzhledem k využití slab metody pro nalezení průsečíku. 
 
-prunik s boxem
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{obrazky-figures/normals_teapot.png}
+	\caption{Render voxelizované 'Utah teapot'. Vizualizace normál. }
+	\label{fig:octree_child}
+\end{figure}
+
 
 
 
@@ -575,7 +585,11 @@ imgui.createChild<Button>("btn_id", "Open file").addClickListener([&imgui] {
 }
 \end{lstlisting}
 
-nacitani a tvorba SVO
+\subsection{Načítání modelů a jejich transformace}
+
+
+\subsection{Uživatelské rozhraní}
+
 
 
 \chapter{Testování a vyhodnocení}
