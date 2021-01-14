@@ -587,7 +587,7 @@ imgui.createChild<Button>("btn_id", "Open file").addClickListener([&imgui] {
 
 
 \section{Načítání modelů a jejich transformace} \label{sec:voxel_conversion}
-Pro vykreslování modelů je nutné je transformovat do octree. Jelikož neexistuje žádný standardní formát pro voxely, je potřeba implementovat import pro různé formáty. Aplikace je prozatím schopna importovat formát \texttt{vox}(sekce \ref{sec:format})). 
+Pro vykreslování modelů je nutné je transformovat do octree. Jelikož neexistuje žádný standardní formát pro voxely, je potřeba implementovat import pro různé formáty. Aplikace je prozatím schopna importovat formát \texttt{vox}(sekce \ref{sec:format})).
 
 Načítání dat je rozděleno na dvě části. V první části jsou ze vstupního souboru načteny využité materiály a je vytvořen seznam voxelů. Tohle je jediná část, kterou je nutné implementovat speciálně pro nové formáty. Zbytek převodu je popsán v algoritmu \ref{alg:vox_to_svo}.
 
@@ -598,42 +598,42 @@ Načítání dat je rozděleno na dvě části. V první části jsou ze vstupn�
 		tree\_depth = calculate\_tree\_depth(voxels)\\
 		root = tree.init\_root()\\
 		\ForEach{voxel in voxels}{
-		    node = root\\
-		    \For{level = 0; level < tree\_depth; level++} {
-		        index\_for\_level = getIndexForLevel(voxel.position, level, tree\_depth)\\
-		        child\_node = node.get\_or\_create\_node(index\_for\_level)\\
-		        // nastaveni hodnot voxelu (material...)\\
-		        node = child\_node\\
-		    }
-		    node.is\_terminal = true\\
+			node = root\\
+			\For{level = 0; level < tree\_depth; level++} {
+				index\_for\_level = getIndexForLevel(voxel.position, level, tree\_depth)\\
+				child\_node = node.get\_or\_create\_node(index\_for\_level)\\
+				// nastaveni hodnot voxelu (material...)\\
+				node = child\_node\\
+			}
+			node.is\_terminal = true\\
 		}
 		\caption{Převod voxelů do octree}
 	\end{czechalgorithm}
 \end{center}
 
-Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Pokud jsou některé oblasti zaplněné, můžeme snížit jeho složitost - označíme uzel na vyšší úrovni jako terminální a jeho potomky odstraníme. 
+Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Pokud jsou některé oblasti zaplněné, můžeme snížit jeho složitost - označíme uzel na vyšší úrovni jako terminální a jeho potomky odstraníme.
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:minimize_svo}
 		\SetKwFunction{FMinTree}{MinimizeTree}
 		\SetKwFunction{FIsFilled}{IsNodeFilled}
-        \SetKwProg{Fn}{Function}{:}{}
-        
-        \Fn{\FIsFilled{$node$}}{
-            \KwRet $node$.child\_count == 8 && all\_of($node$.children, IsFilled)\\
-        }
-        
-        \Fn{\FMinTree{$node$}}{
-            \uIf{IsNodeFilled($node$)}{
-                node.children.clear()\\
-                node.is\_terminal = true\\
-            } 
-            \uElse{
-                \ForEach{child in $node$.children}{
-                    MinimizeTree(child)\\
-                }
-            }
-        }
+		\SetKwProg{Fn}{Function}{:}{}
+
+		\Fn{\FIsFilled{$node$}}{
+			\KwRet $node$.child\_count == 8 && all\_of($node$.children, IsFilled)\\
+		}
+
+		\Fn{\FMinTree{$node$}}{
+			\uIf{IsNodeFilled($node$)}{
+				node.children.clear()\\
+				node.is\_terminal = true\\
+			}
+			\uElse{
+				\ForEach{child in $node$.children}{
+					MinimizeTree(child)\\
+				}
+			}
+		}
 		\caption{Převod voxelů do octree}
 	\end{czechalgorithm}
 \end{center}
@@ -671,33 +671,33 @@ Převod vstupních dat na octree byl popsán v sekci \ref{sec:voxel_conversion}.
 
 
 \begin{figure}[H]
-\begin{subfigure}{.5\textwidth}
-\begin{tikzpicture}[scale=0.7, transform shape]
-\begin{axis}[
-	xlabel={velikost scény [voxely]},
-    y unit = s,
-    ylabel={doba zpracování}
-]
-\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert.txt};
-\end{axis}
-\end{tikzpicture}
-\caption{Bez minimalizace}
-\label{fig:time_convert}
-\end{subfigure}
-\begin{subfigure}{.5\textwidth}
-\begin{tikzpicture}[scale=0.7, transform shape]
-\begin{axis}[
-	xlabel={velikost scény [voxely]},
-    y unit = s,
-    ylabel={doba zpracování}
-]
-\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert_mini.txt};
-\end{axis}
-\end{tikzpicture}
-\caption{S minimalizací}
-\label{fig:time_convert_mini}
-\end{subfigure}
-\caption{Čas tvorby octree}
+	\begin{subfigure}{.5\textwidth}
+		\begin{tikzpicture}[scale=0.7, transform shape]
+			\begin{axis}[
+				xlabel={velikost scény [voxely]},
+				y unit = s,
+				ylabel={doba zpracování}
+				]
+				\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert.txt};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Bez minimalizace}
+		\label{fig:time_convert}
+	\end{subfigure}
+	\begin{subfigure}{.5\textwidth}
+		\begin{tikzpicture}[scale=0.7, transform shape]
+			\begin{axis}[
+				xlabel={velikost scény [voxely]},
+				y unit = s,
+				ylabel={doba zpracování}
+				]
+				\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert_mini.txt};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{S minimalizací}
+		\label{fig:time_convert_mini}
+	\end{subfigure}
+	\caption{Čas tvorby octree}
 \end{figure}
 
 I když to není z grafu moc znatelné, transformace s minimalizací je o pár procent rychlejší, jelikož není nutné vytvářet tak velký finální strom. Pokud by vstupní data byla minimalizaci nepříznivá, byla by tato metoda pomalejší.
