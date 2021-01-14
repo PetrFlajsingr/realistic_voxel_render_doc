@@ -422,7 +422,7 @@ Současnou verzí API je Vulkan 1.2.166\cite{vulkanspec}.
 V této kapitole je popsán návrh aplikace pro realistické zobrazování voxelových scén. Kapitola je rozdělena na část popisu reprezentace voxelových dat a dále jejich vykreslování pomocí sparse voxel octree algoritmu.
 
 \section{Reprezentace voxelových dat}
-Jak bylo popsáno v sekci \ref{voxels}, voxely jsou reprezentovány svou pozicí a jejich materiální vlastnosti různými parametry. Logickým krokem je rozdělení těchto dvou věcí. V některých strukturách můžeme kódovat implicitně a nemusíme tedy plýtvat paměťovým prostorem. 
+Jak bylo popsáno v sekci \ref{voxels}, voxely jsou reprezentovány svou pozicí a jejich materiální vlastnosti různými parametry. Logickým krokem je rozdělení těchto dvou věcí. V některých strukturách můžeme kódovat implicitně a nemusíme tedy plýtvat paměťovým prostorem.
 
 Pro implicitní zakódování pozice lze využít octree (sekce \ref{octree}). Nejnižší úroveň stromu reprezentuje samotné voxely a jediným nutným parametrem je počáteční pozice stromu a velikost prostoru, který obaluje. Samotný strom by mohl být vytvořen se statickým rozestupem rodičů a potomků, kde by se výpočet indexu následníka mohl řídit rovnicí:
 
@@ -446,7 +446,7 @@ Kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. P�
 Samozřejmě krom informací o obsazenosti prostoru je nutné ukládat i informace o materiálu. První možností by bylo rozšířit záznamy ve stromu o tato data, ale s velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, byla by zhoršena lokalita paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položka slouží k vyhledávání specifického záznamu v separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
 
 \section{Vykreslování}
-Pro rendering voxelové scény existuje několik možností, vhodným kandidátem je přístup sparse voxel octree (sekce \ref{svo_alg}). Při vržení paprsku dochází k procházení stromu a vcházení pouze do podoblastí, které mohou obsahovat vyhledávaný voxel. Algoritmus je velice úsporný oproti primitivním metodám. 
+Pro rendering voxelové scény existuje několik možností, vhodným kandidátem je přístup sparse voxel octree (sekce \ref{svo_alg}). Při vržení paprsku dochází k procházení stromu a vcházení pouze do podoblastí, které mohou obsahovat vyhledávaný voxel. Algoritmus je velice úsporný oproti primitivním metodám.
 
 \begin{figure}[H]
 	\centering
@@ -457,7 +457,7 @@ Pro rendering voxelové scény existuje několik možností, vhodným kandidáte
 
 Vzhledem ke způsobu uložení dat, který byl představen v minulé sekci, je v rámci algoritmu dopočítávat množství indexů uzlů na základě masek (\texttt{valid mask} a \texttt{leaf mask}). Jedná se ale zpravidla pouze o operace sčítání či odčítání a nejsou tedy příliš výpočetně náročné.
 
-Pro výpočet průsečíku s voxelem je vhodné využít optimálnější metody popsané v sekci \ref{sec:voxel_intersection}. Pro tuto metodu existuje množství optimalizací, které budou posléze v projektu využity. Například optimalizace uvedena v publikaci \cite{Majercik2018Voxel}. Důležitou součástí pro stínování je také získání normály povrchu. Vzhledem k tomu, že mám prozatím v úmyslu zachovat 'krychlovitý' tvar voxelů je tento výpočet triviální, vzhledem k využití slab metody pro nalezení průsečíku. 
+Pro výpočet průsečíku s voxelem je vhodné využít optimálnější metody popsané v sekci \ref{sec:voxel_intersection}. Pro tuto metodu existuje množství optimalizací, které budou posléze v projektu využity. Například optimalizace uvedena v publikaci \cite{Majercik2018Voxel}. Důležitou součástí pro stínování je také získání normály povrchu. Vzhledem k tomu, že mám prozatím v úmyslu zachovat 'krychlovitý' tvar voxelů je tento výpočet triviální, vzhledem k využití slab metody pro nalezení průsečíku.
 
 \begin{figure}[H]
 	\centering
@@ -508,12 +508,12 @@ Dále jsem použil následující nástroje pro statickou analýzu kódu, formá
 \subsection{pf\_common}
 Knihovna poskytující často používané funkce:
 \begin{itemize}
-    \item \texttt{Concept}y pro template meta programování a statický polymorfimus.
-    \item Jednoduché coroutines (\texttt{iota}, \texttt{range}...)
-    \item Implementace výjimek se stack trace reporting.
-    \item Některé idiomy \texttt{c++} - \texttt{RAII}, \texttt{Visitor}...
-    \item Funkce pro binární serializaci dat a práci s binárními daty.
-    \item Mnoho dalších...
+	\item \texttt{Concept}y pro template meta programování a statický polymorfimus.
+	\item Jednoduché coroutines (\texttt{iota}, \texttt{range}...)
+	\item Implementace výjimek se stack trace reporting.
+	\item Některé idiomy \texttt{c++} - \texttt{RAII}, \texttt{Visitor}...
+	\item Funkce pro binární serializaci dat a práci s binárními daty.
+	\item Mnoho dalších...
 \end{itemize}
 
 Je implementována jako header-only knihovna\footnote{\url{https://en.wikipedia.org/wiki/Header-only}}.
@@ -527,7 +527,7 @@ Tato knihovna poskytuje dvě základní funkce:
 
 Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunikaci za pomocí událostí, které knihovna programu předává. Tato třída splňuje concept\footnote{\url{https://en.cppreference.com/w/cpp/language/constraints}} \texttt{Window}, který je také obsažen v knihovně. Za pomocí \texttt{Window} je implementována komunikace mezi \texttt{Vulkan} a okenním systémem - díky tomuto rozdělení si může uživatel vytvořit komunikační vrstvu mezi knihovnou a jiným okenním systémem, jako například \texttt{SDL}\footnote{\url{https://www.libsdl.org/}}. Pro tento účel implementuje knihovna vlastní notifikační systém událostí ve třídě \texttt{EventDispatchImpl}.
 
-Část knihovny pro interakci s \texttt{Vulkan} je o poznání rozsáhlejší. Při návrhu knihovny byl kladen zřetel především na její jednoduchost a zároveň bezpečnost jejího užívání. Z tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v závislosti na nějakém vytvořeném dříve (například \texttt{vk::Instance} -> \texttt{vk::PhysicalDevice} -> \texttt{vk::Device}) si v sobě každý nově vytvořený potomek ukládá ukazatel na svého 'rodiče'. To zaručuje, že nemůže dojít k uvolnění objektů omylem, pokud budeme používat některého z jeho potomků. 
+Část knihovny pro interakci s \texttt{Vulkan} je o poznání rozsáhlejší. Při návrhu knihovny byl kladen zřetel především na její jednoduchost a zároveň bezpečnost jejího užívání. Z tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v závislosti na nějakém vytvořeném dříve (například \texttt{vk::Instance} -> \texttt{vk::PhysicalDevice} -> \texttt{vk::Device}) si v sobě každý nově vytvořený potomek ukládá ukazatel na svého 'rodiče'. To zaručuje, že nemůže dojít k uvolnění objektů omylem, pokud budeme používat některého z jeho potomků.
 
 Knihovna obsahuje vlastní verzi velkého množství \texttt{Vulkan} objektů a zároveň je plně typově bezpečná. Příkladem může být přístup k datům \texttt{vk::Buffer}, kdy k datům přistupujeme pomocí mapovacího objektu, který hojně využívá template funkcí pro kontrolu offsetu a správné práce s pamětí.
 
@@ -561,7 +561,7 @@ Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funk
 	\item Některé elementy navíc, například \texttt{Memo}.
 \end{itemize}
 
-Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V knihovně je obsaženo podstatné množství elementů, jsou implementovány wrappery pro téměř všechny elementy dostupné v Dear Imgui. Také jsou přidány grafy z knihoven \texttt{implot}\footnote{\url{https://github.com/epezent/implot}}, \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}. 
+Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V knihovně je obsaženo podstatné množství elementů, jsou implementovány wrappery pro téměř všechny elementy dostupné v Dear Imgui. Také jsou přidány grafy z knihoven \texttt{implot}\footnote{\url{https://github.com/epezent/implot}}, \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
 
 Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti. Například implementace \texttt{CheckBox} vyžaduje jen 7 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru - s tím, že dědí z \texttt{LabeledElement}, \texttt{ValueObservableElement<bool>} a \texttt{SavableElement}.
 
@@ -594,10 +594,10 @@ Jelikož demonstrační aplikace modely pouze zobrazuje, není moc velké množs
 UI aplikace je rozděleno do čtyř částí:
 
 \begin{itemize}
-    \item Stats - zobrazení statistik vykreslování (počet snímků za sekundu, do budoucna flame graph), informace o kameře a její parametry.
-    \item Render settings - výběr typu zobrazení (stínování, normály, počet iterací, hloubka v stromě...), ovládání světla, výběr zobrazovaného modelu.
-    \item Debug - memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
-    \item Debug images - okno pro zobrazení dalších textur, které jsou vykresleny.
+	\item Stats - zobrazení statistik vykreslování (počet snímků za sekundu, do budoucna flame graph), informace o kameře a její parametry.
+	\item Render settings - výběr typu zobrazení (stínování, normály, počet iterací, hloubka v stromě...), ovládání světla, výběr zobrazovaného modelu.
+	\item Debug - memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
+	\item Debug images - okno pro zobrazení dalších textur, které jsou vykresleny.
 \end{itemize}
 
 \begin{figure}[H]
