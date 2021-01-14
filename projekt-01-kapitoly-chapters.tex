@@ -475,7 +475,7 @@ Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody
 Tato kapitola obsahuje seznam použitých nástrojů a knihoven. Popisuje také implementaci knihoven vytvořených při práci na praktické části tohoto projektu.
 
 \section{Použité knihovny a nástroje}
-Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli mé pokročilé znalosti jazyka a také jako možnost naučit se nově přidané funkce v~poslední revizi jazyka. Pro překlad projektu jsem použil \texttt{CMake}\footnote{\url{https://cmake.org/}} v~kombinaci s~\texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí jsem využil \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Při práci na projektu jsem také využil tyto knihovny třetích stran:
+Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli mé pokročilé znalosti jazyka a také jako možnost procvičit si nově přidané funkce v~poslední revizi. Pro překlad projektu jsem použil \texttt{CMake}\footnote{\url{https://cmake.org/}} v~kombinaci s~\texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí jsem využil \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Kód shaderů je vytvořen v GLLS\footnote{\url{https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)}}. Při práci na projektu jsem také využil tyto knihovny třetích stran:
 
 \begin{itemize}
 	\begin{AutoMultiColItemize}
@@ -586,7 +586,7 @@ imgui.createChild<Button>("btn_id", "Open file").addClickListener([&imgui] {
 \end{lstlisting}
 
 
-\section{Načítání modelů a jejich transformace}
+\section{Načítání modelů a jejich transformace} \label{sec:voxel_conversion}
 Pro vykreslování modelů je nutné je transformovat do octree. Jelikož neexistuje žádný standardní formát pro voxely, je potřeba implementovat import pro různé formáty. Aplikace je prozatím schopna importovat formát \texttt{vox}(sekce \ref{sec:format})). 
 
 Načítání dat je rozděleno na dvě části. V první části jsou ze vstupního souboru načteny využité materiály a je vytvořen seznam voxelů. Tohle je jediná část, kterou je nutné implementovat speciálně pro nové formáty. Zbytek převodu je popsán v algoritmu \ref{alg:vox_to_svo}.
@@ -662,11 +662,52 @@ UI aplikace je rozděleno do čtyř částí:
 \end{figure}
 
 
-\chapter{Testování a vyhodnocení}
+\chapter{Vyhodnocení}
 \label{testovani}
-udelat graf podle poctu voxelu nebo neco
+V této kapitole je krátký popis dosažených výsledků týkající se rychlosti a také analýza využití paměti na grafické kartě.
 
-pametova narocnost
+\section{Převod vstupních dat na octree}
+Převod vstupních dat na octree byl popsán v sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jedno vlákně, ale v budoucí verzi jej plánuji předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s aktivovanou minimaliací. Měření byla prováděna s nejvyšší úrovní optimalizací, na CPU \texttt{Ryzen 3600}. Měření probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v testech použit byly plné koule o různých poloměrech.
+
+
+\begin{figure}[H]
+\begin{subfigure}{.5\textwidth}
+\begin{tikzpicture}[scale=0.7, transform shape]
+\begin{axis}[
+	xlabel={velikost scény [voxely]},
+    y unit = s,
+    ylabel={doba zpracování}
+]
+\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert.txt};
+\end{axis}
+\end{tikzpicture}
+\caption{Bez minimalizace}
+\label{fig:time_convert}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\begin{tikzpicture}[scale=0.7, transform shape]
+\begin{axis}[
+	xlabel={velikost scény [voxely]},
+    y unit = s,
+    ylabel={doba zpracování}
+]
+\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert_mini.txt};
+\end{axis}
+\end{tikzpicture}
+\caption{S minimalizací}
+\label{fig:time_convert_mini}
+\end{subfigure}
+\caption{Čas tvorby octree}
+\end{figure}
+
+I když to není z grafu moc znatelné, transformace s minimalizací je o pár procent rychlejší, jelikož není nutné vytvářet tak velký finální strom. Pokud by vstupní data byla minimalizaci nepříznivá, byla by tato metoda pomalejší.
+
+Vzhledem k rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a mám v úmyslu je v budoucnu zrychlit.
+
+\section{Čas vykreslování}
+
+\section{Paměťová náročnost}
+
 
 \chapter{Další práce}
 \label{dalsi_prace}
