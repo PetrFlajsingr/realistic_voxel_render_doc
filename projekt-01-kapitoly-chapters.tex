@@ -117,7 +117,7 @@ Pro tento algoritmus existuje značné množství optimalizací \cite{Keinert201
 \end{figure}
 
 
-\subsubsection{Light field probes}
+\subsubsection{Light field probes} \label{sec:light_field_probes}
 Metoda globální iluminace využívající ray tracing představena v~publikaci \cite{light_field_probes}. Pracuje na předpokladu, že kontinuální světelné pole scény $\mathcal{L}(x, \omega)$, kde $x \in \mathcal{R}^3$ je bod v~prostoru a $\omega \in S$ je odchozí směr, reprezentuje distribuci osvětlení ve scéně pro všechny body a směry ve scéně. Light field probes reprezentuje tuto distribuci pomocí diskrétního vyobrazení.
 
 Prostor ve scéně je rozdělen pomocí pravidelné mřížky a do každé diskrétní pozice $x'$ je umístěna instance jedné sondy (probe), která mapuje směry $\omega$ kolem $x'$ na: intenzitu osvětlení $\mathcal{L}(x, \omega)$, normály $\vec{n}_x$ v~bodech $x''$ nejblíže bodu $x'$ a hloubkovou mapu mezi $x'$ a body $x''$. Výpočet těchto hodnot dochází při přípravě scény.
@@ -758,8 +758,17 @@ Ve všech případech se jedná o nejhorší možný případ. Realisticky použ
 
 \chapter{Závěr}
 \label{zaver}
+Cílem semestrální části diplomové práce bylo nastudovat techniky fotorealistického zobrazování voxelových modelů a nástrojů, pomocí nichž toho lze dosáhnout a také vytvořit kostru aplikace. Demonstrační aplikace je schopna načítat a transformovat modely a také zobrazovat voxelové scény.
 
+V teoretické části dokumentu byl popsán princip realistického zobrazování a některé metody pro dosažení realistického výsledku. Byl popsán například algoritmus ray tracing s některými jeho obměnami nebo radiozita. Sekce také představila základy práce s materiály a metody pro odstranění aliasingu. Další sekce vysvětlila princip voxelizace prostoru a představila některá jeho využití. Také zde byly popsány metody pro vykreslení voxelů a základní hierarchické struktury, pomocí nichž lze zmíněné vykreslování akcelerovat.
 
+Kapitola návrhu řešení popsala způsob efektivní reprezentace voxelových dat a vysvětlila její výhody. V této kapitole je taky popsán návrh vykreslování voxelových scén.
+
+Implementační část obsahovala výčet použitých nástrojů a knihoven. Ve zkratce také předvedla knihovny, které byly v rámci tvorby projektu vytvořeny. Tyto knihovny jsou na projektu plně nezávislé a lze je použít pro libovolnou další tvorbu. V kapitole byl také popsán algoritmus pro vytvoření octree z voxelových dat a jeho minimalizace. V poslední sekci bylo krátce popsáno uživatelské rozhraní demonstrační aplikace.
+
+Poslední kapitola, vyhodnocení, se zabývala časovou náročností tvorby a minimalizace octree a paměťové náročnosti této struktury. Algoritmus tvorby octree má velké rezervy a mám v úmyslu ho do budoucna optimalizovat. Paměťová náročnost octree struktury je ale poměrně nízká, z ohledem na to, kolik dat v ní reprezentujeme. V sekci byly uvedeny hodnoty nejhoršího případu.
+
+Cíl další práce je jasný: implementovat alternativní způsob vykreslování (light field probes \ref{sec:light_field_probes}) a umožnit vykreslování výrazně větších scén. Také optimalizovat načítání scén pro použití v reálném čase a navrhnout způsob reprezentace velkých scén a jejich dynamické načítání z disku.
 
 
 %===============================================================================
