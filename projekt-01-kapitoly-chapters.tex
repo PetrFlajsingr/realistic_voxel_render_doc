@@ -4,7 +4,7 @@ Nejpopulárnějším způsobem modelování a reprezentace dat pro vykreslován�
 
 Vzhledem ke změnám možností využití grafické karty, především existenci compute shaderů, je ovšem práce s~voxely mnohem jednodušší, než tomu bylo v~dřívějších dobách. Není nutné provádět převod na trojúhelníky a můžeme pracovat s~voxelovými primitivy přímo. Tím se odemyká možnost využití optimalizovaných algoritmů. Tato práce se zabývá zobrazováním voxelových scén za pomocí moderních metod a nástrojů, které jsou vývojářům poskytnuty.
 
-První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje co jsou voxely, jak se s~nimi dá pracovat jak v~kontextu rozdělení prostoru, tak i základní metody vykreslování. Dále jsou zde popsané vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V~poslední řadě obsahuje krátký popis moderního API pro práci s~grafickými kartami: \texttt{Vulkan}.
+První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje, co jsou voxely, jak se s~nimi dá pracovat jak v~kontextu rozdělení prostoru, tak i základní metody vykreslování. Dále jsou zde popsané vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V~poslední řadě obsahuje krátký popis moderního API pro práci s~grafickými kartami: \texttt{Vulkan}.
 
 Kapitola druhá se zabývá návrhem řešení. V~kapitole je popsán způsob reprezentace voxelových dat s~využitím akcelerační struktury a její detaily. Kapitola také vysvětluje navrhovaný způsob vykreslování voxelových scén s~využitím ray casting přístupu.
 
@@ -14,7 +14,7 @@ Poslední kapitola se zabývá vyhodnocením dosažených výsledků. V~současn
 
 \chapter{Teorie}
 \label{teorie}
-Cílem této kapitoly je seznámit čtenáře s~koncepty nutnými pro pochopení vlastního řešení. Kapitola vysvětluje co je to voxel a jaká jsou jeho hlavní využití v~počítačové grafice. Dále popisuje fotorealistické zobrazování a vykreslování voxelových scén obecně. Jsou zde popsány často používané akcelerační struktury pro vykreslování voxelových modelů.
+Cílem této kapitoly je seznámit čtenáře s~koncepty nutnými pro pochopení vlastního řešení. Kapitola vysvětluje, co je to voxel a jaká jsou jeho hlavní využití v~počítačové grafice. Také popisuje fotorealistické zobrazování a vykreslování voxelových scén obecně. Jsou zde popsány často používané akcelerační struktury pro vykreslování voxelových modelů.
 
 \section{Realistické zobrazování}
 Tato sekce popisuje princip a použití různých technik realistického zobrazování používaného v~současné počítačové grafice. Jsou zde uvedeny pouze relevantní informace související s~tématem a předpokládá se znalost základních termínů.
@@ -42,12 +42,12 @@ Podobná zobrazovací rovnice byla představena souběžně se dříve zmíněno
 		L_{out}(P, \omega_0) = L_e(P, \omega) + \int_{\omega_i\in S^2(p)}L_{in}(P, -\omega_i)f_s(P, \omega_i, \omega_0)(\omega_i \cdot \textbf{n}_P)d\omega_i
 	\end{gathered}
 \end{equation}
-kde $L(P, \omega)$ je příchozí ($L_{in}$) či odchozí ($L_{out}$) světlo v~bodě $P$ ve směru $\omega$, $\textbf{n}_P$ je normála povrchu v~bodě $P$, $\omega_i$ značí příchozí směr světla, $\omega_0$ analogicky odchozí směr světla a $S$ je sjednocení všech povrchů. $L_{out}$ je světlo vyzářené pryč z~bodu $P$ ve směru $\omega_0$ (tedy směrem k~pozorovateli), $L_e$ je emitované světlo, $L_{in}$ je světlo přicházející z~$\omega_i$ a $f_s$ je obousměrná distribuční funkce odrazu světla (BRDF)(světlo odražené z~$\omega_i$ k~$\omega_0$).
+kde $L(P, \omega)$ je příchozí ($L_{in}$) či odchozí ($L_{out}$) světlo v~bodě $P$ ve směru $\omega$, $\textbf{n}_P$ je normála povrchu v~bodě $P$, $\omega_i$ značí příchozí směr světla, $\omega_0$ analogicky odchozí směr světla a $S$ je sjednocení všech povrchů. $L_{out}$ je světlo vyzářené pryč z~bodu $P$ ve směru $\omega_0$ (tedy směrem k~pozorovateli), $L_e$ je emitované světlo, $L_{in}$ je světlo přicházející z~$\omega_i$ a $f_s$ je obousměrná distribuční funkce odrazu světla (BRDF) (světlo odražené z~$\omega_i$ k~$\omega_0$).
 
 Existuje mnoho metod realistického zobrazování, následuje základní popis vybraných.
 
 \subsection{Ray tracing}
-Nebo-li sledování paprsku. Pravděpodobně nejznámější metoda globálního osvětlení. Kniha \cite{advanced_global} popisuje ray tracing jako algoritmus počítající radianční hodnotu $L_{pixel}$ pro každý pixel ve výsledném obrázku. Tato hodnota je váženou hodnotou osvětlení ve scéně obsaženou v~cestě paprsku:
+Neboli sledování paprsku. Pravděpodobně nejznámější metoda globálního osvětlení. Kniha \cite{advanced_global} popisuje ray tracing jako algoritmus počítající radianční hodnotu $L_{pixel}$ pro každý pixel ve výsledném obrázku. Tato hodnota je váženou hodnotou osvětlení ve scéně obsaženou v~cestě paprsku:
 
 \begin{equation} \label{eq:rt_1}
 	\begin{gathered}
@@ -86,7 +86,7 @@ Ve své standardní formě ray tracing neumožňuje generování měkkých stín
 \end{center}
 
 \subsubsection{Ray marching}
-Za zmínku stojí také algoritmus ray marching (sphere tracing). Namísto přímého výpočtu průsečíku se scénou - jak tomu je u~spousty ray tracing implementací - postupuje paprsek ve scéně postupně, dokud nedojde k~průsečíku.
+Za zmínku stojí také algoritmus ray marching (sphere tracing). Namísto přímého výpočtu průsečíku se scénou -- jak tomu je u~spousty ray tracing implementací -- postupuje paprsek ve scéně postupně, dokud nedojde k~průsečíku.
 
 Článek \cite{sphere_tracing} popisuje algoritmus následovně. Podmínkou funkčnosti algoritmu je mít možnost vypočítat z~každého bodu ve scéně vzdálenost k~jejímu povrchu. Pro tento účel lze využít takzvaných signed distance functions (SDF). Pro každý paprsek, kdy generování paprsků probíhá stejně jako u~již zmíněného ray tracing, se iteruje napříč scénou dokud do ní paprsek nenarazí, nepřekoná maximální počet iterací či vykreslovací vzdálenost (algoritmus \ref{alg:ray_marching}).
 
@@ -124,7 +124,7 @@ Metoda globální iluminace využívající ray tracing představena v~publikaci
 
 Prostor ve scéně je rozdělen pomocí pravidelné mřížky a do každé diskrétní pozice $x'$ je umístěna instance jedné sondy (probe), která mapuje směry $\omega$ kolem $x'$ na: intenzitu osvětlení $\mathcal{L}(x, \omega)$, normály $\vec{n}_x$ v~bodech $x''$ nejblíže bodu $x'$ a hloubkovou mapu mezi $x'$ a body $x''$. Výpočet těchto hodnot dochází při přípravě scény.
 
-Algoritmus vykreslování postupuje napříč před-připravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně opakuje tento proces skrze scénu dokud nedojde k~jisté intersekci nebo minutí geometrie scény.
+Algoritmus vykreslování postupuje napříč před-připravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně opakuje tento proces skrze scénu, dokud nedojde k~jisté intersekci nebo minutí geometrie scény.
 
 \subsection{Radiozita}
 Metody radiozity byly vyvinuty již v~padesátých letech minulého století pro simulaci tepelného přenosu. Později byla popsána varianta pro vykreslování v~článku \cite{radiosity}. Metoda je založena na jednoduchém principu; vzhledem k~tomu, že každý povrch ve scéně může odrážet světlo, se dá tento povrch považovat za zdroj světla. Radiozita povrchu je dána rovnicí:
@@ -240,7 +240,7 @@ Vybraný zástupce GAA je \textbf{Geometric PostProcessing AA (GPAA)}. Při rend
 
 
 \section{Voxel} \label{voxels}
-Jak uvádí kniha \cite{gfx_principles_practice}, voxel, nebo-li \textbf{vo}lume \textbf{el}ement, reprezentuje hodnotu na pravidelné mřížce ve 3D prostoru (obrázek \ref{fig:3d_grid}). Díky tomu, že je prostor rozdělen mřížkou pravidelně, lze voxel definovat pomocí třísložkového vektoru (rovnice \ref{eq:voxel_coords}). Pro účely vykreslování jsou voxelům přiřazovány další vlastnosti, jako například barva nebo materiál.
+Jak uvádí kniha \cite{gfx_principles_practice}, voxel, neboli \textbf{vo}lume \textbf{el}ement, reprezentuje hodnotu na pravidelné mřížce ve 3D prostoru (obrázek \ref{fig:3d_grid}). Díky tomu, že je prostor rozdělen mřížkou pravidelně, lze voxel definovat pomocí třísložkového vektoru (rovnice \ref{eq:voxel_coords}). Pro účely vykreslování jsou voxelům přiřazovány další vlastnosti, jako například barva nebo materiál.
 
 \begin{equation} \label{eq:voxel_coords}
 	\begin{gathered}
@@ -266,7 +266,7 @@ Voxely jsou často využívány v~medicíně \cite{medical_vox}, například pro
 	\label{fig:mri_vox}
 \end{figure}
 
-Dalším častým využitím je modelování terénu; voxely přináší možnost reprezentovat převisy, čímž je terén značně realističtější, než při aplikaci často používaných výškových map. Pravděpodobně nejznámější software používající voxely pro terén je \texttt{Minecraft} (obrázek \ref{fig:minecraft}). Za zmínku stojí také hra \texttt{Teardown} (2020)\footnote{\url{https://www.teardowngame.com/}}, kde je celý herní svět vytvořen pomocí voxelů a umožňuje téměř neomezenou destrukci.
+Dalším častým využitím je modelování terénu; voxely přináší možnost reprezentovat převisy, čímž je terén značně realističtější než při aplikaci často používaných výškových map. Pravděpodobně nejznámější software používající voxely pro terén je \texttt{Minecraft} (obrázek \ref{fig:minecraft}). Za zmínku stojí také hra \texttt{Teardown} (2020)\footnote{\url{https://www.teardowngame.com/}}, kde je celý herní svět vytvořen pomocí voxelů a umožňuje téměř neomezenou destrukci.
 
 \begin{figure}[H]
 	\centering
@@ -387,7 +387,7 @@ Jak již bylo zmíněno, pro efektivní práci s~velkým množstvím voxelů je 
 Mřížka, nebo také grid, je poměrně jednoduchá struktura pro dělbu prostoru. Na nejnižší úrovni může mřížka odpovídat té, pomocí které dělí prostor samotné voxely. V~takovém případě by však nedošlo k~žádnému zrychlení. Pro akceleraci je prostor obsahující voxely rozdělen do několika částí (tzv. chunks). V~těchto oblastech jsou voxely sdružovány a při hledání požadované položky můžeme nejdřív vybrat správný chunk a pak teprve vyhledávat v~omezené množině voxelů. Samotná struktura má minimální paměťové nároky, ale nepřináší velké zrychlení, alespoň ve srovnání s~ostatními metodami. Jednoduchá trojrozměrná mřížka je na obrázku \ref{fig:3d_grid}.
 
 \subsection{Octree} \label{octree}
-Octree, poprvé představen v~knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jenž reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v~prostoru. Pokud uzel kompletně popisuje oblast kterou reprezentuje, jedná se o~list nebo koncový uzel, v~opačném případě musí obsahovat 8 potomků pro podoblasti. Při hledání objektů v~prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon.
+Octree, poprvé představen v~knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jenž reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v~prostoru. Pokud uzel kompletně popisuje oblast, kterou reprezentuje, jedná se o~list nebo koncový uzel, v~opačném případě musí obsahovat 8 potomků pro podoblasti. Při hledání objektů v~prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon.
 
 \begin{figure}[H]
 	\centering
@@ -426,7 +426,7 @@ Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelov�
 Vulkan je API pro 3D grafiku a výpočty pomocí GPU \cite{vulkan_web}. Cílem Vulkan je poskytnout uživateli možnost vyvíjet vysoce výkonné grafické aplikace. V~porovnání s~OpenGL či podobnými staršími API přináší výrazně vyšší výkon, ovšem je s~ním také práce poněkud časově náročnější, jelikož Vulkan pracuje na výrazně nižší úrovni. Byl také navržen s~předpokladem, že bude používán z~více vláken. Některé výhody Vulkan oproti předchozím grafickým API:
 
 \begin{itemize}
-	\item Jednotné API jak pro mobilní zařízení tak pro PC.
+	\item Jednotné API jak pro mobilní zařízení, tak pro PC.
 	\item Dostupnost na velkém množství operačních systému (podobně jako OpenGL).
 	\item Nízký overhead driverů.
 	\item Pro shadery používá binární formát SPIR-V\footnote{\url{https://www.khronos.org/opengl/wiki/SPIR-V}}, díky čemuž můžou vývojáři distribuovat pouze binární formu shaderů.
@@ -492,7 +492,7 @@ Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody
 \chapter{Implementace}
 \label{implementace}
 
-Tato kapitola obsahuje seznam použitých nástrojů a knihoven. Popisuje také implementaci knihoven vytvořených při práci na praktické části tohoto projektu.
+Tato kapitola obsahuje seznam použitých nástrojů a knihoven. Popisuje implementaci knihoven vytvořených při práci na praktické části tohoto projektu, také algoritmy použité ke tvorbě octree a uživatelské rozhraní demonstrační aplikace.
 
 \section{Použité knihovny a nástroje}
 Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli mé pokročilé znalosti jazyka a také jako možnost procvičit si nově přidané funkce v~poslední revizi. Pro překlad projektu jsem použil \texttt{CMake}\footnote{\url{https://cmake.org/}} v~kombinaci s~\texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí jsem využil \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Kód shaderů je vytvořen v~GLLS\footnote{\url{https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)}}. Při práci na projektu jsem také využil tyto knihovny třetích stran:
@@ -531,7 +531,7 @@ Knihovna poskytující často používané funkce:
 	\item \texttt{Concept}y pro template meta programování a statický polymorfimus.
 	\item Jednoduché coroutines (\texttt{iota}, \texttt{range}...)
 	\item Implementace výjimek se stack trace reporting.
-	\item Některé idiomy \texttt{c++} - \texttt{RAII}, \texttt{Visitor}...
+	\item Některé idiomy \texttt{c++} -- \texttt{RAII}, \texttt{Visitor}...
 	\item Funkce pro binární serializaci dat a práci s~binárními daty.
 	\item Mnoho dalších...
 \end{itemize}
@@ -692,7 +692,7 @@ UI aplikace je rozděleno do čtyř částí:
 
 \chapter{Vyhodnocení}
 \label{testovani}
-V~této kapitole je krátký popis dosažených výsledků týkající se rychlosti a také analýza využití paměti na grafické kartě.
+V~této kapitole je krátký popis dosažených výsledků týkající se doby převodu vstupních dat a také analýza využití paměti na grafické kartě.
 
 \section{Převod vstupních dat na octree}
 Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jedno vlákně, ale v~budoucí verzi jej plánuji předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s~aktivovanou minimalizací. Měření byla prováděna s~nejvyšší úrovní optimalizací, na CPU \texttt{Ryzen 3600}. Měření probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v~testech použit byly plné koule o~různých poloměrech.
@@ -733,7 +733,7 @@ I~když to není z~grafu moc znatelné, transformace s~minimalizací je o~pár p
 Vzhledem k~rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a mám v~úmyslu je v~budoucnu zrychlit.
 
 \section{Paměťová náročnost}
-Každý uzel octree zabírá v~prvé řadě 4 bajty (15 bitů \texttt{child pointer} + 1 bit \texttt{far} + 8 bitů \texttt{valid mask} + 8bitů \texttt{leaf mask}). Dále pro dohledání materiálů a ostatních parametrů další 4 bajty (24 bitů \texttt{value pointer} + 8 bitů \texttt{mask}). Tyto dva záznamy nejsou vytvářeny pro listové uzly. Pokud budeme předpokládat strom, který má prostor obsazený přesně z~50\% a je obsazen pouze každý druhý voxel, s~hloubkou stromu 6 - tedy 37448 voxelů - celková obsazená paměť zmíněnými záznamy bude 18724 bajtů. Při popsaném rozložení voxelů se samozřejmě jedná o~nejhorší možný případ.
+Každý uzel octree zabírá v~prvé řadě 4 bajty (15 bitů \texttt{child pointer} + 1 bit \texttt{far} + 8 bitů \texttt{valid mask} + 8bitů \texttt{leaf mask}). Dále pro dohledání materiálů a ostatních parametrů další 4 bajty (24 bitů \texttt{value pointer} + 8 bitů \texttt{mask}). Tyto dva záznamy nejsou vytvářeny pro listové uzly. Pokud budeme předpokládat strom, který má prostor obsazený přesně z~50\% a je obsazen pouze každý druhý voxel, s~hloubkou stromu 6 -- tedy 37448 voxelů -- celková obsazená paměť zmíněnými záznamy bude 18724 bajtů. Při popsaném rozložení voxelů se samozřejmě jedná o~nejhorší možný případ.
 
 \begin{table}[H]
 	\centering
