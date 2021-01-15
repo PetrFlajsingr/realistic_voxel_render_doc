@@ -434,7 +434,7 @@ Pro implicitní zakódování pozice lze využít octree (sekce \ref{octree}). N
 
 Kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. Při použití tohoto rozložení by ovšem musela být celá oblast uvnitř octree rozdělena na nejmenší bloky a docházelo by k~obrovskému plýtvání paměti.
 
-Úsporný způsob pro reprezentaci octree byl představen v~\cite{Laine2011EfficientSV}. Metoda kóduje informace o~uzlu bitově na data o~velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si můžeme dovolit reprezentovat ho menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velých stromech nemusí být 15 bitů dostačující. \texttt{Valid mask} je bitová maska o~velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, ovšem nám dává vědět, jestli je potomek na indexu terminujícím uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
+Úsporný způsob pro reprezentaci octree byl představen v~\cite{Laine2011EfficientSV}. Metoda kóduje informace o~uzlu bitově na data o~velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si můžeme dovolit reprezentovat ho menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velých stromech nemusí být 15 bitů dostačující. Tento pointer je uložen v oddělené části bufferu. \texttt{Valid mask} je bitová maska o~velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, ovšem nám dává vědět, jestli je potomek na indexu terminujícím uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
 
 \begin{figure}[H]
 	\centering
@@ -704,14 +704,27 @@ I když to není z grafu moc znatelné, transformace s minimalizací je o pár p
 
 Vzhledem k rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a mám v úmyslu je v budoucnu zrychlit.
 
-\section{Čas vykreslování}
-
 \section{Paměťová náročnost}
+Každý uzel octree zabírá v prvé řadě 4 bajty (15 bitů \texttt{child pointer} + 1 bit \texttt{far} + 8 bitů \texttt{valid mask} + 8bitů \texttt{leaf mask}). Dále pro dohledání materiálů a ostatních parametrů další 4 bajty (24 bitů \texttt{value pointer} + 8 bitů \texttt{mask}). Tyto dva záznamy nejsou vytvářeny pro listové uzly. Pokud budeme předpokládat strom, který má prostor obsazený přesně z 50\% a je obsazen pouze každý druhý voxel, s hloubkou stromu 6 - tedy 37448 voxelů - celková obsazená paměť zmíněnými záznamy bude 299584 kilobajtů. Při popsaném rozložení voxelů se samozřejmě jedná o nejhorší možný případ.
 
+\begin{table}[H]
+\centering
+\begin{tabular}{|r|r|}
+\hline
+\multicolumn{1}{|c|}{hloubka stromu} & \multicolumn{1}{c|}{obsazená paměť {[}B{]}} \\ \hline
+1                                    & 1                                            \\ \hline
+2                                    & 9                                            \\ \hline
+3                                    & 73                                           \\ \hline
+4                                    & 585                                          \\ \hline
+5                                    & 4681                                         \\ \hline
+6                                    & 37449                                        \\ \hline
+\end{tabular}
+\caption{Využití paměti podle hloubky stromu při maximální nepříznivosti podmínek}
+\end{table}
 
-\chapter{Další práce}
-\label{dalsi_prace}
-co je potreba nacit/dodelat
+Tímto jsou pokryta základní data popisující strom a vyhledávací strukturu do parametrů. Další paměť je využita \texttt{far} pointery. V pesimistickém případě je může potřebovat \textasciitilde5\% uzlů, ovšem jsou potřeba až pro hloubku stromu vyšší než 7, kvůli množství potomků v úrovni. 
+
+Poslední data vyžadující velké množství paměti jsou samotné parametry voxelů. Samozřejmě záleží na využitých parametrech, pro phongovo stínování je dostačující barva, tedy 4 bajty (RGBA formát, kde je každý kanál reprezentován 8 bity). Samozřejmě se data dají zakódovat efektivněji.
 
 
 \chapter{Závěr}
