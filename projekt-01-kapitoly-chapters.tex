@@ -2,13 +2,13 @@
 \label{uvod}
 Nejpopulárnějším způsobem modelování a reprezentace dat pro vykreslování je v~současné době využití trojúhelníkových sítí, ale existují i další přístupy. Jednou z~poměrně populárních alternativ je využití voxelů. I~přes to, že voxelové reprezentace jsou v~real-time grafice v~menšině, lze nalézt spoustu zdrojů a vědeckých článků o~této problematice.
 
-Vzhledem ke změnám možností využití grafické karty, především existenci compute shaderů, je ovšem práce s~voxely mnohem jednodušší, než tomu bylo v~dřívějších dobách. Není nutné provádět převod na trojúhelníky a můžeme pracovat s~voxelovými primitivy přímo. Tím se odemyká možnost využití optimalizovaných algoritmů. Tato práce se zabývá zobrazováním voxelových scén za pomocí moderních metod a nástrojů, které jsou vývojářům poskytnuty.
+Vzhledem ke změnám možností využití grafické karty, především existenci compute shaderů, je práce s~voxely mnohem jednodušší, než tomu bylo v~dřívějších dobách. Není nutné provádět převod na trojúhelníky a můžeme pracovat s~voxelovými primitivy přímo. Tím se odemyká možnost využití optimalizovaných algoritmů. Tato práce se zabývá zobrazováním voxelových scén za pomocí moderních metod a nástrojů, které jsou vývojářům poskytnuty.
 
-První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje, co jsou voxely, jak se s~nimi dá pracovat jak v~kontextu rozdělení prostoru, tak i základní metody vykreslování. Dále jsou zde popsané vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V~poslední řadě obsahuje krátký popis moderního API pro práci s~grafickými kartami: \texttt{Vulkan}.
+První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje, co jsou voxely, jak se s~nimi dá pracovat v~kontextu rozdělení prostoru, tak i základní metody vykreslování. Dále jsou zde popsané vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V~poslední řadě obsahuje krátký popis moderního API pro práci s~grafickými kartami: \texttt{Vulkan}.
 
 Kapitola druhá se zabývá návrhem řešení. V~kapitole je popsán způsob reprezentace voxelových dat s~využitím akcelerační struktury a její detaily. Kapitola také vysvětluje navrhovaný způsob vykreslování voxelových scén s~využitím ray casting přístupu.
 
-Následující kapitola se zabývá specifikami implementace. V~prvé radě jsou uvedeny nástroje a knihovny využité v~samotné implementaci. Dále jsou popsány knihovny, které byly v~rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s~\texttt{Vulkan} a \texttt{GLFW}, a knihovna pro vytváření a interkaci s~uživatelským rozhraním. Dále je zde popsán algoritmus načítání voxelových scén a jejich převod do tíženého formátu. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
+Následující kapitola se zabývá specifikami implementace. V~prvé radě jsou uvedeny nástroje a knihovny využité v~samotné implementaci. Dále jsou popsány knihovny, které byly v~rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s~\texttt{Vulkan} a \texttt{GLFW}, a knihovna pro vytváření a interkaci s~uživatelským rozhraním. Také je zde popsán algoritmus načítání voxelových scén a jejich převod do tíženého formátu. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
 
 Poslední kapitola se zabývá vyhodnocením dosažených výsledků. V~současné době obsahuje analýzu času převodu scén do octree. Popisuje také paměťovou náročnost transformovaných scén.
 
@@ -88,6 +88,14 @@ Ve své standardní formě ray tracing neumožňuje generování měkkých stín
 \subsubsection{Ray marching}
 Za zmínku stojí také algoritmus ray marching (sphere tracing). Namísto přímého výpočtu průsečíku se scénou -- jak tomu je u~spousty ray tracing implementací -- postupuje paprsek ve scéně postupně, dokud nedojde k~průsečíku.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.8]{obrazky-figures/ray_marching.png}
+	\caption{Ray marching.}
+	\textbf{Zdroj: \cite{Keinert2014EnhancedST}}
+	\label{fig:ray_marching}
+\end{figure}
+
 Článek \cite{sphere_tracing} popisuje algoritmus následovně. Podmínkou funkčnosti algoritmu je mít možnost vypočítat z~každého bodu ve scéně vzdálenost k~jejímu povrchu. Pro tento účel lze využít takzvaných signed distance functions (SDF). Pro každý paprsek, kdy generování paprsků probíhá stejně jako u~již zmíněného ray tracing, se iteruje napříč scénou dokud do ní paprsek nenarazí, nepřekoná maximální počet iterací či vykreslovací vzdálenost (algoritmus \ref{alg:ray_marching}).
 
 
@@ -98,31 +106,31 @@ Za zmínku stojí také algoritmus ray marching (sphere tracing). Namísto pří
 		\While{t < t\_max \And i < MAX\_ITERATIONS}{\\
 			distance\_to\_scene = dist\_func(ray)\\
 			\uIf{distance\_to\_scene < \varepsilon}{\\
-				return t\\
+				\KwRet t\\
 			}\\
 			t += distance\_to\_scene\\
 			i += 1\\
 		}\\
-		return t\_max\\
+		\KwRet t\_max\\
 		\caption{Ray marching}
 	\end{czechalgorithm}
 \end{center}
 
 Pro tento algoritmus existuje značné množství optimalizací \cite{Keinert2014EnhancedST}. Jako je například 'over-relaxation', kdy dochází k~záměrně většímu kroku a případnému návratu zpět. Dalším příkladem je namísto sledování paprsku použít kužel, což značně snižuje množství iterací algoritmu.
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[scale=0.8]{obrazky-figures/ray_marching.png}
-	\caption{Ray marching.}
-	\textbf{Zdroj: \cite{Keinert2014EnhancedST}}
-	\label{fig:ray_marching}
-\end{figure}
-
 
 \subsubsection{Light field probes} \label{sec:light_field_probes}
 Metoda globální iluminace využívající ray tracing představena v~publikaci \cite{light_field_probes}. Pracuje na předpokladu, že kontinuální světelné pole scény $\mathcal{L}(x, \omega)$, kde $x \in \mathcal{R}^3$ je bod v~prostoru a $\omega \in S$ je odchozí směr, reprezentuje distribuci osvětlení ve scéně pro všechny body a směry ve scéně. Light field probes reprezentuje tuto distribuci pomocí diskrétního vyobrazení.
 
 Prostor ve scéně je rozdělen pomocí pravidelné mřížky a do každé diskrétní pozice $x'$ je umístěna instance jedné sondy (probe), která mapuje směry $\omega$ kolem $x'$ na: intenzitu osvětlení $\mathcal{L}(x, \omega)$, normály $\vec{n}_x$ v~bodech $x''$ nejblíže bodu $x'$ a hloubkovou mapu mezi $x'$ a body $x''$. Výpočet těchto hodnot dochází při přípravě scény.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.25]{obrazky-figures/light_field_probes.png}
+	\caption{Sondy umístěné ve scéně.}
+	\textbf{Zdroj: \cite{light_field_probes}}
+	\label{fig:ray_marching}
+\end{figure}
 
 Algoritmus vykreslování postupuje napříč před-připravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně opakuje tento proces skrze scénu, dokud nedojde k~jisté intersekci nebo minutí geometrie scény.
 
@@ -252,7 +260,7 @@ Jak uvádí kniha \cite{gfx_principles_practice}, voxel, neboli \textbf{vo}lume 
 	\centering
 	\includegraphics[scale=0.5]{obrazky-figures/3d_grid.png}
 	\caption{3D mřížka.}
-	\textbf{Zdroj: }\url{https://www.researchgate.net/figure/The-three-dimensional-3D-Cartesian-grid-applied-on-the-simulation-domain-The-latter_fig1_234106571}
+	\textbf{Zdroj: }\cite{3d_grid_image}
 	\label{fig:3d_grid}
 \end{figure}
 
@@ -371,7 +379,7 @@ Vhodnější alternativou pro výpočet průsečíku paprsku s~voxelem lze nají
 
 
 \subsection{Používané formáty} \label{sec:format}
-Pro ukládání voxelových scén existuje poměrně velké množství formátů. Bohužel neexistuje žádný standardizovaný formát, i když nějaké pokusy o~to již byly (například VolDat\footnote{http://www.volumesoffun.com/voldat-format/}). Následuje popis vybraných formátů.
+Pro ukládání voxelových scén existuje poměrně velké množství formátů. Bohužel neexistuje žádný standardizovaný formát, i když nějaké pokusy o~to již byly (například VolDat\footnote{\url{http://www.volumesoffun.com/voldat-format/}}). Následuje popis vybraných formátů.
 
 \paragraph{Vox} formát byl vytvořen pro aplikaci MagicaVoxel\footnote{\url{http://ephtracy.github.io/}}, což je modelovací software pro voxelové scény. Jedná se o~binární formát, kde jsou barvy zakódovány pomocí palety. Také podporuje různé typy materiálů. Jelikož MagicaVoxel nepodporuje větší modely než 256x256x256 voxelů, zpravidla v~tomto formátu větší scény nejsou. Specifikace formátu jsou v~\cite{vox_format}.
 
@@ -408,7 +416,7 @@ Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelov�
 			(hit, t) = intersect\_cube(ray, voxel)\\
 			\uIf{hit}{\\
 				\uIf{is\_voxel\_small(voxel, pixel\_size) || is\_voxel\_leaf(voxel)}{\\
-					return t\\
+					\KwRet t\\
 				}\\
 				stack.push(voxel)\\
 				voxel = select\_child(voxel)\\
@@ -417,7 +425,7 @@ Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelov�
 				voxel = stack.pop()
 			}\\
 		}\\
-		return false
+		\KwRet false
 		\caption{Sparse voxel octree ray casting}
 	\end{czechalgorithm}
 \end{center}
@@ -495,7 +503,7 @@ Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody
 Tato kapitola obsahuje seznam použitých nástrojů a knihoven. Popisuje implementaci knihoven vytvořených při práci na praktické části tohoto projektu, také algoritmy použité ke tvorbě octree a uživatelské rozhraní demonstrační aplikace.
 
 \section{Použité knihovny a nástroje}
-Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli mé pokročilé znalosti jazyka a také jako možnost procvičit si nově přidané funkce v~poslední revizi. Pro překlad projektu jsem použil \texttt{CMake}\footnote{\url{https://cmake.org/}} v~kombinaci s~\texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí jsem využil \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Kód shaderů je vytvořen v~GLLS\footnote{\url{https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)}}. Při práci na projektu jsem také využil tyto knihovny třetích stran:
+Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli mé pokročilé znalosti jazyka a také jako možnost procvičit si nově přidané funkce v~poslední revizi. Pro překlad projektu jsem použil \texttt{CMake}\footnote{\url{https://cmake.org/}} v~kombinaci s~\texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí jsem využil \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Kód shaderů je vytvořen v~GLSL\footnote{\url{https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)}}. Při práci na projektu jsem také využil tyto knihovny třetích stran:
 
 \begin{itemize}
 	\begin{AutoMultiColItemize}
@@ -557,7 +565,7 @@ Všechny objekty jsou potomkem \texttt{VulkanObject}, což je rozhraní, které 
 // tvorba instance vynechana kvuli velkemu mnozstvi argumentu
 device = instance->selectDevice(DefaultDeviceSuitabilityScorer());
 surface = instance->createSurface(window);
-logicalDevice = vkDevice->createLogicalDevice({
+logicalDevice = device->createLogicalDevice({
     .id = "dev1",
     .deviceFeatures = vk::PhysicalDeviceFeatures{},
     .queueTypes = {vk::QueueFlagBits::eCompute},
@@ -581,9 +589,9 @@ Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funk
 	\item Některé elementy navíc, například \texttt{Memo}.
 \end{itemize}
 
-Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, jsou implementovány wrappery pro téměř všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{implot}\footnote{\url{https://github.com/epezent/implot}}, \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
+Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, jsou implementovány wrappery pro téměř všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
 
-Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti. Například implementace \texttt{CheckBox} vyžaduje jen 7 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru - s~tím, že dědí z~\texttt{LabeledElement}, \texttt{ValueObservableElement<bool>} a \texttt{SavableElement}.
+Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti. Například implementace \texttt{CheckBox} vyžaduje jen 7 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru - s~tím, že dědí z~\texttt{LabeledElement}, \texttt{SavableElement} a \texttt{ValueObservableElement<bool>}.
 
 \begin{figure}[H]
 	\centering
@@ -596,13 +604,14 @@ Přidání vlastních elementů do knihovny je velice primitivní. Připravená 
 Ukázka vytvoření tlačítka, které reaguje na kliknutí otevřením dialogu pro výběr \texttt{txt} souboru:
 
 \begin{lstlisting}[language=C++, caption={Tvorba logického zařízení}]
-imgui.createChild<Button>("btn_id", "Open file").addClickListener([&imgui] {
-    imgui.openFileDialog("Select file", 
-        {.ext = {"txt"}, .description = "txt  files"}, 
-        [] (const auto &files) {
-            for (const auto &file : files) { print(file); }
-        }, [] { print("No file selected"); });
-}
+imgui.createChild<Button>("btn_id", "Open file")
+    .addClickListener([&imgui] {
+        imgui.openFileDialog("Select file", 
+            {.ext = {"txt"}, .description = "txt  files"}, 
+            [] (const auto &files) {
+                for (const auto &file : files) { print(file); }
+            }, [] { print("No file selected"); });
+    }
 \end{lstlisting}
 
 
@@ -660,7 +669,7 @@ Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Po
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.8]{obrazky-figures/levels_render.png}
+	\includegraphics[scale=0.7]{obrazky-figures/levels_render.png}
 	\caption{Vizualizace voxelů podle jejich hloubky ve stromu. Vlevo render, vpravo barevně odlišené úrovně.}
 	\label{fig:imgui_classes}
 \end{figure}
