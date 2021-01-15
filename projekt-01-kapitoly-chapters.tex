@@ -108,7 +108,7 @@ Za zmínku stojí také algoritmus ray marching (sphere tracing). Namísto pří
 	\end{czechalgorithm}
 \end{center}
 
-Pro tento algoritmus existuje značné množství optimalizací \cite{Keinert2014EnhancedST}. Jako je například 'over-relaxation', kdy dochází k~zaměrně většímu kroku a případnému návratu zpět. Dalším příkladem je namísto sledování paprsku použít kužel, což značně snižuje množství iterací algoritmu.
+Pro tento algoritmus existuje značné množství optimalizací \cite{Keinert2014EnhancedST}. Jako je například 'over-relaxation', kdy dochází k~záměrně většímu kroku a případnému návratu zpět. Dalším příkladem je namísto sledování paprsku použít kužel, což značně snižuje množství iterací algoritmu.
 
 \begin{figure}[H]
 	\centering
@@ -158,7 +158,7 @@ kde levá strana reprezentuje foton interagující s~povrchem a pravá strana fo
 	\end{gathered}
 \end{equation}
 
-Kde $L_0$ je podíl intenzity světla vycházející z~povrchu na bodu $\vec{x}$ ve směru $\hat{\omega_0}$ a intenzity světla přichozího do bodu $\vec{x}$ ze směru $\hat{\omega_i}$.
+Kde $L_0$ je podíl intenzity světla vycházející z~povrchu na bodu $\vec{x}$ ve směru $\hat{\omega_0}$ a intenzity světla příchozího do bodu $\vec{x}$ ze směru $\hat{\omega_i}$.
 
 Dle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika základních kategorií podle typu interakce se světlem:
 
@@ -167,9 +167,9 @@ Dle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika zák
 	\begin{tabular}{|l|l|}
 		\hline
 		materiál              & dominantní distribuce \\ \hline
-		průhledný nemetalický & difůzní odraz         \\ \hline
+		průhledný nemetalický & difuzní odraz         \\ \hline
 		metalický             & zrcadlový odraz       \\ \hline
-		průsvitný             & difůzní přenos        \\ \hline
+		průsvitný             & difuzní přenos        \\ \hline
 		průhledný             & běžný přenos          \\ \hline
 	\end{tabular}
 	\caption{Typy materiálů a jejich interakce se světlem}
@@ -199,7 +199,7 @@ Příklady některých možných vlastností materiálů:
 	\item mapa normál
 	\item emisivita
 	\item průhlednost
-	\item odraživost
+	\item odrazivost
 	\item spousta dalších...
 \end{itemize}
 
@@ -282,7 +282,7 @@ Níže jsou popsány základní metody vykreslování voxelových modelů. Jedn�
 \subsubsection{Rasterizace}
 Pro vykreslování voxelových scén pomocí rasterizace je nutné ji převést na trojúhelníkovou reprezentaci. Toho se dá dosáhnout několika způsoby.
 
-\paragraph{Instancované vykreslování} je velice primitivní metoda. Pro každý voxel, který je reprezentován přímo svojí pozicí a případně dalšími parametry (barva...), je vykreslena krychle o~předem určené délce hran. Před samotným vykreslováním musí docházet k~odstranění takových voxelů, které nejsou viditelné. Pokud by byl tento krok vynechán, bylo by vykreslování velice náročné. \cite{nousiainen_2019}
+\paragraph{Instanced rendering} je velice primitivní metoda. Pro každý voxel, který je reprezentován přímo svojí pozicí a případně dalšími parametry (barva...), je vykreslena krychle o~předem určené délce hran. Před samotným vykreslováním musí docházet k~odstranění takových voxelů, které nejsou viditelné. Pokud by byl tento krok vynechán, bylo by vykreslování velice náročné. \cite{nousiainen_2019}
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:instanced_cube}
@@ -453,7 +453,7 @@ Pro implicitní zakódování pozice lze využít octree (sekce \ref{octree}). N
 
 Kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. Při použití tohoto rozložení by ovšem musela být celá oblast uvnitř octree rozdělena na nejmenší bloky a docházelo by k~obrovskému plýtvání paměti.
 
-Úsporný způsob pro reprezentaci octree byl představen v~\cite{Laine2011EfficientSV}. Metoda kóduje informace o~uzlu bitově na data o~velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si můžeme dovolit reprezentovat ho menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velých stromech nemusí být 15 bitů dostačující. Tento pointer je uložen v~oddělené části bufferu. \texttt{Valid mask} je bitová maska o~velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, ovšem nám dává vědět, jestli je potomek na indexu terminujícím uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
+Úsporný způsob pro reprezentaci octree byl představen v~\cite{Laine2011EfficientSV}. Metoda kóduje informace o~uzlu bitově na data o~velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si můžeme dovolit reprezentovat ho menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velkých stromech nemusí být 15 bitů dostačující. Tento pointer je uložen v~oddělené části bufferu. \texttt{Valid mask} je bitová maska o~velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, ovšem nám dává vědět, jestli je potomek na indexu terminálním uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
 
 \begin{figure}[H]
 	\centering
@@ -687,7 +687,7 @@ UI aplikace je rozděleno do čtyř částí:
 V~této kapitole je krátký popis dosažených výsledků týkající se rychlosti a také analýza využití paměti na grafické kartě.
 
 \section{Převod vstupních dat na octree}
-Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jedno vlákně, ale v~budoucí verzi jej plánuji předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s~aktivovanou minimaliací. Měření byla prováděna s~nejvyšší úrovní optimalizací, na CPU \texttt{Ryzen 3600}. Měření probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v~testech použit byly plné koule o~různých poloměrech.
+Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jedno vlákně, ale v~budoucí verzi jej plánuji předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s~aktivovanou minimalizací. Měření byla prováděna s~nejvyšší úrovní optimalizací, na CPU \texttt{Ryzen 3600}. Měření probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v~testech použit byly plné koule o~různých poloměrech.
 
 
 \begin{figure}[H]
