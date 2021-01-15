@@ -705,19 +705,19 @@ I když to není z grafu moc znatelné, transformace s minimalizací je o pár p
 Vzhledem k rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a mám v úmyslu je v budoucnu zrychlit.
 
 \section{Paměťová náročnost}
-Každý uzel octree zabírá v prvé řadě 4 bajty (15 bitů \texttt{child pointer} + 1 bit \texttt{far} + 8 bitů \texttt{valid mask} + 8bitů \texttt{leaf mask}). Dále pro dohledání materiálů a ostatních parametrů další 4 bajty (24 bitů \texttt{value pointer} + 8 bitů \texttt{mask}). Tyto dva záznamy nejsou vytvářeny pro listové uzly. Pokud budeme předpokládat strom, který má prostor obsazený přesně z 50\% a je obsazen pouze každý druhý voxel, s hloubkou stromu 6 - tedy 37448 voxelů - celková obsazená paměť zmíněnými záznamy bude 299584 kilobajtů. Při popsaném rozložení voxelů se samozřejmě jedná o nejhorší možný případ.
+Každý uzel octree zabírá v prvé řadě 4 bajty (15 bitů \texttt{child pointer} + 1 bit \texttt{far} + 8 bitů \texttt{valid mask} + 8bitů \texttt{leaf mask}). Dále pro dohledání materiálů a ostatních parametrů další 4 bajty (24 bitů \texttt{value pointer} + 8 bitů \texttt{mask}). Tyto dva záznamy nejsou vytvářeny pro listové uzly. Pokud budeme předpokládat strom, který má prostor obsazený přesně z 50\% a je obsazen pouze každý druhý voxel, s hloubkou stromu 6 - tedy 37448 voxelů - celková obsazená paměť zmíněnými záznamy bude 18724 bajtů. Při popsaném rozložení voxelů se samozřejmě jedná o nejhorší možný případ.
 
 \begin{table}[H]
 \centering
 \begin{tabular}{|r|r|}
 \hline
 \multicolumn{1}{|c|}{hloubka stromu} & \multicolumn{1}{c|}{obsazená paměť {[}B{]}} \\ \hline
-1                                    & 1                                            \\ \hline
-2                                    & 9                                            \\ \hline
-3                                    & 73                                           \\ \hline
-4                                    & 585                                          \\ \hline
-5                                    & 4681                                         \\ \hline
-6                                    & 37449                                        \\ \hline
+1                                    & 4                                            \\ \hline
+2                                    & 36                                           \\ \hline
+3                                    & 292                                           \\ \hline
+4                                    & 2340                                          \\ \hline
+5                                    & 18724                                         \\ \hline
+6                                    & 149796                                        \\ \hline
 \end{tabular}
 \caption{Využití paměti podle hloubky stromu při maximální nepříznivosti podmínek}
 \end{table}
@@ -725,6 +725,24 @@ Každý uzel octree zabírá v prvé řadě 4 bajty (15 bitů \texttt{child poin
 Tímto jsou pokryta základní data popisující strom a vyhledávací strukturu do parametrů. Další paměť je využita \texttt{far} pointery. V pesimistickém případě je může potřebovat \textasciitilde5\% uzlů, ovšem jsou potřeba až pro hloubku stromu vyšší než 7, kvůli množství potomků v úrovni. 
 
 Poslední data vyžadující velké množství paměti jsou samotné parametry voxelů. Samozřejmě záleží na využitých parametrech, pro phongovo stínování je dostačující barva, tedy 4 bajty (RGBA formát, kde je každý kanál reprezentován 8 bity). Samozřejmě se data dají zakódovat efektivněji.
+
+Celková paměťová náročnost pro octree se zmíněnými parametry je tedy:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|r|r|}
+\hline
+\multicolumn{1}{|c|}{hloubka stromu} & \multicolumn{1}{c|}{využití paměti {[}B{]}} \\ \hline
+1                                    & 20                                          \\ \hline
+2                                    & 164                                         \\ \hline
+3                                    & 1316                                        \\ \hline
+4                                    & 10532                                       \\ \hline
+5                                    & 84260                                       \\ \hline
+6                                    & 674084                                      \\ \hline
+\end{tabular}
+\end{table}
+
+Ve všech případech se jedná o nejhorší možný případ. Realisticky použitelné modely mají paměťovou náročnost výrazně nižší a také u nich dochází k minimalizaci stromu (která v uvažovaném nejhorším případě není možná).
 
 
 \chapter{Závěr}
