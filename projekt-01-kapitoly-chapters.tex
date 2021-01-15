@@ -1,16 +1,16 @@
 \chapter{Úvod}
 \label{uvod}
-Nejpopulárnějším způsobem modelování a reprezentace dat pro vykreslování je v současné době využití trojúhelníkových sítí, ale existují i další přístupy. Jednou z poměrně populárních alternativ je využití voxelů. I přes to, že voxelové reprezentace jsou v real-time grafice v menšině, lze nalézt spoustu zdrojů a vědeckých článků o této problematice.
+Nejpopulárnějším způsobem modelování a reprezentace dat pro vykreslování je v~současné době využití trojúhelníkových sítí, ale existují i další přístupy. Jednou z~poměrně populárních alternativ je využití voxelů. I~přes to, že voxelové reprezentace jsou v~real-time grafice v~menšině, lze nalézt spoustu zdrojů a vědeckých článků o~této problematice.
 
-Vzhledem ke změnám možností využití grafické karty, především existenci compute shaderů, je ovšem práce s voxely mnohem jednodušší, než tomu bylo v dřívějších dobách. Není nutné provádět převod na trojúhelníky a můžeme pracovat s voxelovými primitivy přímo. Tím se odemyká možnost využití optimalizovaných algoritmů. Tato práce se zabývá zobrazováním voxelových scén za pomocí moderních metod a nástrojů, které jsou vývojářům poskytnuty.
+Vzhledem ke změnám možností využití grafické karty, především existenci compute shaderů, je ovšem práce s~voxely mnohem jednodušší, než tomu bylo v~dřívějších dobách. Není nutné provádět převod na trojúhelníky a můžeme pracovat s~voxelovými primitivy přímo. Tím se odemyká možnost využití optimalizovaných algoritmů. Tato práce se zabývá zobrazováním voxelových scén za pomocí moderních metod a nástrojů, které jsou vývojářům poskytnuty.
 
-První kapitola si dává za cíl seznámit čtenáře s řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje co jsou voxely, jak se s nimi dá pracovat jak v kontextu rozdělení prostoru, tak i základní metody vykreslování. Dále jsou zde popsané vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V poslední řadě obsahuje krátký popis moderního API pro práci s grafickými kartami: \texttt{Vulkan}.
+První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje co jsou voxely, jak se s~nimi dá pracovat jak v~kontextu rozdělení prostoru, tak i základní metody vykreslování. Dále jsou zde popsané vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V~poslední řadě obsahuje krátký popis moderního API pro práci s~grafickými kartami: \texttt{Vulkan}.
 
-Kapitola druhá se zabývá návrhem řešení. V kapitole je popsán způsob reprezentace voxelových dat s využitím akcelerační struktury a její detaily. Kapitola také vysvětluje navrhovaný způsob vykreslování voxelových scén s využitím ray casting přístupu.
+Kapitola druhá se zabývá návrhem řešení. V~kapitole je popsán způsob reprezentace voxelových dat s~využitím akcelerační struktury a její detaily. Kapitola také vysvětluje navrhovaný způsob vykreslování voxelových scén s~využitím ray casting přístupu.
 
-Následující kapitola se zabývá specifikami implementace. V prvé radě jsou uvedeny nástroje a knihovny využité v samotné implementaci. Dále jsou popsány knihovny, které byly v rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s \texttt{Vulkan} a \texttt{GLFW}, a knihovna pro vytváření a interkaci s uživatelským rozhraním. Dále je zde popsán algoritmus načítání voxelových scén a jejich převod do tíženého formátu. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
+Následující kapitola se zabývá specifikami implementace. V~prvé radě jsou uvedeny nástroje a knihovny využité v~samotné implementaci. Dále jsou popsány knihovny, které byly v~rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s~\texttt{Vulkan} a \texttt{GLFW}, a knihovna pro vytváření a interkaci s~uživatelským rozhraním. Dále je zde popsán algoritmus načítání voxelových scén a jejich převod do tíženého formátu. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
 
-Poslední kapitola se zabývá vyhodnocením dosažených výsledků. V současné době obsahuje analýzu času převodu scén do octree. Popisuje také paměťovou náročnost transformovaných scén.
+Poslední kapitola se zabývá vyhodnocením dosažených výsledků. V~současné době obsahuje analýzu času převodu scén do octree. Popisuje také paměťovou náročnost transformovaných scén.
 
 \chapter{Teorie}
 \label{teorie}
@@ -445,7 +445,7 @@ Pro implicitní zakódování pozice lze využít octree (sekce \ref{octree}). N
 
 Kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. Při použití tohoto rozložení by ovšem musela být celá oblast uvnitř octree rozdělena na nejmenší bloky a docházelo by k~obrovskému plýtvání paměti.
 
-Úsporný způsob pro reprezentaci octree byl představen v~\cite{Laine2011EfficientSV}. Metoda kóduje informace o~uzlu bitově na data o~velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si můžeme dovolit reprezentovat ho menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velých stromech nemusí být 15 bitů dostačující. Tento pointer je uložen v oddělené části bufferu. \texttt{Valid mask} je bitová maska o~velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, ovšem nám dává vědět, jestli je potomek na indexu terminujícím uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
+Úsporný způsob pro reprezentaci octree byl představen v~\cite{Laine2011EfficientSV}. Metoda kóduje informace o~uzlu bitově na data o~velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si můžeme dovolit reprezentovat ho menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velých stromech nemusí být 15 bitů dostačující. Tento pointer je uložen v~oddělené části bufferu. \texttt{Valid mask} je bitová maska o~velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, ovšem nám dává vědět, jestli je potomek na indexu terminujícím uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
 
 \begin{figure}[H]
 	\centering
@@ -486,7 +486,7 @@ Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody
 Tato kapitola obsahuje seznam použitých nástrojů a knihoven. Popisuje také implementaci knihoven vytvořených při práci na praktické části tohoto projektu.
 
 \section{Použité knihovny a nástroje}
-Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli mé pokročilé znalosti jazyka a také jako možnost procvičit si nově přidané funkce v~poslední revizi. Pro překlad projektu jsem použil \texttt{CMake}\footnote{\url{https://cmake.org/}} v~kombinaci s~\texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí jsem využil \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Kód shaderů je vytvořen v GLLS\footnote{\url{https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)}}. Při práci na projektu jsem také využil tyto knihovny třetích stran:
+Pro implementaci jsem zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli mé pokročilé znalosti jazyka a také jako možnost procvičit si nově přidané funkce v~poslední revizi. Pro překlad projektu jsem použil \texttt{CMake}\footnote{\url{https://cmake.org/}} v~kombinaci s~\texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí jsem využil \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Kód shaderů je vytvořen v~GLLS\footnote{\url{https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)}}. Při práci na projektu jsem také využil tyto knihovny třetích stran:
 
 \begin{itemize}
 	\begin{AutoMultiColItemize}
@@ -600,7 +600,7 @@ imgui.createChild<Button>("btn_id", "Open file").addClickListener([&imgui] {
 \section{Načítání modelů a jejich transformace} \label{sec:voxel_conversion}
 Pro vykreslování modelů je nutné je transformovat do octree. Jelikož neexistuje žádný standardní formát pro voxely, je potřeba implementovat import pro různé formáty. Aplikace je prozatím schopna importovat formát \texttt{vox}(sekce \ref{sec:format})).
 
-Načítání dat je rozděleno na dvě části. V první části jsou ze vstupního souboru načteny využité materiály a je vytvořen seznam voxelů. Tohle je jediná část, kterou je nutné implementovat speciálně pro nové formáty. Zbytek převodu je popsán v algoritmu \ref{alg:vox_to_svo}.
+Načítání dat je rozděleno na dvě části. V~první části jsou ze vstupního souboru načteny využité materiály a je vytvořen seznam voxelů. Tohle je jediná část, kterou je nutné implementovat speciálně pro nové formáty. Zbytek převodu je popsán v~algoritmu \ref{alg:vox_to_svo}.
 
 
 \begin{center}
@@ -650,7 +650,7 @@ Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Po
 \end{center}
 
 
-Finálním krokem je transformace vytvořeného stromu do jeho binární reprezentace popsané v sekci \ref{sec:voxel_representation}.
+Finálním krokem je transformace vytvořeného stromu do jeho binární reprezentace popsané v~sekci \ref{sec:voxel_representation}.
 
 
 \section{Uživatelské rozhraní}
@@ -675,10 +675,10 @@ UI aplikace je rozděleno do čtyř částí:
 
 \chapter{Vyhodnocení}
 \label{testovani}
-V této kapitole je krátký popis dosažených výsledků týkající se rychlosti a také analýza využití paměti na grafické kartě.
+V~této kapitole je krátký popis dosažených výsledků týkající se rychlosti a také analýza využití paměti na grafické kartě.
 
 \section{Převod vstupních dat na octree}
-Převod vstupních dat na octree byl popsán v sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jedno vlákně, ale v budoucí verzi jej plánuji předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s aktivovanou minimaliací. Měření byla prováděna s nejvyšší úrovní optimalizací, na CPU \texttt{Ryzen 3600}. Měření probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v testech použit byly plné koule o různých poloměrech.
+Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jedno vlákně, ale v~budoucí verzi jej plánuji předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s~aktivovanou minimaliací. Měření byla prováděna s~nejvyšší úrovní optimalizací, na CPU \texttt{Ryzen 3600}. Měření probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v~testech použit byly plné koule o~různých poloměrech.
 
 
 \begin{figure}[H]
@@ -705,18 +705,18 @@ Převod vstupních dat na octree byl popsán v sekci \ref{sec:voxel_conversion}.
 				\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert_mini.txt};
 			\end{axis}
 		\end{tikzpicture}
-		\caption{S minimalizací}
+		\caption{S~minimalizací}
 		\label{fig:time_convert_mini}
 	\end{subfigure}
 	\caption{Čas tvorby octree}
 \end{figure}
 
-I když to není z grafu moc znatelné, transformace s minimalizací je o pár procent rychlejší, jelikož není nutné vytvářet tak velký finální strom. Pokud by vstupní data byla minimalizaci nepříznivá, byla by tato metoda pomalejší.
+I~když to není z~grafu moc znatelné, transformace s~minimalizací je o~pár procent rychlejší, jelikož není nutné vytvářet tak velký finální strom. Pokud by vstupní data byla minimalizaci nepříznivá, byla by tato metoda pomalejší.
 
-Vzhledem k rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a mám v úmyslu je v budoucnu zrychlit.
+Vzhledem k~rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a mám v~úmyslu je v~budoucnu zrychlit.
 
 \section{Paměťová náročnost}
-Každý uzel octree zabírá v prvé řadě 4 bajty (15 bitů \texttt{child pointer} + 1 bit \texttt{far} + 8 bitů \texttt{valid mask} + 8bitů \texttt{leaf mask}). Dále pro dohledání materiálů a ostatních parametrů další 4 bajty (24 bitů \texttt{value pointer} + 8 bitů \texttt{mask}). Tyto dva záznamy nejsou vytvářeny pro listové uzly. Pokud budeme předpokládat strom, který má prostor obsazený přesně z 50\% a je obsazen pouze každý druhý voxel, s hloubkou stromu 6 - tedy 37448 voxelů - celková obsazená paměť zmíněnými záznamy bude 18724 bajtů. Při popsaném rozložení voxelů se samozřejmě jedná o nejhorší možný případ.
+Každý uzel octree zabírá v~prvé řadě 4 bajty (15 bitů \texttt{child pointer} + 1 bit \texttt{far} + 8 bitů \texttt{valid mask} + 8bitů \texttt{leaf mask}). Dále pro dohledání materiálů a ostatních parametrů další 4 bajty (24 bitů \texttt{value pointer} + 8 bitů \texttt{mask}). Tyto dva záznamy nejsou vytvářeny pro listové uzly. Pokud budeme předpokládat strom, který má prostor obsazený přesně z~50\% a je obsazen pouze každý druhý voxel, s~hloubkou stromu 6 - tedy 37448 voxelů - celková obsazená paměť zmíněnými záznamy bude 18724 bajtů. Při popsaném rozložení voxelů se samozřejmě jedná o~nejhorší možný případ.
 
 \begin{table}[H]
 	\centering
@@ -733,7 +733,7 @@ Každý uzel octree zabírá v prvé řadě 4 bajty (15 bitů \texttt{child poin
 	\caption{Využití paměti podle hloubky stromu při maximální nepříznivosti podmínek}
 \end{table}
 
-Tímto jsou pokryta základní data popisující strom a vyhledávací strukturu do parametrů. Další paměť je využita \texttt{far} pointery. V pesimistickém případě je může potřebovat \textasciitilde5\% uzlů, ovšem jsou potřeba až pro hloubku stromu vyšší než 7, kvůli množství potomků v úrovni.
+Tímto jsou pokryta základní data popisující strom a vyhledávací strukturu do parametrů. Další paměť je využita \texttt{far} pointery. V~pesimistickém případě je může potřebovat \textasciitilde5\% uzlů, ovšem jsou potřeba až pro hloubku stromu vyšší než 7, kvůli množství potomků v~úrovni.
 
 Poslední data vyžadující velké množství paměti jsou samotné parametry voxelů. Samozřejmě záleží na využitých parametrech, pro phongovo stínování je dostačující barva, tedy 4 bajty (RGBA formát, kde je každý kanál reprezentován 8 bity). Samozřejmě se data dají zakódovat efektivněji.
 
@@ -753,22 +753,22 @@ Celková paměťová náročnost pro octree se zmíněnými parametry je tedy:
 	\end{tabular}
 \end{table}
 
-Ve všech případech se jedná o nejhorší možný případ. Realisticky použitelné modely mají paměťovou náročnost výrazně nižší a také u nich dochází k minimalizaci stromu (která v uvažovaném nejhorším případě není možná).
+Ve všech případech se jedná o~nejhorší možný případ. Realisticky použitelné modely mají paměťovou náročnost výrazně nižší a také u~nich dochází k~minimalizaci stromu (která v~uvažovaném nejhorším případě není možná).
 
 
 \chapter{Závěr}
 \label{zaver}
 Cílem semestrální části diplomové práce bylo nastudovat techniky fotorealistického zobrazování voxelových modelů a nástrojů, pomocí nichž toho lze dosáhnout a také vytvořit kostru aplikace. Demonstrační aplikace je schopna načítat a transformovat modely a také zobrazovat voxelové scény.
 
-V teoretické části dokumentu byl popsán princip realistického zobrazování a některé metody pro dosažení realistického výsledku. Byl popsán například algoritmus ray tracing s některými jeho obměnami nebo radiozita. Sekce také představila základy práce s materiály a metody pro odstranění aliasingu. Další sekce vysvětlila princip voxelizace prostoru a představila některá jeho využití. Také zde byly popsány metody pro vykreslení voxelů a základní hierarchické struktury, pomocí nichž lze zmíněné vykreslování akcelerovat.
+V~teoretické části dokumentu byl popsán princip realistického zobrazování a některé metody pro dosažení realistického výsledku. Byl popsán například algoritmus ray tracing s~některými jeho obměnami nebo radiozita. Sekce také představila základy práce s~materiály a metody pro odstranění aliasingu. Další sekce vysvětlila princip voxelizace prostoru a představila některá jeho využití. Také zde byly popsány metody pro vykreslení voxelů a základní hierarchické struktury, pomocí nichž lze zmíněné vykreslování akcelerovat.
 
-Kapitola návrhu řešení popsala způsob efektivní reprezentace voxelových dat a vysvětlila její výhody. V této kapitole je taky popsán návrh vykreslování voxelových scén.
+Kapitola návrhu řešení popsala způsob efektivní reprezentace voxelových dat a vysvětlila její výhody. V~této kapitole je taky popsán návrh vykreslování voxelových scén.
 
-Implementační část obsahovala výčet použitých nástrojů a knihoven. Ve zkratce také předvedla knihovny, které byly v rámci tvorby projektu vytvořeny. Tyto knihovny jsou na projektu plně nezávislé a lze je použít pro libovolnou další tvorbu. V kapitole byl také popsán algoritmus pro vytvoření octree z voxelových dat a jeho minimalizace. V poslední sekci bylo krátce popsáno uživatelské rozhraní demonstrační aplikace.
+Implementační část obsahovala výčet použitých nástrojů a knihoven. Ve zkratce také předvedla knihovny, které byly v~rámci tvorby projektu vytvořeny. Tyto knihovny jsou na projektu plně nezávislé a lze je použít pro libovolnou další tvorbu. V~kapitole byl také popsán algoritmus pro vytvoření octree z~voxelových dat a jeho minimalizace. V~poslední sekci bylo krátce popsáno uživatelské rozhraní demonstrační aplikace.
 
-Poslední kapitola, vyhodnocení, se zabývala časovou náročností tvorby a minimalizace octree a paměťové náročnosti této struktury. Algoritmus tvorby octree má velké rezervy a mám v úmyslu ho do budoucna optimalizovat. Paměťová náročnost octree struktury je ale poměrně nízká, z ohledem na to, kolik dat v ní reprezentujeme. V sekci byly uvedeny hodnoty nejhoršího případu.
+Poslední kapitola, vyhodnocení, se zabývala časovou náročností tvorby a minimalizace octree a paměťové náročnosti této struktury. Algoritmus tvorby octree má velké rezervy a mám v~úmyslu ho do budoucna optimalizovat. Paměťová náročnost octree struktury je ale poměrně nízká, z~ohledem na to, kolik dat v~ní reprezentujeme. V~sekci byly uvedeny hodnoty nejhoršího případu.
 
-Cíl další práce je jasný: implementovat alternativní způsob vykreslování (light field probes \ref{sec:light_field_probes}) a umožnit vykreslování výrazně větších scén. Také optimalizovat načítání scén pro použití v reálném čase a navrhnout způsob reprezentace velkých scén a jejich dynamické načítání z disku.
+Cíl další práce je jasný: implementovat alternativní způsob vykreslování (light field probes \ref{sec:light_field_probes}) a umožnit vykreslování výrazně větších scén. Také optimalizovat načítání scén pro použití v~reálném čase a navrhnout způsob reprezentace velkých scén a jejich dynamické načítání z~disku.
 
 
 %===============================================================================
