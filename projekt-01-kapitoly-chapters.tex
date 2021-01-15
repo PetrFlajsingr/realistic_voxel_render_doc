@@ -1,5 +1,16 @@
 \chapter{Úvod}
 \label{uvod}
+Nejpopulárnějším způsobem modelování a reprezentace dat pro vykreslování je v současné době využití trojúhelníkových sítí, ale existují i další přístupy. Jednou z poměrně populárních alternativ je využití voxelů. I přes to, že voxelové reprezentace jsou v real-time grafice v menšině, lze nalézt spoustu zdrojů a vědeckých článků o této problematice. 
+
+Vzhledem ke změnám možností využití grafické karty, především existenci compute shaderů, je ovšem práce s voxely mnohem jednodušší, než tomu bylo v dřívějších dobách. Není nutné provádět převod na trojúhelníky a můžeme pracovat s voxelovými primitivy přímo. Tím se odemyká možnost využití optimalizovaných algoritmů. Tato práce se zabývá zobrazováním voxelových scén za pomocí moderních metod a nástrojů, které jsou vývojářům poskytnuty.
+
+První kapitola si dává za cíl seznámit čtenáře s řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje co jsou voxely, jak se s nimi dá pracovat jak v kontextu rozdělení prostoru, tak i základní metody vykreslování. Dále jsou zde popsané vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V poslední řadě obsahuje krátký popis moderního API pro práci s grafickými kartami: \texttt{Vulkan}.
+
+Kapitola druhá se zabývá návrhem řešení. V kapitole je popsán způsob reprezentace voxelových dat s využitím akcelerační struktury a její detaily. Kapitola také vysvětluje navrhovaný způsob vykreslování voxelových scén s využitím ray casting přístupu.
+
+Následující kapitola se zabývá specifikami implementace. V prvé radě jsou uvedeny nástroje a knihovny využité v samotné implementaci. Dále jsou popsány knihovny, které byly v rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s \texttt{Vulkan} a \texttt{GLFW}, a knihovna pro vytváření a interkaci s uživatelským rozhraním. Dále je zde popsán algoritmus načítání voxelových scén a jejich převod do tíženého formátu. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
+
+Poslední kapitola se zabývá vyhodnocením dosažených výsledků. V současné době obsahuje analýzu času převodu scén do octree. Popisuje také paměťovou náročnost transformovaných scén.
 
 \chapter{Teorie}
 \label{teorie}
