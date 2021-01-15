@@ -525,7 +525,7 @@ Dále jsem použil následující nástroje pro statickou analýzu kódu, formá
 	\end{AutoMultiColItemize}
 \end{itemize}
 
-\section{pf\_common}
+\section{Knihovna pf\_common}
 Knihovna poskytující často používané funkce:
 \begin{itemize}
 	\item \texttt{Concept}y pro template meta programování a statický polymorfimus.
@@ -538,7 +538,7 @@ Knihovna poskytující často používané funkce:
 
 Je implementována jako header-only knihovna\footnote{\url{https://en.wikipedia.org/wiki/Header-only}}.
 
-\section{pf\_glfw\_vulkan}
+\section{Knihovna pf\_glfw\_vulkan}
 Tato knihovna poskytuje dvě základní funkce:
 \begin{itemize}
 	\item vytvoření okna pomocí \texttt{GLFW}\footnote{\url{https://www.glfw.org/}}
@@ -572,7 +572,7 @@ Pro objekty, u~nichž by konfigurační struktura vyžadovala nadměrně velké 
 Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funkčnosti.
 
 
-\section{pf\_imgui}
+\section{Knihovna pf\_imgui}
 \texttt{pf\_imgui} je event-driven UI knihovna postavena na Dear Imgui. Cílem je zjednodušení práce při vytváření uživatelského rozhraní a také přidání některých funkcí. Obrázek \ref{fig:imgui_classes} obsahuje diagram tříd rozhraní, které elementy v~\texttt{pf\_imgui} poskytují. Funkce, které jsou oproti Dear Imgui přidané jsou:
 
 \begin{itemize}
@@ -640,7 +640,7 @@ Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Po
 		\SetKwProg{Fn}{Function}{:}{}
 
 		\Fn{\FIsFilled{$node$}}{
-			\KwRet $node$.child\_count == 8 && all\_of($node$.children, IsFilled)\\
+			\KwRet $node$.child\_count == 8 \&\& all\_of($node$.children, IsFilled)\\
 		}
 
 		\Fn{\FMinTree{$node$}}{
