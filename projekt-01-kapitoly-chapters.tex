@@ -4,13 +4,13 @@ Nejpopulárnějším způsobem modelování a reprezentace dat pro vykreslován�
 
 Vzhledem ke změnám možností využití grafické karty, především existenci compute shaderů, je práce s~voxely mnohem jednodušší, než tomu bylo v~dřívějších dobách. Není nutné provádět převod na trojúhelníky a můžeme pracovat s~voxelovými primitivy přímo. Tím se odemyká možnost využití optimalizovaných algoritmů. Tato práce se zabývá zobrazováním voxelových scén za pomocí moderních metod a nástrojů, které jsou vývojářům poskytnuty.
 
-První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje, co jsou voxely, jak se s~nimi dá pracovat v~kontextu rozdělení prostoru, tak i základní metody vykreslování. Dále jsou zde popsané vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V~poslední řadě obsahuje krátký popis moderního API pro práci s~grafickými kartami: \texttt{Vulkan}.
+První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje, co jsou voxely, jak se s~nimi dá pracovat v~kontextu rozdělení prostoru a základní metody vykreslování. Dále jsou zde popsány vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V~poslední řadě obsahuje krátký popis moderního API pro práci s~grafickými kartami: \texttt{Vulkan}.
 
-Kapitola druhá se zabývá návrhem řešení. V~kapitole je popsán způsob reprezentace voxelových dat s~využitím akcelerační struktury a její detaily. Kapitola také vysvětluje navrhovaný způsob vykreslování voxelových scén s~využitím ray casting přístupu.
+Kapitola druhá se zabývá návrhem řešení. Je zde popsán způsob reprezentace voxelových dat s~využitím akcelerační struktury a její detaily. Kapitola také vysvětluje navrhovaný způsob vykreslování voxelových scén s~využitím ray casting přístupu.
 
 Následující kapitola se zabývá specifikami implementace. V~prvé radě jsou uvedeny nástroje a knihovny využité v~samotné implementaci. Dále jsou popsány knihovny, které byly v~rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s~\texttt{Vulkan} a \texttt{GLFW}, a knihovna pro vytváření a interkaci s~uživatelským rozhraním. Také je zde popsán algoritmus načítání voxelových scén a jejich převod do tíženého formátu. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
 
-Poslední kapitola se zabývá vyhodnocením dosažených výsledků. V~současné době obsahuje analýzu času převodu scén do octree. Popisuje také paměťovou náročnost transformovaných scén.
+Poslední kapitola se věnuje vyhodnocením dosažených výsledků. V~současné době obsahuje analýzu času převodu scén do octree. Popisuje také paměťovou náročnost transformovaných scén.
 
 \chapter{Teorie}
 \label{teorie}
@@ -59,13 +59,13 @@ kde $p$ je bod na rovině obrázku a $h(p)$ váhová či filtrační funkce, $x$
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{obrazky-figures/ray_tracing_plane.png}
-	\caption{3D mřížka.}
+	\caption{Interakce paprsku se scénou}
 	\textbf{Zdroj: \cite{advanced_global}}
 	\label{fig:3d_grid}
 \end{figure}
 
 
-Jak název napovídá, ray tracing používá paprsky k~výpočtu barvy výsledného obrázku. Paprsek je polopřímka a je tedy definován počátečním bodem $\Vec{o}$ (origin) a směrem $\Vec{d}$ (direction). Nutnou funkcí pro funkčnost tohoto algoritmu je výpočet průsečíku paprsku s~primitivy, pomocí kterých je scéna vytvořena. Možnosti výpočtu průsečíku paprsku s~voxelem je popsána v~sekci \ref{sec:voxel_intersection}. Jednoduchý ray tracing je popsán v~algoritmu \ref{alg:rt_1}. Takto naivní implementace je samozřejmě velice neefektivní a pro běžně používané scény je nutné použít akcelerační struktury pro urychlení hledání průsečíku\cite{accelerated_rt}. Pro realistické zobrazování jsou krom primárních paprsků generovány i paprsky sekundární. Tyto paprsky jsou použity například pro odrazy, refrakci a stíny.
+Jak název napovídá, ray tracing používá paprsky k~výpočtu barvy výsledného obrázku. Paprsek je polopřímka a je tedy definován počátečním bodem $\Vec{o}$ (origin) a směrem $\Vec{d}$ (direction). Nutnou funkcí pro funkčnost tohoto algoritmu je výpočet průsečíku paprsku s~primitivy, pomocí kterých je scéna vytvořena. Možnosti výpočtu průsečíku paprsku s~voxelem je popsána v~sekci \ref{sec:voxel_intersection}. Jednoduchý ray tracing je popsán v~algoritmu \ref{alg:rt_1}. Takto naivní implementace je samozřejmě velice neefektivní a pro běžně používané scény je nutné použít akcelerační struktury pro urychlení hledání průsečíku \cite{accelerated_rt}. Pro realistické zobrazování jsou krom primárních paprsků generovány i paprsky sekundární. Tyto paprsky jsou použity například pro odrazy, refrakci a stíny.
 
 Ve své standardní formě ray tracing neumožňuje generování měkkých stínů a spousty dalších sekundárních efektů.  Pro dosažení tíženého efektu lze využít například \textbf{Monte carlo ray tracing} (stochaistic ray tracing nebo distributed ray tracing) \cite{distributed_rt}. Namísto jediného paprsku pro výpočet stínů, odrazů a refrakcí je využito paprsků více a výsledky jejich výpočtu jsou následně průměrovány. Metoda umožňuje vytvoření mnoha dalších efektů, jako například hloubka pole, rozmazání pohybu atd.
 
@@ -91,7 +91,7 @@ Za zmínku stojí také algoritmus ray marching (sphere tracing). Namísto pří
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.8]{obrazky-figures/ray_marching.png}
-	\caption{Ray marching.}
+	\caption{Ray marching}
 	\textbf{Zdroj: \cite{Keinert2014EnhancedST}}
 	\label{fig:ray_marching}
 \end{figure}
@@ -116,18 +116,18 @@ Za zmínku stojí také algoritmus ray marching (sphere tracing). Namísto pří
 	\end{czechalgorithm}
 \end{center}
 
-Pro tento algoritmus existuje značné množství optimalizací \cite{Keinert2014EnhancedST}. Jako je například 'over-relaxation', kdy dochází k~záměrně většímu kroku a případnému návratu zpět. Dalším příkladem je namísto sledování paprsku použít kužel, což značně snižuje množství iterací algoritmu.
+Pro tento algoritmus existuje značné množství optimalizací \cite{Keinert2014EnhancedST}. Jako je například "over-relaxation", kdy dochází k~záměrně většímu kroku a případnému návratu zpět. Dalším příkladem je namísto sledování paprsku použít kužel, což značně snižuje množství iterací algoritmu.
 
 
 \subsubsection{Light field probes} \label{sec:light_field_probes}
-Metoda globální iluminace využívající ray tracing představena v~publikaci \cite{light_field_probes}. Pracuje na předpokladu, že kontinuální světelné pole scény $\mathcal{L}(x, \omega)$, kde $x \in \mathcal{R}^3$ je bod v~prostoru a $\omega \in S$ je odchozí směr, reprezentuje distribuci osvětlení ve scéně pro všechny body a směry ve scéně. Light field probes reprezentuje tuto distribuci pomocí diskrétního vyobrazení.
+Metoda globální iluminace využívající ray tracing, byla představena v~publikaci \cite{light_field_probes}. Pracuje na předpokladu, že kontinuální světelné pole scény $\mathcal{L}(x, \omega)$, kde $x \in \mathcal{R}^3$ je bod v~prostoru a $\omega \in S$ je odchozí směr, reprezentuje distribuci osvětlení ve scéně pro všechny body a směry ve scéně. Light field probes reprezentuje tuto distribuci pomocí diskrétního vyobrazení.
 
-Prostor ve scéně je rozdělen pomocí pravidelné mřížky a do každé diskrétní pozice $x'$ je umístěna instance jedné sondy (probe), která mapuje směry $\omega$ kolem $x'$ na: intenzitu osvětlení $\mathcal{L}(x, \omega)$, normály $\vec{n}_x$ v~bodech $x''$ nejblíže bodu $x'$ a hloubkovou mapu mezi $x'$ a body $x''$. Výpočet těchto hodnot dochází při přípravě scény.
+Prostor ve scéně je rozdělen pomocí pravidelné mřížky a do každé diskrétní pozice $x'$ je umístěna instance jedné sondy (probe), která mapuje směry $\omega$ kolem $x'$ na: intenzitu osvětlení $\mathcal{L}(x, \omega)$, normály $\vec{n}_x$ v~bodech $x''$ nejblíže bodu $x'$ a hloubkovou mapu mezi $x'$ a body $x''$. K výpočtu těchto hodnot dochází při přípravě scény.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.25]{obrazky-figures/light_field_probes.png}
-	\caption{Sondy umístěné ve scéně.}
+	\caption{Sondy umístěné ve scéně}
 	\textbf{Zdroj: \cite{light_field_probes}}
 	\label{fig:ray_marching}
 \end{figure}
@@ -146,7 +146,7 @@ Metody radiozity byly vyvinuty již v~padesátých letech minulého století pro
 
 Kde $B$ je celkové množství energie vyzařované z~povrchu, $E$ je množství energie vyzařované v~povrchu bez vlivu okolí, $\rho$ je faktor reflexivity, $F$ je faktor určující jaká část energie dorazila na povrch a $N$ je počet povrchů ve scéně.
 
-Z~mého průzkumu vypadá, že je radiozita primárně používána pro předvýpočet globální iluminace v~některých scénách a dále není počítána znova. Důvodem je pravděpodobně poměrně velká náročnost algoritmu.
+Z~mého průzkumu vyplývá, že je radiozita primárně používána pro předvýpočet globální iluminace v~některých scénách a dále není opakovaně počítána. Důvodem je nejspíše poměrně velká náročnost algoritmu.
 
 \subsection{Materiály}
 Pro simulaci interakce světla s~povrchy je nutné mít tyto povrchy popsány určitými parametry. Použité parametry závisí na osvětlovacím modelu a také renderovacímu algoritmu. Publikace \cite{materials} popisuje interakci světla s~povrchem rovnicí:
@@ -157,7 +157,7 @@ Pro simulaci interakce světla s~povrchy je nutné mít tyto povrchy popsány ur
 	\end{gathered}
 \end{equation}
 
-kde levá strana reprezentuje foton interagující s~povrchem a pravá strana foton vycházející ven. $(x, y)$ je pozice na povrchu, $(\theta, \phi)$ je příchozí/odchozí směr, $t$ je čas interakce a $\lambda$ je vlnová délka. Pro zjednodušení lze z~rovnice odstranit čas, čímž předpokládáme, že se vzhled povrchu s~časem nemění. Při diskretizaci vlnových délek je možné dosáhnout dalšího zjednodušení, čímž dostaneme takzvanou BSSRDF (bidirectional scattering surface distribution function). Dalším zjednodušením může být ignorování podpovrchového rozptylu světla (subsurface scattering), čímž získáme již známe BRDF (bidirectional reflectance distribution function) (rovnice \ref{eq:brdf}).
+kde levá strana reprezentuje foton interagující s~povrchem a pravá strana foton vycházející ven, $(x, y)$ je pozice na povrchu, $(\theta, \phi)$ je příchozí/odchozí směr, $t$ je čas interakce a $\lambda$ je vlnová délka. Pro zjednodušení lze z~rovnice odstranit čas, čímž předpokládáme, že se vzhled povrchu s~časem nemění. Při diskretizaci vlnových délek je možné dosáhnout dalšího zjednodušení, čímž dostaneme takzvanou BSSRDF (bidirectional scattering surface distribution function). Dalším zjednodušením může být ignorování podpovrchového rozptylu světla (subsurface scattering), čímž získáme již známé BRDF (bidirectional reflectance distribution function) (rovnice \ref{eq:brdf}).
 
 \begin{equation} \label{eq:brdf}
 	\begin{gathered}
@@ -186,7 +186,7 @@ Dle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika zák
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{obrazky-figures/reflection_types.png}
-	\caption{Typy odrazu světla (difuzní, zrcadlové, lesklé).}
+	\caption{Typy odrazu světla (difuzní, zrcadlové, lesklé)}
 	\textbf{Zdroj: \cite{materials}}
 	\label{fig:3d_grid}
 \end{figure}
@@ -226,11 +226,11 @@ Každá z~těchto kategorií má trochu jiný přístup k~problému aliasingu s~
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=2]{obrazky-figures/aliasing.png}
-	\caption{Aliasing. }
+	\caption{Aliasing}
 	\label{fig:aliasing}
 \end{figure}
 
-Příkladem FSAA je \textbf{Super Sampling Anti-Aliasing (SSAA)}, kde je počet pixelů pro renderování navýšen oproti cílové velikosti renderovaného obrázku. Při dokončení jsou přilehlé pixely a jejich barva/hloubka zprůměrovány. Tato metoda dosahuje výborných výsledků, ale je velmi výpočetně náročná. Optimalizovanou alternativou je \textbf{-Sampling Ant-Aliasing (MSAA)}. Jedná se o~metodu fungující na stejném principu, ale namísto navýšení rozlišení celého renderovaného snímku dochází k~výběru oblastí, u~kterých je velká pravděpodobnost vzniku aliasingu a super sampling probíhá pouze v~těch oblastech.
+Příkladem FSAA je \textbf{Super Sampling Anti-Aliasing (SSAA)}, kde je počet pixelů pro renderování navýšen oproti cílové velikosti renderovaného obrázku. Při dokončení jsou přilehlé pixely a jejich barva/hloubka zprůměrovány. Tato metoda dosahuje výborných výsledků, ale je velmi výpočetně náročná. Optimalizovanou alternativou je \textbf{Sampling Ant-Aliasing (MSAA)}. Jedná se o~metodu fungující na stejném principu, ale namísto navýšení rozlišení celého renderovaného snímku dochází k~výběru oblastí, u~kterých je velká pravděpodobnost vzniku aliasingu a super sampling probíhá pouze v~těchto oblastech.
 
 Z~rodiny IAA uveďme\textbf{ Morphological Anti-Aliasing (MLAA)}. Tato metoda si dává za cíl minimalizovat aliasing z~okrajů a siluet. Algoritmus detekuje podezřelé oblasti podle rozdílu sousedních pixelů a používá rozmazání s~okolím. Detekce aliasingu může být i složitější, jako například vyhledávání specifických tvarů.
 
@@ -240,7 +240,7 @@ Vybraný zástupce GAA je \textbf{Geometric PostProcessing AA (GPAA)}. Při rend
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=3]{obrazky-figures/ssaa_diff.png}
-	\caption{Rozdíl kvality obrázku po použití SSAA.}
+	\caption{Rozdíl kvality obrázku po použití SSAA}
 	\label{fig:aliasing}
 \end{figure}
 
@@ -259,7 +259,7 @@ Jak uvádí kniha \cite{gfx_principles_practice}, voxel, neboli \textbf{vo}lume 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.5]{obrazky-figures/3d_grid.png}
-	\caption{3D mřížka.}
+	\caption{3D mřížka}
 	\textbf{Zdroj: }\cite{3d_grid_image}
 	\label{fig:3d_grid}
 \end{figure}
@@ -269,7 +269,7 @@ Voxely jsou často využívány v~medicíně \cite{medical_vox}, například pro
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{obrazky-figures/voxel_mri.png}
-	\caption{Zobrazení výsledku magnetické resonance pomocí voxelů.}
+	\caption{Zobrazení výsledku magnetické resonance pomocí voxelů}
 	\textbf{Zdroj: \cite{mri}}
 	\label{fig:mri_vox}
 \end{figure}
@@ -278,8 +278,8 @@ Dalším častým využitím je modelování terénu; voxely přináší možnos
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.15]{obrazky-figures/minecraft.jpg}
-	\caption{Minecraft.}
+	\includegraphics[scale=0.13]{obrazky-figures/minecraft.jpg}
+	\caption{Minecraft}
 	\textbf{Zdroj: \url{https://forums-cdn.spongepowered.org/uploads/default/original/2X/8/83abd20efc6cf5104c2f8c5459808bcd1addef7a.jpg}}
 	\label{fig:minecraft}
 \end{figure}
@@ -372,7 +372,7 @@ Vhodnější alternativou pro výpočet průsečíku paprsku s~voxelem lze nají
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1.3]{obrazky-figures/slab_intersect.png}
-	\caption{Průsečík s~voxelem metodou dlaždic.}
+	\caption{Průsečík s~voxelem metodou dlaždic}
 	\textbf{Zdroj: \cite{Cunha13}}
 	\label{fig:slabs}
 \end{figure}
@@ -400,7 +400,7 @@ Octree, poprvé představen v~knize \cite{rensselaer1980octree}, je popsán jako
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.1]{obrazky-figures/Octree2.pdf}
-	\caption{Octree.}
+	\caption{Octree}
 	\textbf{Zdroj: \url{https://en.wikipedia.org/wiki/Octree}}
 	\label{fig:slabs}
 \end{figure}
@@ -431,7 +431,7 @@ Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelov�
 \end{center}
 
 \section{Vulkan API}
-Vulkan je API pro 3D grafiku a výpočty pomocí GPU \cite{vulkan_web}. Cílem Vulkan je poskytnout uživateli možnost vyvíjet vysoce výkonné grafické aplikace. V~porovnání s~OpenGL či podobnými staršími API přináší výrazně vyšší výkon, ovšem je s~ním také práce poněkud časově náročnější, jelikož Vulkan pracuje na výrazně nižší úrovni. Byl také navržen s~předpokladem, že bude používán z~více vláken. Některé výhody Vulkan oproti předchozím grafickým API:
+Vulkan je API pro 3D grafiku a výpočty pomocí GPU \cite{vulkan_web}. Cílem Vulkan je poskytnout uživateli možnost vyvíjet vysoce výkonné grafické aplikace. V~porovnání s~OpenGL či podobnými staršími API přináší výrazně vyšší výkon, ovšem práce s~ním je poněkud časově náročnější, jelikož Vulkan pracuje na výrazně nižší úrovni, než jeho předchůdci. Byl také navržen s~předpokladem, že bude používán z~více vláken. Některé výhody Vulkan oproti předchozím grafickým API:
 
 \begin{itemize}
 	\item Jednotné API jak pro mobilní zařízení, tak pro PC.
@@ -459,19 +459,19 @@ Pro implicitní zakódování pozice lze využít octree (sekce \ref{octree}). N
 	\end{gathered}
 \end{equation}
 
-Kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. Při použití tohoto rozložení by ovšem musela být celá oblast uvnitř octree rozdělena na nejmenší bloky a docházelo by k~obrovskému plýtvání paměti.
+kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. Při použití tohoto rozložení by ovšem musela být celá oblast uvnitř octree rozdělena na nejmenší bloky a docházelo by k~obrovskému plýtvání paměti.
 
-Úsporný způsob pro reprezentaci octree byl představen v~\cite{Laine2011EfficientSV}. Metoda kóduje informace o~uzlu bitově na data o~velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si můžeme dovolit reprezentovat ho menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velkých stromech nemusí být 15 bitů dostačující. Tento pointer je uložen v~oddělené části bufferu. \texttt{Valid mask} je bitová maska o~velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, ovšem nám dává vědět, jestli je potomek na indexu terminálním uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
+Úsporný způsob pro reprezentaci octree byl představen v~\cite{Laine2011EfficientSV}. Metoda kóduje informace o~uzlu bitově na data o~velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si jej můžeme dovolit reprezentovat menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velkých stromech nemusí být 15 bitů dostačující. Tento pointer je uložen v~oddělené části bufferu. \texttt{Valid mask} je bitová maska o~velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, dává nám ovšem vědět, jestli je potomek na indexu terminálním uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1.3]{obrazky-figures/octree_child_data.png}
-	\caption{Položka reprezentující uzel octree.}
+	\caption{Položka reprezentující uzel octree}
 	\textbf{Zdroj: \cite{Laine2011EfficientSV}}
 	\label{fig:octree_child}
 \end{figure}
 
-Samozřejmě krom informací o~obsazenosti prostoru je nutné ukládat i informace o~materiálu. První možností by bylo rozšířit záznamy ve stromu o~tato data, ale s~velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, byla by zhoršena lokalita paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s~ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položka slouží k~vyhledávání specifického záznamu v~separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
+Samozřejmě krom informací o~obsazenosti prostoru je nutné ukládat i informace o~materiálu. První možností by bylo rozšířit záznamy ve stromu o~tato data, ale s~velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, byla by zhoršena lokalita paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s~ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položky slouží k~vyhledávání specifického záznamu v~separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
 
 \section{Vykreslování}
 Pro rendering voxelové scény existuje několik možností, vhodným kandidátem je přístup sparse voxel octree (sekce \ref{svo_alg}). Při vržení paprsku dochází k~procházení stromu a vcházení pouze do podoblastí, které mohou obsahovat vyhledávaný voxel. Algoritmus je velice úsporný oproti primitivním metodám.
@@ -479,18 +479,18 @@ Pro rendering voxelové scény existuje několik možností, vhodným kandidáte
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{obrazky-figures/color_iter_svo.png}
-	\caption{Render voxelizované 'Utah teapot'. Vlevo barevný výstup, vpravo počet iterací. }
+	\caption{Render voxelizované "Utah teapot", vlevo barevný výstup, vpravo počet iterací }
 	\label{fig:octree_child}
 \end{figure}
 
-Vzhledem ke způsobu uložení dat, který byl představen v~minulé sekci, je v~rámci algoritmu dopočítávat množství indexů uzlů na základě masek (\texttt{valid mask} a \texttt{leaf mask}). Jedná se ale zpravidla pouze o~operace sčítání či odčítání a nejsou tedy příliš výpočetně náročné.
+Vzhledem ke způsobu uložení dat, který byl představen v~minulé sekci, je v~rámci algoritmu nutné dopočítávat množství indexů uzlů na základě masek (\texttt{valid mask} a \texttt{leaf mask}). Jedná se ale zpravidla pouze o~operace sčítání či odčítání a nejsou tedy příliš výpočetně náročné.
 
-Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody popsané v~sekci \ref{sec:voxel_intersection}. Pro tuto metodu existuje množství optimalizací, které budou posléze v~projektu využity. Například optimalizace uvedena v~publikaci \cite{Majercik2018Voxel}. Důležitou součástí pro stínování je také získání normály povrchu. Vzhledem k~tomu, že mám prozatím v~úmyslu zachovat 'krychlovitý' tvar voxelů je tento výpočet triviální, vzhledem k~využití slab metody pro nalezení průsečíku.
+Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody popsané v~sekci \ref{sec:voxel_intersection}. Pro tuto metodu existuje množství optimalizací, které budou posléze v~projektu využity. Například optimalizace uvedena v~publikaci \cite{Majercik2018Voxel}. Důležitou součástí pro stínování je také získání normály povrchu. Vzhledem k~tomu, že mám prozatím v~úmyslu zachovat "krychlovitý" tvar voxelů, je tento při využití slab metody pro nalezení průsečíku, poměrně triviální.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{obrazky-figures/normals_teapot.png}
-	\caption{Render voxelizované 'Utah teapot'. Vizualizace normál. }
+	\caption{Render voxelizované "Utah teapot", vizualizace normál }
 	\label{fig:octree_child}
 \end{figure}
 
@@ -555,9 +555,9 @@ Tato knihovna poskytuje dvě základní funkce:
 
 Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunikaci za pomocí událostí, které knihovna programu předává. Tato třída splňuje concept\footnote{\url{https://en.cppreference.com/w/cpp/language/constraints}} \texttt{Window}, který je také obsažen v~knihovně. Za pomocí \texttt{Window} je implementována komunikace mezi \texttt{Vulkan} a okenním systémem - díky tomuto rozdělení si může uživatel vytvořit komunikační vrstvu mezi knihovnou a jiným okenním systémem, jako například \texttt{SDL}\footnote{\url{https://www.libsdl.org/}}. Pro tento účel implementuje knihovna vlastní notifikační systém událostí ve třídě \texttt{EventDispatchImpl}.
 
-Část knihovny pro interakci s~\texttt{Vulkan} je o~poznání rozsáhlejší. Při návrhu knihovny byl kladen zřetel především na její jednoduchost a zároveň bezpečnost jejího užívání. Z~tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k~tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v~závislosti na nějakém vytvořeném dříve (například \texttt{vk::Instance} -> \texttt{vk::PhysicalDevice} -> \texttt{vk::Device}) si v~sobě každý nově vytvořený potomek ukládá ukazatel na svého 'rodiče'. To zaručuje, že nemůže dojít k~uvolnění objektů omylem, pokud budeme používat některého z~jeho potomků.
+Část knihovny pro interakci s~\texttt{Vulkan} je o~poznání rozsáhlejší. Při návrhu knihovny byl kladen zřetel především na její jednoduchost a zároveň bezpečnost jejího užívání. Z~tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k~tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v~závislosti na některém z dříve vytvořených (například \texttt{vk::Instance} $\longrightarrow$ \texttt{vk::PhysicalDevice} $\longrightarrow$ \texttt{vk::Device}) si v~sobě každý nově vytvořený potomek ukládá ukazatel na svého "rodiče". To zaručuje, že nemůže dojít k~uvolnění objektů omylem, v případě, že budeme používat některého z~jeho potomků.
 
-Knihovna obsahuje vlastní verzi velkého množství \texttt{Vulkan} objektů a zároveň je plně typově bezpečná. Příkladem může být přístup k~datům \texttt{vk::Buffer}, kdy k~datům přistupujeme pomocí mapovacího objektu, který hojně využívá template funkcí pro kontrolu offsetu a správné práce s~pamětí.
+Knihovna obsahuje vlastní verzi velkého množství \texttt{Vulkan} objektů a zároveň je plně typově bezpečná. Příkladem může být přístup do \texttt{vk::Buffer}, kdy k~datům přistupujeme pomocí mapovacího objektu, který hojně využívá template funkcí pro kontrolu offsetu a správné práce s~pamětí.
 
 Všechny objekty jsou potomkem \texttt{VulkanObject}, což je rozhraní, které poskytuje základní debug informace o~objektu. Vytváření objektů je vždy prováděno pomocí \texttt{struct} konfiguračních dat. Předpokládá se užití \texttt{designated initialisers}\footnote{\url{https://en.cppreference.com/w/cpp/language/aggregate_initialization#Designated_initializers}}. Ukázka vytvoření logického zařízení:
 
@@ -589,21 +589,21 @@ Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funk
 	\item Některé elementy navíc, například \texttt{Memo}.
 \end{itemize}
 
-Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, jsou implementovány wrappery pro téměř všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
+Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, přičemž jsou implementovány wrappery pro téměř všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
 
 Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti. Například implementace \texttt{CheckBox} vyžaduje jen 7 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru - s~tím, že dědí z~\texttt{LabeledElement}, \texttt{SavableElement} a \texttt{ValueObservableElement<bool>}.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.5]{obrazky-figures/pfimgui_classes.pdf}
-	\caption{Diagram tříd rozhraní imgui.}
+	\caption{Diagram tříd rozhraní imgui}
 	\label{fig:imgui_classes}
 \end{figure}
 
 
 Ukázka vytvoření tlačítka, které reaguje na kliknutí otevřením dialogu pro výběr \texttt{txt} souboru:
 
-\begin{lstlisting}[language=C++, caption={Tvorba logického zařízení}]
+\begin{lstlisting}[language=C++, caption={Vytvoření tlačítka pro výběr souboru}]
 imgui.createChild<Button>("btn_id", "Open file")
     .addClickListener([&imgui] {
         imgui.openFileDialog("Select file", 
@@ -616,7 +616,7 @@ imgui.createChild<Button>("btn_id", "Open file")
 
 
 \section{Načítání modelů a jejich transformace} \label{sec:voxel_conversion}
-Pro vykreslování modelů je nutné je transformovat do octree. Jelikož neexistuje žádný standardní formát pro voxely, je potřeba implementovat import pro různé formáty. Aplikace je prozatím schopna importovat formát \texttt{vox}(sekce \ref{sec:format})).
+Pro vykreslování modelů je nutné je transformovat do octree. Jelikož neexistuje žádný standardní formát pro voxely, je potřeba implementovat import pro různé formáty. Aplikace je prozatím schopna importovat formát \texttt{vox} (sekce \ref{sec:format})).
 
 Načítání dat je rozděleno na dvě části. V~první části jsou ze vstupního souboru načteny využité materiály a je vytvořen seznam voxelů. Tohle je jediná část, kterou je nutné implementovat speciálně pro nové formáty. Zbytek převodu je popsán v~algoritmu \ref{alg:vox_to_svo}.
 
@@ -663,14 +663,14 @@ Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Po
 				}
 			}
 		}
-		\caption{Převod voxelů do octree}
+		\caption{Minimalizace octree}
 	\end{czechalgorithm}
 \end{center}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.7]{obrazky-figures/levels_render.png}
-	\caption{Vizualizace voxelů podle jejich hloubky ve stromu. Vlevo render, vpravo barevně odlišené úrovně.}
+	\caption{Vizualizace voxelů podle jejich hloubky ve stromu, vlevo render, vpravo barevně odlišené úrovně}
 	\label{fig:imgui_classes}
 \end{figure}
 
@@ -694,7 +694,7 @@ UI aplikace je rozděleno do čtyř částí:
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{obrazky-figures/svo_ui.png}
-	\caption{Uživatelské rozhraní demonstrační aplikace.}
+	\caption{Uživatelské rozhraní demonstrační aplikace}
 	\label{fig:svo_ui}
 \end{figure}
 
@@ -704,7 +704,7 @@ UI aplikace je rozděleno do čtyř částí:
 V~této kapitole je krátký popis dosažených výsledků týkající se doby převodu vstupních dat a také analýza využití paměti na grafické kartě.
 
 \section{Převod vstupních dat na octree}
-Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jedno vlákně, ale v~budoucí verzi jej plánuji předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s~aktivovanou minimalizací. Měření byla prováděna s~nejvyšší úrovní optimalizací, na CPU \texttt{Ryzen 3600}. Měření probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v~testech použit byly plné koule o~různých poloměrech.
+Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jednom vlákně, ale v~budoucí verzi jej plánuji předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s~aktivovanou minimalizací. Měření byla prováděna s~nejvyšší úrovní optimalizací kompilace. Pro měření bylo použito CPU \texttt{Ryzen 3600} a probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v~testech použit byly plné koule o~různých poloměrech.
 
 
 \begin{figure}[H]
@@ -713,7 +713,8 @@ Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}.
 			\begin{axis}[
 				xlabel={velikost scény [voxely]},
 				y unit = s,
-				ylabel={doba zpracování}
+				ylabel={doba zpracování},
+				grid=both
 				]
 				\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert.txt};
 			\end{axis}
@@ -726,7 +727,8 @@ Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}.
 			\begin{axis}[
 				xlabel={velikost scény [voxely]},
 				y unit = s,
-				ylabel={doba zpracování}
+				ylabel={doba zpracování},
+				grid=both
 				]
 				\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert_mini.txt};
 			\end{axis}
@@ -737,12 +739,12 @@ Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}.
 	\caption{Čas tvorby octree}
 \end{figure}
 
-I~když to není z~grafu moc znatelné, transformace s~minimalizací je o~pár procent rychlejší, jelikož není nutné vytvářet tak velký finální strom. Pokud by vstupní data byla minimalizaci nepříznivá, byla by tato metoda pomalejší.
+I~když to není z~grafu moc znatelné, transformace s~minimalizací je o~pár procent rychlejší, jelikož není nutné vytvářet tak velký finální strom. Pokud by vstupní data byla pro minimalizaci nepříznivá, byla by tato metoda pomalejší.
 
 Vzhledem k~rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a mám v~úmyslu je v~budoucnu zrychlit.
 
 \section{Paměťová náročnost}
-Každý uzel octree zabírá v~prvé řadě 4 bajty (15 bitů \texttt{child pointer} + 1 bit \texttt{far} + 8 bitů \texttt{valid mask} + 8bitů \texttt{leaf mask}). Dále pro dohledání materiálů a ostatních parametrů další 4 bajty (24 bitů \texttt{value pointer} + 8 bitů \texttt{mask}). Tyto dva záznamy nejsou vytvářeny pro listové uzly. Pokud budeme předpokládat strom, který má prostor obsazený přesně z~50\% a je obsazen pouze každý druhý voxel, s~hloubkou stromu 6 -- tedy 37448 voxelů -- celková obsazená paměť zmíněnými záznamy bude 18724 bajtů. Při popsaném rozložení voxelů se samozřejmě jedná o~nejhorší možný případ.
+Každý uzel octree zabírá v~prvé řadě 4 bajty (15 bitů \texttt{child pointer} + 1 bit \texttt{far} + 8 bitů \texttt{valid mask} + 8bitů \texttt{leaf mask}). Dále pro dohledání materiálů a ostatních parametrů další 4 bajty (24 bitů \texttt{value pointer} + 8 bitů \texttt{mask}). Tyto dva záznamy nejsou vytvářeny pro listové uzly. Pokud budeme předpokládat strom, který má prostor obsazený přesně z~50 \% a je obsazen pouze každý druhý voxel, s~hloubkou stromu 6 -- tedy 37448 voxelů -- celková obsazená paměť zmíněnými záznamy bude 18724 bajtů. Při popsaném rozložení voxelů se samozřejmě jedná o~nejhorší možný případ.
 
 \begin{table}[H]
 	\centering
@@ -759,7 +761,7 @@ Každý uzel octree zabírá v~prvé řadě 4 bajty (15 bitů \texttt{child poin
 	\caption{Využití paměti podle hloubky stromu při maximální nepříznivosti podmínek}
 \end{table}
 
-Tímto jsou pokryta základní data popisující strom a vyhledávací strukturu do parametrů. Další paměť je využita \texttt{far} pointery. V~pesimistickém případě je může potřebovat \textasciitilde5\% uzlů, ovšem jsou potřeba až pro hloubku stromu vyšší než 7, kvůli množství potomků v~úrovni.
+Tímto jsou pokryta základní data popisující strom a vyhledávací strukturu do parametrů. Další paměť je využita \texttt{far} pointery. V~pesimistickém případě je může potřebovat \textasciitilde5 \% uzlů, ovšem jsou potřeba až pro hloubku stromu vyšší než 7, kvůli množství potomků v~úrovni.
 
 Poslední data vyžadující velké množství paměti jsou samotné parametry voxelů. Samozřejmě záleží na využitých parametrech, pro phongovo stínování je dostačující barva, tedy 4 bajty (RGBA formát, kde je každý kanál reprezentován 8 bity). Samozřejmě se data dají zakódovat efektivněji.
 
@@ -786,7 +788,7 @@ Ve všech případech se jedná o~nejhorší možný případ. Realisticky použ
 \label{zaver}
 Cílem semestrální části diplomové práce bylo nastudovat techniky fotorealistického zobrazování voxelových modelů a nástrojů, pomocí nichž toho lze dosáhnout a také vytvořit kostru aplikace. Demonstrační aplikace je schopna načítat a transformovat modely a také zobrazovat voxelové scény.
 
-V~teoretické části dokumentu byl popsán princip realistického zobrazování a některé metody pro dosažení realistického výsledku. Byl popsán například algoritmus ray tracing s~některými jeho obměnami nebo radiozita. Sekce také představila základy práce s~materiály a metody pro odstranění aliasingu. Další sekce vysvětlila princip voxelizace prostoru a představila některá jeho využití. Také zde byly popsány metody pro vykreslení voxelů a základní hierarchické struktury, pomocí nichž lze zmíněné vykreslování akcelerovat.
+V~teoretické části dokumentu byl popsán princip realistického zobrazování a některé metody pro dosažení realistického výsledku. Byl popsán například algoritmus ray tracing s~některými jeho obměnami. Sekce také představila základy práce s~materiály a metody pro odstranění aliasingu. Další sekce vysvětlila princip voxelizace prostoru a představila některá jeho využití. Také zde byly popsány metody pro vykreslení voxelů a základní hierarchické struktury, pomocí nichž lze zmíněné vykreslování akcelerovat.
 
 Kapitola návrhu řešení popsala způsob efektivní reprezentace voxelových dat a vysvětlila její výhody. V~této kapitole je taky popsán návrh vykreslování voxelových scén.
 
