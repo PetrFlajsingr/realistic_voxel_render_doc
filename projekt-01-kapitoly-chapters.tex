@@ -394,6 +394,61 @@ Jak již bylo zmíněno, pro efektivní práci s~velkým množstvím voxelů je 
 \subsection{Mřížka}
 Mřížka, nebo také grid, je poměrně jednoduchá struktura pro dělbu prostoru. Na nejnižší úrovni může mřížka odpovídat té, pomocí které dělí prostor samotné voxely. V~takovém případě by však nedošlo k~žádnému zrychlení. Pro akceleraci je prostor obsahující voxely rozdělen do několika částí (tzv. chunks). V~těchto oblastech jsou voxely sdružovány a při hledání požadované položky můžeme nejdřív vybrat správný chunk a pak teprve vyhledávat v~omezené množině voxelů. Samotná struktura má minimální paměťové nároky, ale nepřináší velké zrychlení, alespoň ve srovnání s~ostatními metodami. Jednoduchá trojrozměrná mřížka je na obrázku \ref{fig:3d_grid}.
 
+\subsection{Hierarchie obalových těles} \label{sec:BVH}
+Obalové těleso (bounding volume) je jednoduchý geometrický objekt, který obaluje jeden či více objektů s větší komplexitou \cite{ericson_2005}. Důležitým faktorem pro vhodnost tělesa k využití v hierarchii obalových těles (bounding volume hierarchies) pro ray tracing je náročnost výpočtu průsečíku s tělesem. Jako příklad můžeme uvést kouli (rovnice \ref{eq:sphere_ray_intersection}), osově zarovnaný obdelník (axis aligned box) nebo konvexní obálku. 
+
+\begin{equation} \label{eq:sphere_ray_intersection}
+	\begin{gathered}
+	    R(t) = \textbf{o} + t\textbf{d}  \\
+	    
+	    (P + t\textbf{d} - C) (P + t\textbf{d} - C) = r^2
+	    
+	\end{gathered}
+\end{equation}
+
+\begin{eqexpl}[60mm]
+\item{$R$} paprsek
+\item{$\textbf{o}$} počátek paprsku
+\item{$t$} vzdálenost průsečíku
+\item{$\textbf{d}$} směr paprsku
+\item{$C$} střed koule
+\item{$r$} poloměr koule
+\end{eqexpl}
+
+Samotná hierarchie těchto těles je tvořena jako stromová struktura, kdy každý nelistový uzel obsahuje zpravidla 2 potomky. Obalové těleso reprezentující nelistové uzly je vytvořeno tak, aby ohraničovalo pouze prostor nutný k obsažení jeho potomků.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.5]{images/fig03-bvh.png}
+	\caption{2D hierarchie obalových těles}
+	\textbf{Zdroj: \url{https://developer.nvidia.com/blog/thinking-parallel-part-ii-tree-traversal-gpu/}}
+	\label{fig:slabs}
+\end{figure}
+
+Díky snadnosti výpočtu průsečíků a možnosti netestovat průsečíky s nižšími úrovněmi stromu -- a tím i komplexními objekty -- může dojít k výraznému zrychlení výpočtu průsečíku se scénou. Algoritmus \ref{alg:bvh_traverse_naive} popisuje jednoduchý průchod binárním stromem za pomocí zásobníku.
+
+\begin{center}
+	\begin{czechalgorithm}[H] \label{alg:bvh_traverse_naive}
+		current\_node = root\\
+		stack = empty()\\
+		exit = false\\
+		\While{\text{!exit}} {\\
+			\eIf{isInternalNode(current\_node)}{
+			    \uIf{intersectNode(current\_node)}{
+			        pushStack(stack, current\_node.first\_child)\\
+			        current\_node = current\_node.second\_child\\
+			    }
+			}{
+			    intersectLeaf(current\_node)\\
+			    (current\_node, exit) = popStack(stack)\\
+			}
+		}\\
+		\caption{Průchod BVH stromem pro ray tracing \cite{Vaidyanathan2019WideBT}}
+	\end{czechalgorithm}
+\end{center}
+
+
+
 \subsection{Octree} \label{octree}
 Octree, poprvé představen v~knize \cite{rensselaer1980octree}, je popsán jako hierarchický N-dimenzionální binární strom, jenž reprezentuje N-dimenzionální objekt. Pro naše účely podstatná pouze jeho 3D varianta. Každý uzel stromu obsahuje 8 potomků na další úrovni. Tyto uzly reprezentují oblast v~prostoru. Pokud uzel kompletně popisuje oblast, kterou reprezentuje, jedná se o~list nebo koncový uzel, v~opačném případě musí obsahovat 8 potomků pro podoblasti. Při hledání objektů v~prostoru tedy můžeme procházet pouze velmi omezenými oblastmi a neplýtvat výpočetní výkon.
 
@@ -494,6 +549,8 @@ Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody
 	\label{fig:octree_child}
 \end{figure}
 
+
+Pro usnadnění práce s modely a úsporu výpočetního výkonu při jejich transformaci má každý model svoji vlastní octree strukturu. Nutnost otestovat průsečíky se všemi těmito modely by byla velice náročná a proto je vhodné použít další akcelerační strukturu k urychlení nalezení průsečíku. Zvolil jsem hierarchii obalových těles (sekce \ref{sec:BVH}) s využitím osově zárovnaných obdelníku. Každý listový uzel tedy obsahuje jeden octree. 
 
 
 
@@ -677,6 +734,62 @@ Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Po
 
 
 Finálním krokem je transformace vytvořeného stromu do jeho binární reprezentace popsané v~sekci \ref{sec:voxel_representation}.
+
+
+\section{Výpočet průsečíku se scénou} \label{sec:bvh_traversal_impl}
+Generování paprsků bla bla, BVH:
+
+Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využití zásobníku. Důležitou součástí tohoto algoritmu je řazení potomků uzlu podle jejich vzdálenosti od počátku paprsku. Díky tomu jsou uzly stromu procházeny v pořadí od nejbližšího, můžeme tedy od určité chvíle naprosto ignorovat modely, jejichž obalové těleso (AABB) se nachází dále než prozatím nejbližší průsečík scény. Je zde také menší pravděpodobnost, že bude docházet k větvení kvůli pořadí průchodu.
+
+\begin{center}
+	\begin{czechalgorithm}[H] \label{alg:traverse_bvh_impl}
+	    \SetKw{Or}{\hspace{\algoskipindent}\itshape or\;}
+        \SetKw{And}{\hspace{\algoskipindent}\itshape and\;}
+        \SetKw{Not}{\itshape not}
+		\SetKwFunction{FTraverseBVH}{TraverseBVH}
+		\SetKwFunction{FIntersectNode}{IntersectNode}
+		\SetKwProg{Fn}{Function}{:}{}
+
+		\Fn{\FTraverseBVH{$ray$}}{
+		    best\_model\_intersection\_distance = INFINITY\\
+		    intersection\_a = IntersectNode(root)\\
+		    stack = EmptyStack()\\
+		    \While{intersection\_a.hit}{
+		       \While{\Not intersection\_a.is\_leaf \And intersection\_a.hit}{
+		            intersection\_a = IntersectNode(intersection\_a.node.left\_child)\\
+		            intersection\_b = IntersectNode(intersection\_a.node.right\_child)\\
+		            \uIf{intersection\_a.distance < instersection\_b.distance}{
+		                swap(intersection\_a, intersection\_b)
+		            }
+		            \uIf{intersection\_b.hit \And intersection\_b.distance < best\_model\_intersection\_distance}{
+		                stack.Push(intersection\_b)
+		            }
+		            \uIf{\Not intersection\_a.hit \And \Not stack.Empty()}{
+		                intersection\_a = stack.Pop()
+		            }
+		        }
+			}
+		    
+    		\uIf{intersection\_a.is\_leaf}{
+    		    \uIf{intersection\_a.distance < best\_model\_intersection\_distance}{
+    		        model\_intersection = TraceModel(intersection\_a.model\_id\\
+    		        \uIf{model\_intersection.hit \And model\_intersection.distance < best\_model\_intersection\_distance}{
+    		            best\_model\_intersection\_distance = model\_intersection.distance 
+    		        }
+    		    }
+    		}
+    		\eIf{stack.Empty()}{
+    		    intersection\_a.hit = false
+    		} {
+    		    intersection\_a = stack.Pop()
+    		}
+		}
+		\caption{Průchod paprsku hierarchií obalových těles}
+	\end{czechalgorithm}
+\end{center}
+
+
+
 
 
 \section{Uživatelské rozhraní}
