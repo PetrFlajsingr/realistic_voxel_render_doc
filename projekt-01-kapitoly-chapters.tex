@@ -46,7 +46,7 @@ kde $L(P, \omega)$ je příchozí ($L_{in}$) či odchozí ($L_{out}$) světlo v~
 
 Existuje mnoho metod realistického zobrazování, následuje základní popis vybraných.
 
-\subsection{Ray tracing}
+\subsection{Ray tracing}\label{sec:ray_tracing}
 Neboli sledování paprsku. Pravděpodobně nejznámější metoda globálního osvětlení. Kniha \cite{advanced_global} popisuje ray tracing jako algoritmus počítající radianční hodnotu $L_{pixel}$ pro každý pixel ve výsledném obrázku. Tato hodnota je váženou hodnotou osvětlení ve scéně obsaženou v~cestě paprsku:
 
 \begin{equation} \label{eq:rt_1}
@@ -132,7 +132,7 @@ Prostor ve scéně je rozdělen pomocí pravidelné mřížky a do každé diskr
 	\label{fig:ray_marching}
 \end{figure}
 
-Algoritmus vykreslování postupuje napříč před-připravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně opakuje tento proces skrze scénu, dokud nedojde k~jisté intersekci nebo minutí geometrie scény.
+Algoritmus vykreslování postupuje napříč před-připravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně opakuje tento proces napříč scénou, dokud nedojde k~jisté intersekci nebo minutí geometrie scény.
 
 \subsection{Radiozita}
 Metody radiozity byly vyvinuty již v~padesátých letech minulého století pro simulaci tepelného přenosu. Později byla popsána varianta pro vykreslování v~článku \cite{radiosity}. Metoda je založena na jednoduchém principu; vzhledem k~tomu, že každý povrch ve scéně může odrážet světlo, se dá tento povrch považovat za zdroj světla. Radiozita povrchu je dána rovnicí:
@@ -381,7 +381,7 @@ Vhodnější alternativou pro výpočet průsečíku paprsku s~voxelem lze nají
 \subsection{Používané formáty} \label{sec:format}
 Pro ukládání voxelových scén existuje poměrně velké množství formátů. Bohužel neexistuje žádný standardizovaný formát, i když nějaké pokusy o~to již byly (například VolDat\footnote{\url{http://www.volumesoffun.com/voldat-format/}}). Následuje popis vybraných formátů.
 
-\paragraph{Vox} formát byl vytvořen pro aplikaci MagicaVoxel\footnote{\url{http://ephtracy.github.io/}}, což je modelovací software pro voxelové scény. Jedná se o~binární formát, kde jsou barvy zakódovány pomocí palety. Také podporuje různé typy materiálů. Jelikož MagicaVoxel nepodporuje větší modely než 256x256x256 voxelů, zpravidla v~tomto formátu větší scény nejsou. Specifikace formátu jsou v~\cite{vox_format}.
+\paragraph{Vox} formát byl vytvořen pro aplikaci MagicaVoxel\footnote{\url{http://ephtracy.github.io/}}, což je modelovací software pro voxelové scény. Jedná se o~binární formát, kde jsou barvy zakódovány pomocí palety. Také podporuje různé typy materiálů, ač s malým množstvím parametrů. Jelikož MagicaVoxel nepodporuje větší modely než 256x256x256 voxelů, zpravidla v~tomto formátu větší scény nejsou. Specifikace formátu jsou v~\cite{vox_format}.
 
 \paragraph{SVX} (Simple Voxels) je archivový formát. Archiv obsahuje soubor manifest.xml, který popisuje velikost mřížky, velikost voxelů, paletu materiálů a další metadata. Samotné voxely jsou popsány pomocí obrázků v~jednokanálovém formátu PNG, přičemž každý pixel slouží jako odkaz do palety modelů. Tento formát je používán především pro 3D tisk. Specifikaci formátu najdete na \cite{svx_format_2014}.
 
@@ -497,7 +497,7 @@ Vulkan je API pro 3D grafiku a výpočty pomocí GPU \cite{vulkan_web}. Cílem V
 	\item Ray tracing pomocí rozšíření (tuto funkci podporuje i DirectX12).
 \end{itemize}
 
-Současnou verzí API je Vulkan 1.2.166\cite{vulkanspec}.
+Současnou verzí API je Vulkan 1.2.184\cite{vulkanspec}.
 
 \chapter{Návrh řešení}
 \label{navrh}
@@ -528,7 +528,7 @@ kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. P�
 
 Samozřejmě krom informací o~obsazenosti prostoru je nutné ukládat i informace o~materiálu. První možností by bylo rozšířit záznamy ve stromu o~tato data, ale s~velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, byla by zhoršena lokalita paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s~ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položky slouží k~vyhledávání specifického záznamu v~separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
 
-\section{Vykreslování}
+\section{Vykreslování}\label{sec:rendering}
 Pro rendering voxelové scény existuje několik možností, vhodným kandidátem je přístup sparse voxel octree (sekce \ref{svo_alg}). Při vržení paprsku dochází k~procházení stromu a vcházení pouze do podoblastí, které mohou obsahovat vyhledávaný voxel. Algoritmus je velice úsporný oproti primitivním metodám.
 
 \begin{figure}[H]
@@ -540,7 +540,7 @@ Pro rendering voxelové scény existuje několik možností, vhodným kandidáte
 
 Vzhledem ke způsobu uložení dat, který byl představen v~minulé sekci, je v~rámci algoritmu nutné dopočítávat množství indexů uzlů na základě masek (\texttt{valid mask} a \texttt{leaf mask}). Jedná se ale zpravidla pouze o~operace sčítání či odčítání a nejsou tedy příliš výpočetně náročné.
 
-Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody popsané v~sekci \ref{sec:voxel_intersection}. Pro tuto metodu existuje množství optimalizací, které budou posléze v~projektu využity. Například optimalizace uvedena v~publikaci \cite{Majercik2018Voxel}. Důležitou součástí pro stínování je také získání normály povrchu. Vzhledem k~tomu, že mám prozatím v~úmyslu zachovat "krychlovitý" tvar voxelů, je tento při využití slab metody pro nalezení průsečíku, poměrně triviální.
+Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody popsané v~sekci \ref{sec:voxel_intersection}. Pro tuto metodu existuje množství optimalizací, které budou posléze v~projektu využity. Například optimalizace uvedena v~publikaci \cite{Majercik2018Voxel}. Důležitou součástí pro stínování je také získání normály povrchu. Vzhledem k~tomu, že mám v~úmyslu zachovat "krychlovitý" tvar voxelů, je nalezení normály při využití slab metody pro nalezení průsečíku poměrně triviální.
 
 \begin{figure}[H]
 	\centering
@@ -550,7 +550,165 @@ Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody
 \end{figure}
 
 
-Pro usnadnění práce s modely a úsporu výpočetního výkonu při jejich transformaci má každý model svoji vlastní octree strukturu. Nutnost otestovat průsečíky se všemi těmito modely by byla velice náročná a proto je vhodné použít další akcelerační strukturu k urychlení nalezení průsečíku. Zvolil jsem hierarchii obalových těles (sekce \ref{sec:BVH}) s využitím osově zárovnaných obdelníku. Každý listový uzel tedy obsahuje jeden octree. 
+Pro usnadnění práce s modely a úsporu výpočetního výkonu při jejich transformaci má každý model svoji vlastní octree strukturu. Nutnost otestovat průsečíky se všemi těmito modely by byla velice náročná a proto je vhodné použít další akcelerační strukturu k urychlení nalezení průsečíku. Zvolil jsem hierarchii obalových těles (sekce \ref{sec:BVH}) s využitím osově zárovnaných obdelníku. Každý listový uzel této hierarchie tedy obsahuje jeden octree, který definuje voxely modelu. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{images/bvh_octree.png}
+	\caption{Reprezentace scény - levá část reprezentuje hierarchii obalových těles, obsahující v listech octree (vpravo)}
+	\label{fig:scene_bvh_repr}
+\end{figure}
+
+Tuto metodu jsem se rozhodl použít pro výpočet primárních paprsků kvůli vysoké přesnosti a poměrně nízké výpočetní náročnosti tohoto algoritmu. Metoda pro výpočet sekundárních paprsků je popsána v následující sekci.
+
+\subsection{Light field probes}
+Light field probes byly již krátce představeny v sekci \ref{sec:ray_tracing}. Každá sonda je reprezentována svou pozicí a texturou, která obsahuje následující informace:
+\begin{itemize}
+ \item Radiální vzdálenost ke geometrii.
+ \item Normálu.
+ \item Informace o materiálu, barvě či jiná data využitá v další práci se sondami.
+\end{itemize}
+
+Tato textura má velikost 1024x1024 a každý texel reprezentuje dvě float hodnoty (\texttt{rg32f}). Vzhledem k tomu, že paměťová náročnost je poměrně vysoká, je nutné ukládaná data nějakým způsobem komprimovat. Radiální vzdálenost ke geometrii je možné logaritmizovat pro zachování vyšší přesnosti pro bližší objekty a také kvantizovat na snížení paměťové náročnosti. Logaritmizace a linearizace hloubky je v rovnici \ref{eq:depth_econde_decode}.
+
+\begin{equation} \label{eq:depth_econde_decode}
+	\begin{gathered}
+		encoded\_depth = \frac{log(C \cdot depth + 1)}{log(C \cdot Far)}\\
+		decoded\_depth = \frac{(C \cdot Far + 1)^{encoded\_depth} - 1}{C}
+	\end{gathered}
+\end{equation}
+
+Kde $C$ je konstanta modifikující rozložení přesnosti, často nastavena na 1, $depth$ je hloubka a $Far$ je maximální vzdálenost. Po logaritmizaci je hodnota transformována na 16 bitů a uložena do textury sondy.
+
+Dalším parametrem jsou normály. Ty lze zakódovat na 2 float hodnoty mnoha metodami, jak je uvedeno v \cite{Cigolle2014ASO}. Zvolil jsem metodu projekce na osmistěn. Po projekci jsou složky výsledného vektoru kvantizovány na 8 bitů, čímž je celková potřebná paměť pro uložení těchto hodnot snížena na 16 bitů. Rovnice \ref{eq:normal_encode} popisuje zakódování normály a \ref{eq:normal_decode} její dekódování.
+
+\begin{equation} \label{eq:normal_encode}
+	\begin{gathered}
+		\vec{p} = normal.xy \frac{1.0}{|normal.x| + |normal.y| + |normal.z|} \\
+		\vec{encoded\_normal} = \begin{cases}
+            (1.0 - |p.yx|) * sign(\vec{p}),& \text{pokud } normal.z \leq 0.0\\
+            \vec{p},              & \text{jinak}
+        \end{cases}\\
+	\end{gathered}
+\end{equation}
+
+Kde $normal$ je normála, $p$ je pomocný vektor k projekci a $encoded\_normal$ je zakódovaná normála.
+
+\begin{equation} \label{eq:normal_decode}
+	\begin{gathered}
+	    z = 1.0 - |encoded\_normal.x| - |encoded\_normal.y|\\
+	    \vec{v} = \langle encoded\_normal.xy, z \rangle\\
+		\vec{decoded\_normal} = \begin{cases}
+            \langle (1.0 - |v.yx|) * sign(v.xy), v.z \rangle,& \text{pokud } v.z < 0.0\\
+            normalize(\vec{v}),              & \text{jinak}
+        \end{cases}\\
+	\end{gathered}
+\end{equation}
+
+Kde $encoded\_normal$ je zakódovaná normála, $z$ je vypočtená třetí složka výsledné normály, $v$ je pomocný vektor a $decoded\_normal$ je dekódovaná normála.
+
+Poslední položkou uloženou v textuře sondy je radiance. Pro případné další rozšíření je uložena ve formátu \texttt{R11G11B10} pro podporu HDR.
+
+Jelikož sonda reprezentuje světelné pole ve svém okolí jakožto kouli, je nutné data nějakým způsobem transformovat na texturu, tedy rovinu. Toho lze dosáhnout mapováním koule na osmistěn a následné projekce na rovinu, jak je znázorněno na obrázku \ref{fig:octahedral_wrap}. Pro tuto projekci a její inverzní operaci je možné využít rovnic \ref{eq:normal_encode} a \ref{eq:normal_decode}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=2]{images/octahedral_wrap.png}
+	\caption{Vizualizace projekce na osmistěn a následně na rovinu}
+	\label{fig:octahedral_wrap}
+\end{figure}
+
+Výpočet informací o geometrii je prováděn pomocí ray tracingu představeném v sekci \ref{sec:rendering}. Na obrázku \ref{fig:probe_in_scene} je ukázka dat jedné ze sond.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{images/probe_with_scene.png}
+	\caption{Vizualizace dat uložených pro sondu (horní část v pořadí radiance, normály, hloubka) a její pozice ve scéně (dolní část, červená koule je zobrazovaná sonda)}
+	\label{fig:probe_in_scene}
+\end{figure}
+
+\subsubsection{Renderování scény pomocí této metody}
+Pomocí atlasu textur, který byl vytvořen pro všechny sondy pokrývající scénu, je možné provádět trasování paprsku. Tato metoda byla popsána v publikaci \cite{light_field_probes}. Díky radiální vzdálenosti a normálám zakódovaných v sondách můžeme vypočítat průsečíky nesouvislých paprsků. 
+
+V prvé řadě je nutné pro paprsek vybrat vhodnou sondu, ve které zahájíme jeho sledování. Pokud tato sonda není schopná poskytnout nám jistý \textit{miss} (minutí scény) nebo \textit{hit} (protnutí scény) je nutné vybrat alternativní sondu, která má nějakou šanci paprsek sledovat. Sledování paprsku v rámci jedné sondy tedy vrací tři stavy:
+\begin{itemize}
+    \item \textit{miss} -- minutí scény
+    \item \textit{hit} -- průsečík se scénou
+    \item \textit{unknown} -- neznámý výsledek
+\end{itemize}
+
+Stav \textit{unknown} nastane pouze v případě, kdy paprsek prochází ve větší vzdálenosti, než jaká je v daná pozici radiální hloubka. Jinými slovy, pokud sonda "ví", že nemá dostatečné informace o scéně v dané pozici, nemůže být paprsek spolehlivě vyhodnocen pouze pomocí informací z této sondy. 
+
+Sledování paprsku začíná jeho převedením jeho počátku do prostoru sondy, následně je paprsek transformován pomocí projekce na osmistěn do souřadnic textury. Dochází tedy k transformaci přímky z $R^3$ do křivky v $R^2$. Tato křivka má až čtyři segmenty, kde každý segment leží v jiné stěně osmistěnu. Následně algoritmus postupuje po jednotlivých texelech nacházejících se na této křivce a vyhodnocuje, jestli dochází k průsečíku pomocí porovnávání uložené hloubkové mapy se vzdáleností paprsku k sondě. Pokud je paprsek ve stejné vzdálenosti, nebo je dále, dochází k průsečíku nebo paprsek prochází za geometrií. Algoritmus pro výpočet průsečíku je v algoritmu \ref{alg:single_probe_trace}. 
+
+\begin{center}
+	\begin{czechalgorithm}[H] \label{alg:single_probe_trace}
+	    segments = compute\_segments(ray, probe)\\
+	    \ForEach{segment in segments}{
+	        coords\_on\_segment = create\_coords(segment)\\
+	        \ForEach{coord in coords\_on\_segment}{
+	            state = compare\_ray\_distance\_to\_radial(ray, coord, probe)\\
+	            \uIf{state == HIT}{
+	                \KwRet (HIT, coord)
+	            }
+	            \uIf{state == HIDDEN\_BEHIND\_SURFACE}{
+	                \KwRet (UNKNOWN, coord) 
+	            }
+	        }
+	    }
+	    \KwRet (MISS, last\_point\_on\_segments)
+		\caption{Sledování paprsku v rámci jedné sondy}
+	\end{czechalgorithm}
+\end{center}
+
+Pro urychlení tohoto algoritmu je pro každou sondu vytvořena další textura, která má 16-krát menší velikost -- tedy 64x64 -- ve které jsou uloženy v každém texelu nejbližší radiální vzdálenosti. Jedná se prakticky o mipmapu. Při procházení pixelů segmentů tedy není nutné provádět algoritmus na maximálním rozlišení, čímž dochází k výraznému zrychlení. Pouze při nalezení potenciálního průsečíku je trasování prováděno na vysokém rozlišení. Na obrázku \ref{fig:lfp_trace} je vizualizace průchodu paprsku jednou sondou.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{images/lfp_trace.png}
+	\caption{Vizualizace sledování paprsku v textuře sondy. Oranžová část je prováděna pouze na textuře s nižším rozlišením, zelená při nalezení potenciálního průsečíku}
+	\label{fig:lfp_trace}
+\end{figure}
+
+\paragraph{Výběr sondy.} Samozřejmě nejdůležitějším krokem je výběr vhodné sondy pro zahájení algoritmu. Jedním možným řešením je výběr sondy čistě podle vzdálenosti k počátku paprsku, což doporučuje taktéž článek \cite{light_field_probes}, s tím, že výběr dalších sond se řídí pořadím uvedeným v obrázku \ref{fig:lfp_cube}. Pokud se paprsek nenachází v jiné skupině sond po dokončení průchodu této skupiny je hledání ukončeno jako neúspěšné, jinak je prováděno v nové skupině. V mém případě docházelo k velkému množství \textit{unknown} výsledků a proto jsem se rozhodl implementovat jiné řešení. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{images/probe_cube.png}
+	\caption{Pořadí výběru sondy pro lokální skupinu}
+	\label{fig:lfp_cube}
+\end{figure}
+
+Namísto výběru sondy tak, jak je popsáno v předchozím odstavci, je možné rozdělit prostor, který je sondami sledován, na voxelové pole (mřížku). Toto pole obsahuje pro každý voxel až čtyři sondy, pro které se daný voxel vyskytuje blíže, než je jejich radiální vzdálenost ke scéně. Namísto výběru nejbližší sondy tedy vybereme sondu podle toho, ve kterém voxelu se paprsek současně nachází. Sledování ukončíme pouze tehdy, pokud žádná ze sond uložená v tomto poli nenalezla řešení a sledovaný bod paprsku se neposunul do jiného voxelu. 
+
+\begin{center}
+	\begin{czechalgorithm}[H] \label{alg:light_field_trace}
+	    result = UNKNOWN\\
+	    \While{result == UNKNOWN}{
+	        probe = select\_probe\_from\_voxel\_field(ray)\\
+	        \uIf{\Not is\_valid\_probe(probe)}{
+	            break
+	        }
+	        (result, endpoint) = trace\_single\_probe(ray, probe)\\
+	        ray.origin = endpoint
+	    }
+	    \KwRet result
+		\caption{Sledování paprsku skrze light field}
+	\end{czechalgorithm}
+\end{center}
+
+Na obrázku \ref{fig:lfp_scene_render} je zobrazena scéna vykreslená čistě pomocí výše popsané metody. Zelené oblasti značí \textit{miss}, červené \textit{unknown}. Je vidět, že dochází k mnoha nepřesnostem a ve scéně, kde je spousta objektů dochází ke vzniku míst, kde sondy nenaleznou řešení.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{images/probe_scene_render.png}
+	\caption{Scéna vykreslena pomocí sledování paprsku skrze light field}
+	\label{fig:lfp_scene_render}
+\end{figure}
+
+\subsubsection{Nepřímé osvětlení}
+Mým původním záměrem bylo využít výše popsané sondy k výpočtu sekundárních paprsků ve scéně online, ale ukázalo se, že pro takový přístup je tato metoda příliš pomalá. Bylo tedy nutné vymyslet alternativní řešení. 
 
 
 
@@ -598,6 +756,8 @@ Knihovna poskytující často používané funkce:
 	\item Implementace výjimek se stack trace reporting.
 	\item Některé idiomy \texttt{c++} -- \texttt{RAII}, \texttt{Visitor}...
 	\item Funkce pro binární serializaci dat a práci s~binárními daty.
+	\item Obecné geometrické funkce, které nejsou poskytnuty v \texttt{glm}.
+	\item Funkce pro rozšíření možnosti využití \texttt{enum}.
 	\item Mnoho dalších...
 \end{itemize}
 
@@ -606,11 +766,11 @@ Je implementována jako header-only knihovna\footnote{\url{https://en.wikipedia.
 \section{Knihovna pf\_glfw\_vulkan}
 Tato knihovna poskytuje dvě základní funkce:
 \begin{itemize}
-	\item vytvoření okna pomocí \texttt{GLFW}\footnote{\url{https://www.glfw.org/}}
+	\item vytvoření a správa okna pomocí \texttt{GLFW}\footnote{\url{https://www.glfw.org/}}
 	\item komunikace s~GPU za pomocí \texttt{Vulkan API}\footnote{\url{https://www.khronos.org/vulkan/}}
 \end{itemize}
 
-Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunikaci za pomocí událostí, které knihovna programu předává. Tato třída splňuje concept\footnote{\url{https://en.cppreference.com/w/cpp/language/constraints}} \texttt{Window}, který je také obsažen v~knihovně. Za pomocí \texttt{Window} je implementována komunikace mezi \texttt{Vulkan} a okenním systémem - díky tomuto rozdělení si může uživatel vytvořit komunikační vrstvu mezi knihovnou a jiným okenním systémem, jako například \texttt{SDL}\footnote{\url{https://www.libsdl.org/}}. Pro tento účel implementuje knihovna vlastní notifikační systém událostí ve třídě \texttt{EventDispatchImpl}.
+Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunikaci za pomocí událostí, které knihovna programu předává. Tato třída splňuje concept\footnote{\url{https://en.cppreference.com/w/cpp/language/constraints}} \texttt{Window}, který je také obsažen v~knihovně. Za pomocí \texttt{Window} je implementována komunikace mezi \texttt{Vulkan} a okenním systémem - díky tomuto rozdělení si může uživatel vytvořit komunikační vrstvu mezi knihovnou a jiným okenním systémem, jako například \texttt{SDL}\footnote{\url{https://www.libsdl.org/}}. Pro tento účel implementuje knihovna vlastní notifikační systém událostí ve třídě \texttt{EventDispatchImpl}, který výrazně usnadňuje případnou implementaci s jiným okenním backendem.
 
 Část knihovny pro interakci s~\texttt{Vulkan} je o~poznání rozsáhlejší. Při návrhu knihovny byl kladen zřetel především na její jednoduchost a zároveň bezpečnost jejího užívání. Z~tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k~tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v~závislosti na některém z dříve vytvořených (například \texttt{vk::Instance} $\longrightarrow$ \texttt{vk::PhysicalDevice} $\longrightarrow$ \texttt{vk::Device}) si v~sobě každý nově vytvořený potomek ukládá ukazatel na svého "rodiče". To zaručuje, že nemůže dojít k~uvolnění objektů omylem, v případě, že budeme používat některého z~jeho potomků.
 
@@ -634,11 +794,10 @@ logicalDevice = device->createLogicalDevice({
 
 Pro objekty, u~nichž by konfigurační struktura vyžadovala nadměrně velké množství argumentů, jsou v~knihovně dostupné builder třídy, například \texttt{GraphicsPipelineBuilder} nebo \texttt{RenderPassBuilder}.
 
-Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funkčnosti.
 
 
-\section{Knihovna pf\_imgui}
-\texttt{pf\_imgui} je event-driven UI knihovna postavena na Dear Imgui. Cílem je zjednodušení práce při vytváření uživatelského rozhraní a také přidání některých funkcí. Obrázek \ref{fig:imgui_classes} obsahuje diagram tříd rozhraní, které elementy v~\texttt{pf\_imgui} poskytují. Funkce, které jsou oproti Dear Imgui přidané jsou:
+\section{Knihovna pf\_imgui}\label{sec:pf_imgui}
+\texttt{pf\_imgui} je event-driven UI knihovna postavena na Dear Imgui. Cílem je zjednodušení práce při vytváření uživatelského rozhraní a také přidání některých funkcí. Funkce, které jsou oproti Dear Imgui přidané jsou:
 
 \begin{itemize}
 	\item Pozorování změn hodnot pomocí callback funkcí (observer pattern).
@@ -646,17 +805,13 @@ Prozatím chybí implementace \texttt{vk::DescriptorSet} a jemu příbuzné funk
 	\item Některé elementy navíc, například \texttt{Memo}.
 \end{itemize}
 
-Knihovna je postavena nezávisle na renderovacím backendu. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, přičemž jsou implementovány wrappery pro téměř všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
+Knihovna je postavena nezávisle na renderovacím backendu, v repository je poskytnut backend pro \texttt{Vulkan} a \texttt{GLFW}. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, přičemž jsou implementovány wrappery pro všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
 
-Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti. Například implementace \texttt{CheckBox} vyžaduje jen 7 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru - s~tím, že dědí z~\texttt{LabeledElement}, \texttt{SavableElement} a \texttt{ValueObservableElement<bool>}.
+V knihovně je také implementováno podstatné množství layoutů -- grid layout, anchor layout...
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[scale=0.5]{obrazky-figures/pfimgui_classes.pdf}
-	\caption{Diagram tříd rozhraní imgui}
-	\label{fig:imgui_classes}
-\end{figure}
+Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti včetně například \texttt{drag and drop} a rozhraní pro nastavení stylu/ barvy elementu. 
 
+Implementace \texttt{CheckBox} vyžaduje jen \~10 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru - s~tím, že dědí z~\texttt{ItemElement}, \texttt{Labellable}, \texttt{Savable}, \texttt{ValueObservable<bool>}, \texttt{ColorCustomizable<...>} a \texttt{StyleCustomizable<...>}.
 
 Ukázka vytvoření tlačítka, které reaguje na kliknutí otevřením dialogu pro výběr \texttt{txt} souboru:
 
@@ -792,23 +947,51 @@ Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využit�
 
 
 
-\section{Uživatelské rozhraní}
-Jelikož demonstrační aplikace modely pouze zobrazuje, není moc velké množství parametrů, které by se daly nastavovat. Program přijímá jako argument cestu ke konfiguračnímu souboru, který musí obsahovat velikost okna a cesty ke zdrojům (modely).
-
-UI aplikace je rozděleno do čtyř částí:
-
+\section{Demonstrační aplikace}
+Demonstrační aplikace slouží k vizualizaci výsledků a práci s modely/scénami. Aplikace může pracovat ve dvou režimech:
 \begin{itemize}
-	\item Stats - zobrazení statistik vykreslování (počet snímků za sekundu, do budoucna flame graph), informace o~kameře a její parametry.
-	\item Render settings - výběr typu zobrazení (stínování, normály, počet iterací, hloubka v~stromě...), ovládání světla, výběr zobrazovaného modelu.
-	\item Debug - memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
-	\item Debug images - okno pro zobrazení dalších textur, které jsou vykresleny.
+    \item Editační režim -- v tomto režimu je scéna vykreslována pouze pomocí sparse voxel octree ray marchingu a slouží primárně k vytvoření scény a jejímu uložení na disk. Také je lze možné sledovat stav sond.
+    \item Renderovací režim -- slouží k načítání scén vytvořených v předchozím režimu a demonstraci výsledného algoritmu.
 \end{itemize}
 
-\begin{figure}[H]
+Uživatelské rozhraní je implementováno pomocí knihovny \texttt{pf\_imgui} představené v sekci \ref{sec:pf_imgui}. Většina prvků uživatelského rozhraní obsahuje tooltipy pro snadné zjištění funkce jednotlivých komponent. Bližší popis se nachází na přiloženém paměťovém médiu, základní přehled zde ale bude uveden.
+
+UI aplikace je rozděleno do následujících částí:
+
+\begin{itemize}
+	\item Info - zobrazení statistik vykreslování (počet snímků za sekundu, flame graph), informace o~kameře a její parametry, a také informace o právě vykreslované scéně.
+	\item Render settings - výběr typu zobrazení (stínování, normály, počet iterací, hloubka v~stromě...), ovládání světla.
+	\item Debug - memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
+	\item Debug images - okno pro zobrazení textury reprezentující počet iterací při průchodu octree.
+	\item Shader controls - ovládání parametrů pro shadery.
+	\item Probe grid controls - ovládání mřížky sond.
+	\item Models - ovládání modelů zobrazených ve scéně.
+	\item Probes info - vizualizace atlasu sond a renderování scény pomocí něj.
+\end{itemize}
+
+\begin{figure}[h]
 	\centering
-	\includegraphics[scale=1]{obrazky-figures/svo_ui.png}
-	\caption{Uživatelské rozhraní demonstrační aplikace}
-	\label{fig:svo_ui}
+	\captionsetup{justification=centering}
+	\begin{subfigure}[t]{.49\textwidth}
+		\centering
+		\includegraphics[scale=1]{images/dp_ui_models.png}
+		\caption{\textbf{Okno pro přidávání a manipulaci s modely}}
+		\label{fig:model_ui}
+	\end{subfigure}
+		\begin{subfigure}[t]{.49\textwidth}
+		\centering
+		\includegraphics[scale=1]{images/dp_ui_probes.png}
+		\caption{\textbf{Okno pro zobrazení atlasu textur sond}}
+		\label{fig:probe_ui}
+	\end{subfigure}
+		\begin{subfigure}[t]{1\textwidth}
+			\centering
+        	\includegraphics[scale=1]{images/dp_ui_info.png}
+        	\caption{\textbf{Informační okno}}
+        	\label{fig:info_ui}
+	\end{subfigure}\\
+	\caption{Ukázka oken demonstrační aplikace}
+	\label{fig:UI}
 \end{figure}
 
 

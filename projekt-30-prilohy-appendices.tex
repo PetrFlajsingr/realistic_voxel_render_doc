@@ -10,3 +10,41 @@
 %\chapter{RelaxNG Schéma konfiguračního souboru}
 
 %\chapter{Plakát}
+
+\chapter{Obsah přiloženého paměťového média}
+
+\begin{itemize}  
+\item \texttt{README.md} - Obsahuje informace o aplikaci, jak ji přeložit a používat
+\item \texttt{doc/} - Složka obsahující dokumentaci
+\begin{itemize}
+\item \texttt{thesis/} - Text a zdrojové soubory této práce
+\item \texttt{Thesis.pdf} - Vygenerovaná dokumentace 
+\end{itemize}
+\item \texttt{src/} - Zdrojové soubory
+\item \texttt{bin/} - Složka se spustitelným souborem pro systém Linux
+\item \texttt{video/} - Složka s prezentačním videem
+\end{itemize}
+
+\chapter{Konfigurační soubor}
+\label{appendix:configfile}
+
+\begin{lstlisting}[language=toml]
+[rendering.compute]
+local_size_x = <int> # doporuceno 8
+local_size_y = <int> # doporuceno 8
+
+[resources]
+path_models = <path string> # cesta do slozky assets/vox v adresari projektu
+path_shaders = <path string> # cesta do slozky src/shaders v adresari projektu
+
+[ui.imgui]
+path_icons = <path string> # cesta do slozky assets/icons v adresari projektu
+
+# v teto sekci se nachazi take aplikaci
+# vygenerovana konfigurace hodnot uzivatelskeho rozhrani
+
+[ui.window]
+height = <int>
+width = <int>
+
+\end{lstlisting}
