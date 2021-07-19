@@ -846,7 +846,7 @@ Tato knihovna poskytuje dvě základní funkce:
 	\item komunikace s~GPU za pomocí \texttt{Vulkan API}\footnote{\url{https://www.khronos.org/vulkan/}}
 \end{itemize}
 
-Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunikaci za pomocí událostí, které knihovna programu předává. Tato třída splňuje concept\footnote{\url{https://en.cppreference.com/w/cpp/language/constraints}} \texttt{Window}, který je také obsažen v~knihovně. Za pomocí \texttt{Window} je implementována komunikace mezi \texttt{Vulkan} a okenním systémem - díky tomuto rozdělení si může uživatel vytvořit komunikační vrstvu mezi knihovnou a jiným okenním systémem, jako například \texttt{SDL}\footnote{\url{https://www.libsdl.org/}}. Pro tento účel implementuje knihovna vlastní notifikační systém událostí ve třídě \texttt{EventDispatchImpl}, který výrazně usnadňuje případnou implementaci s jiným okenním backendem.
+Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunikaci za pomocí událostí, které knihovna programu předává. Umožňuje uživateli interagovat s aplikací za pomocí periferních zařízení (myš a klávesnice). Tato třída splňuje concept\footnote{\url{https://en.cppreference.com/w/cpp/language/constraints}} \texttt{Window}, který je také obsažen v~knihovně. Za pomocí \texttt{Window} je implementována komunikace mezi \texttt{Vulkan} a okenním systémem - díky tomuto rozdělení si může uživatel vytvořit komunikační vrstvu mezi knihovnou a jiným okenním systémem, jako například \texttt{SDL}\footnote{\url{https://www.libsdl.org/}}. Pro tento účel implementuje knihovna vlastní notifikační systém událostí ve třídě \texttt{EventDispatchImpl}, který výrazně usnadňuje případnou implementaci s jiným okenním backendem.
 
 Část knihovny pro interakci s~\texttt{Vulkan} je o~poznání rozsáhlejší. Při návrhu knihovny byl kladen zřetel především na její jednoduchost a zároveň bezpečnost jejího užívání. Z~tohoto důvodu je uvnitř hojně využito \texttt{std::shared\_ptr}. Vzhledem k~tomu, že ve \texttt{Vulkan} často musíme vytvářet objekty v~závislosti na některém z dříve vytvořených (například \texttt{vk::Instance} $\longrightarrow$ \texttt{vk::PhysicalDevice} $\longrightarrow$ \texttt{vk::Device}) si v~sobě každý nově vytvořený potomek ukládá ukazatel na svého "rodiče". To zaručuje, že nemůže dojít k~uvolnění objektů omylem, v případě, že budeme používat některého z~jeho potomků.
 
@@ -870,6 +870,8 @@ logicalDevice = device->createLogicalDevice({
 
 Pro objekty, u~nichž by konfigurační struktura vyžadovala nadměrně velké množství argumentů, jsou v~knihovně dostupné builder třídy, například \texttt{GraphicsPipelineBuilder} nebo \texttt{RenderPassBuilder}.
 
+Součástí knihovny je též rozhraní pro kompilaci shader souborů z disku nebo paměti.
+
 
 
 \section{Knihovna pf\_imgui}\label{sec:pf_imgui}
@@ -887,7 +889,7 @@ V knihovně je také implementováno podstatné množství layoutů -- grid layo
 
 Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti včetně například \texttt{drag and drop} a rozhraní pro nastavení stylu/ barvy elementu. 
 
-Implementace \texttt{CheckBox} vyžaduje jen \textasciitilde10 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru - s~tím, že dědí z~\texttt{ItemElement}, \texttt{Labellable}, \texttt{Savable}, \texttt{ValueObservable<bool>}, \texttt{ColorCustomizable<...>} a \texttt{StyleCustomizable<...>}.
+Například implementace \texttt{CheckBox} vyžaduje jen \textasciitilde10 řádků kódu -- nepočítaje deklarace funkcí a tělo konstruktoru -- s~tím, že dědí z~\texttt{ItemElement}, \texttt{Labellable}, \texttt{Savable}, \texttt{ValueObservable<bool>}, \texttt{ColorCustomizable<...>} a \texttt{StyleCustomizable<...>}.
 
 Ukázka vytvoření tlačítka, které reaguje na kliknutí otevřením dialogu pro výběr \texttt{txt} souboru:
 
@@ -968,7 +970,7 @@ Finálním krokem je transformace vytvořeného stromu do jeho binární repreze
 
 
 \section{Výpočet průsečíku se scénou} \label{sec:bvh_traversal_impl}
-Generování paprsků bla bla, BVH:
+Paprsky vycházející z kamery jsou generováno 
 
 Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využití zásobníku. Důležitou součástí tohoto algoritmu je řazení potomků uzlu podle jejich vzdálenosti od počátku paprsku. Díky tomu jsou uzly stromu procházeny v pořadí od nejbližšího, můžeme tedy od určité chvíle naprosto ignorovat modely, jejichž obalové těleso (AABB) se nachází dále než prozatím nejbližší průsečík scény. Je zde také menší pravděpodobnost, že bude docházet k větvení kvůli pořadí průchodu.
 
@@ -1026,22 +1028,9 @@ Demonstrační aplikace slouží k vizualizaci výsledků a práci s modely/scé
     \item Renderovací režim -- slouží k načítání scén vytvořených v předchozím režimu a demonstraci výsledného algoritmu.
 \end{itemize}
 
-Uživatelské rozhraní je implementováno pomocí knihovny \texttt{pf\_imgui} představené v sekci \ref{sec:pf_imgui}. Většina prvků uživatelského rozhraní obsahuje tooltipy pro snadné zjištění funkce jednotlivých komponent. Bližší popis se nachází na přiloženém paměťovém médiu, základní přehled zde ale bude uveden.
+Uživatelské rozhraní je implementováno pomocí knihovny \texttt{pf\_imgui} představené v sekci \ref{sec:pf_imgui}. Většina prvků uživatelského rozhraní obsahuje tooltipy pro snadné zjištění funkce jednotlivých komponent a UI okna lze přetáhnout ven z hlavního okna pro lepší přehlednost. Bližší popis se nachází na přiloženém paměťovém médiu, základní přehled zde ale bude uveden.
 
-UI aplikace je rozděleno do následujících částí:
-
-\begin{itemize}
-	\item Info - zobrazení statistik vykreslování (počet snímků za sekundu, flame graph), informace o~kameře a její parametry, a také informace o právě vykreslované scéně.
-	\item Render settings - výběr typu zobrazení (stínování, normály, počet iterací, hloubka v~stromě...), ovládání světla.
-	\item Debug - memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
-	\item Debug images - okno pro zobrazení textury reprezentující počet iterací při průchodu octree.
-	\item Shader controls - ovládání parametrů pro shadery.
-	\item Probe grid controls - ovládání mřížky sond.
-	\item Models - ovládání modelů zobrazených ve scéně.
-	\item Probes info - vizualizace atlasu sond a renderování scény pomocí něj.
-\end{itemize}
-
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\captionsetup{justification=centering}
 	\begin{subfigure}[t]{.49\textwidth}
@@ -1066,6 +1055,19 @@ UI aplikace je rozděleno do následujících částí:
 	\label{fig:UI}
 \end{figure}
 
+
+UI aplikace je rozděleno do následujících částí:
+
+\begin{itemize}
+	\item Info - zobrazení statistik vykreslování (počet snímků za sekundu, flame graph), informace o~kameře a její parametry, a také informace o právě vykreslované scéně.
+	\item Render settings - výběr typu zobrazení (stínování, normály, počet iterací, hloubka v~stromě...), ovládání světla.
+	\item Debug - memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
+	\item Debug images - okno pro zobrazení textury reprezentující počet iterací při průchodu octree.
+	\item Shader controls - ovládání parametrů pro shadery.
+	\item Probe grid controls - ovládání mřížky sond.
+	\item Models - ovládání modelů zobrazených ve scéně.
+	\item Probes info - vizualizace atlasu sond a renderování scény pomocí něj.
+\end{itemize}
 
 \subsubsection{Konfigurace}
 Důležitou součástí aplikace je konfigurační soubor, který je blíže popsán v příloze \ref{appendix:configfile}. Tento soubor obsahuje primárně informace o cestách ke zdrojům (cesta k modelům, shaderům...). Také je v něm obsažena definice velikosti okna demonstrační aplikace a velikost pracovní skupiny pro vykreslování za pomocí octree. Aplikace automaticky ukládá data, která uživatel nastavil v uživatelském rozhraní.
