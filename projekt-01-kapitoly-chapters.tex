@@ -567,7 +567,26 @@ Definujme paprsek jako $p_t(t) = p + t\cdot d$. Cílem je získat hodnotu $t$, t
 
 Při průchodu voxely na stejné úrovni můžeme získat následující voxel stejné škály porovnáním hodnot $t_x(x_1), t_y(y_1)$ a $t_z(z_1)$ proti $tc_{max}$. Posuneme se na další voxel v osách, ve kterých jsou si hodnoty rovné.
 
+Jelikož je využitá octree struktura \textit{sparse} -- tedy neobsahuje informace o prázdném prostoru -- je nutné provádět inkrementální průchod hierarchií. Algoritmus provádí prohledávání do hloubky, tedy snaží se co nejdříve dostat na listové uzly pro nejrychlejší konvergenci k výsledku. Při každé iteraci může docházet k jednomu ze tří způsobů výběru dalšího zkoumaného voxelu:
+
+\begin{itemize}
+    \item \textit{PUSH} - Posun do potomka uzlu.
+    \item \textit{ADVANCE} - Posun do sourozeneckého uzlu.
+    \item \textit{POP} - Posun do uzlu, který byl uložen na zásobník.
+\end{itemize}
+
+Pro průchod octree je tedy nutné využít datové struktury zásobník. Kdykoli, kdy algoritmus postoupí do nižší úrovně stromu (\textit{PUSH}), je potenciálně uložen předchozí rodič. Pokud je současná větev nevhodná pro další výpočty, je vyvolán \textit{POP} a tím se posune algoritmus v hierarchii výše. 
+
+Při postupu v hierarchii níže dochází k volbě vhodného potomka. Volba je založena na vyhodnocení $t_x$, $t_y$ a $t_z$ a jejich porovnání s $tc_{min}$.
+
 Tuto metodu jsem se rozhodl použít pro výpočet primárních paprsků kvůli vysoké přesnosti a poměrně nízké výpočetní náročnosti tohoto algoritmu. Metoda pro výpočet sekundárních paprsků je popsána v následující sekci.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.2]{obrazky-figures/svo_snowman.png}
+	\caption{Ukázka reprezentace modelu pomocí sparse voxel octree}
+	\label{fig:svo_example}
+\end{figure}
 
 \subsection{Light field probes}
 Light field probes byly již krátce představeny v sekci \ref{sec:ray_tracing}. Každá sonda je reprezentována svou pozicí a texturou, která obsahuje následující informace:
