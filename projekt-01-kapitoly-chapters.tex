@@ -529,7 +529,10 @@ kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. P�
 Samozřejmě krom informací o~obsazenosti prostoru je nutné ukládat i informace o~materiálu. První možností by bylo rozšířit záznamy ve stromu o~tato data, ale s~velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, byla by zhoršena lokalita paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s~ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položky slouží k~vyhledávání specifického záznamu v~separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
 
 \section{Vykreslování}\label{sec:rendering}
-Pro rendering voxelové scény existuje několik možností, vhodným kandidátem je přístup sparse voxel octree (sekce \ref{svo_alg}). Při vržení paprsku dochází k~procházení stromu a vcházení pouze do podoblastí, které mohou obsahovat vyhledávaný voxel. Algoritmus je velice úsporný oproti primitivním metodám.
+V této sekci jsou popsány metody využité pro vykreslování scény v této práci. Je zde popsán ray marching pomocí sparse voxel octrees, light field probes a jejich modifikace pro nepřímé osvětlení.
+
+\subsection{Sparse voxel octree}
+Pro rendering voxelové scény existuje několik možností, vhodným kandidátem je přístup sparse voxel octree (sekce \ref{svo_alg}). Při vržení paprsku dochází k~procházení stromu a vcházení pouze do podoblastí, které mohou obsahovat vyhledávaný voxel. Algoritmus je velice úsporný oproti primitivním metodám. Tato metoda je popsána v \cite{Laine2011EfficientSV}.
 
 \begin{figure}[H]
 	\centering
@@ -540,7 +543,7 @@ Pro rendering voxelové scény existuje několik možností, vhodným kandidáte
 
 Vzhledem ke způsobu uložení dat, který byl představen v~minulé sekci, je v~rámci algoritmu nutné dopočítávat množství indexů uzlů na základě masek (\texttt{valid mask} a \texttt{leaf mask}). Jedná se ale zpravidla pouze o~operace sčítání či odčítání a nejsou tedy příliš výpočetně náročné.
 
-Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody popsané v~sekci \ref{sec:voxel_intersection}. Pro tuto metodu existuje množství optimalizací, které budou posléze v~projektu využity. Například optimalizace uvedena v~publikaci \cite{Majercik2018Voxel}. Důležitou součástí pro stínování je také získání normály povrchu. Vzhledem k~tomu, že mám v~úmyslu zachovat "krychlovitý" tvar voxelů, je nalezení normály při využití slab metody pro nalezení průsečíku poměrně triviální.
+Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody popsané v~sekci \ref{sec:voxel_intersection}. Důležitou součástí pro stínování je také získání normály povrchu. Vzhledem k~tomu, že mám v~úmyslu zachovat "krychlovitý" tvar voxelů, je nalezení normály při využití slab metody pro nalezení průsečíku poměrně triviální.
 
 \begin{figure}[H]
 	\centering
@@ -548,7 +551,6 @@ Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody
 	\caption{Render voxelizované "Utah teapot", vizualizace normál }
 	\label{fig:octree_child}
 \end{figure}
-
 
 Pro usnadnění práce s modely a úsporu výpočetního výkonu při jejich transformaci má každý model svoji vlastní octree strukturu. Nutnost otestovat průsečíky se všemi těmito modely by byla velice náročná a proto je vhodné použít další akcelerační strukturu k urychlení nalezení průsečíku. Zvolil jsem hierarchii obalových těles (sekce \ref{sec:BVH}) s využitím osově zárovnaných obdelníku. Každý listový uzel této hierarchie tedy obsahuje jeden octree, který definuje voxely modelu. 
 
@@ -558,6 +560,12 @@ Pro usnadnění práce s modely a úsporu výpočetního výkonu při jejich tra
 	\caption{Reprezentace scény - levá část reprezentuje hierarchii obalových těles, obsahující v listech octree (vpravo)}
 	\label{fig:scene_bvh_repr}
 \end{figure}
+
+Regularita dat uložených pomocí octree je klíčovým faktorem umožňujícím efektivní sledování paprsku. Většina dat asociovaných s voxelem je uložena v jeho rodiči a samotný voxel je tedy reprezentován indexem jeho rodiče a indexem voxelu v rozsahu $[0, 7]$. Jelikož struktura neukládá prostorové informace, je také nutné v průběhu sledování paprsku skrze octree udržovat informace o velikosti a pozici zkoumaného voxelu. Voxel je v prostoru tedy reprezentován vektorem $\vec{pos}$, který je v rozsahu $[0, 1]$ v každé dimenzi a pozitivním celým číslem $scale$, které určuje délku hran voxelu. Vzhledem k využití těchto vlastností se model vždy nachází v prostoru souřadnic v rozsahu $[0, 1]$ a pro aplikaci transformací a následné efektivní sledování paprsku je nutné paprsek transformovat pomocí inverzní transformace do tohoto prostoru.
+
+Definujme paprsek jako $p_t(t) = p + t\cdot d$. Cílem je získat hodnotu $t$, tedy vzdálenost k průsečíku paprsku a jednoho z voxelů patřících do octree. Pro osově zarovnanou rovinu získáme rovnici $t_x(x) = \frac{1}{d_x}x + -\frac{p_x}{dx}$ pro osu $x$, obdobné rovnice jsou získány pro osy $y$ a $z$. Můžeme tedy reprezentovat osově zarovnanou krychli jako dvojici rohů (bodů v prostoru) $(x_0, y_0, z_0)$ a $(x_1, y_1, z_1)$ tak, že $t_y(y_0) \leq t_y(y_1)$, $t_y(y_0) \leq t_z(z_1)$ a $t_z(z_0) \leq t_z(z_1)$. S touto definicí je rozsah $t$ hodnot protnutých s krychlí dán rovnicemi $tc_{min} = \max(t_x(x_0), t_y(y_0), t_z(z_0))$ a $tc_{max} = \max(t_x(x_1), t_y(y_1), t_z(z_1))$.
+
+Při průchodu voxely na stejné úrovni můžeme získat následující voxel stejné škály porovnáním hodnot $t_x(x_1), t_y(y_1)$ a $t_z(z_1)$ proti $tc_{max}$. Posuneme se na další voxel v osách, ve kterých jsou si hodnoty rovné.
 
 Tuto metodu jsem se rozhodl použít pro výpočet primárních paprsků kvůli vysoké přesnosti a poměrně nízké výpočetní náročnosti tohoto algoritmu. Metoda pro výpočet sekundárních paprsků je popsána v následující sekci.
 
@@ -628,7 +636,7 @@ Výpočet informací o geometrii je prováděn pomocí ray tracingu představen�
 	\label{fig:probe_in_scene}
 \end{figure}
 
-\subsubsection{Renderování scény pomocí této metody}
+\subsection{Renderování scény pomocí light field probes}
 Pomocí atlasu textur, který byl vytvořen pro všechny sondy pokrývající scénu, je možné provádět trasování paprsku. Tato metoda byla popsána v publikaci \cite{light_field_probes}. Díky radiální vzdálenosti a normálám zakódovaných v sondách můžeme vypočítat průsečíky nesouvislých paprsků. 
 
 V prvé řadě je nutné pro paprsek vybrat vhodnou sondu, ve které zahájíme jeho sledování. Pokud tato sonda není schopná poskytnout nám jistý \textit{miss} (minutí scény) nebo \textit{hit} (protnutí scény) je nutné vybrat alternativní sondu, která má nějakou šanci paprsek sledovat. Sledování paprsku v rámci jedné sondy tedy vrací tři stavy:
@@ -707,8 +715,56 @@ Na obrázku \ref{fig:lfp_scene_render} je zobrazena scéna vykreslená čistě p
 	\label{fig:lfp_scene_render}
 \end{figure}
 
-\subsubsection{Nepřímé osvětlení}
+\subsection{Nepřímé osvětlení}
 Mým původním záměrem bylo využít výše popsané sondy k výpočtu sekundárních paprsků ve scéně online, ale ukázalo se, že pro takový přístup je tato metoda příliš pomalá. Bylo tedy nutné vymyslet alternativní řešení. 
+
+Pro již zmíněnou metodu se nabízí modifikace, která by umožnila přidat funkčnost nepřímého osvětlení tak, že do atlasu textur sond vypočteme nepřímé osvětlení při jejich inicializaci a posléze je aplikujeme při renderování scény.  K výpočtu použijeme ray tracing implementovaný pomocí metody popsané v první části sekce. Pro každý texel, který reprezentuje difuzní materiál, je vysláno několik paprsků z místa prvního průsečíku scény. Tyto paprsky se dále odráží ve scéně a sbírají světlo z vnějších zdrojů/emitujících materiálů.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.15]{images/diffuse_bounce.png}
+	\caption{Paprsky odražené z difuzního materiálu}
+	\textbf{Zdroj: \url{https://renderstuff.com/tutorials/indirect-illumination-in-v-ray-tutorial-176/}}
+	\label{fig:diffuse_rays}
+\end{figure}
+
+
+Jelikož informace o materiálech poskytované zdrojovými modely jsou poměrně stručné, odraz paprsku je prováděn náhodně v polokouli určené normálou, jak je demonstrováno na obrázku \ref{fig:diffuse_rays}. Výpočet příspěvku osvětlení je popsán v algoritmu \ref{alg:bounce_bake}.
+
+\begin{center}
+	\begin{czechalgorithm}[H] \label{alg:bounce_bake}
+	    result = vector(1, 1, 1)\\
+	    \For{i in range(0, MAX\_BOUNCES)}{
+	        (is\_hit, position, normal, material\_type) = trace\_ray(ray)\\
+	        \uIf{\Not is\_hit}{
+	            break
+	        }
+	        \uIf{material\_type == DIFFUSE}{
+	            result *= attentuation\\
+	            ray.origin = position\\
+	            ray.direction = random\_point\_on\_hemisphere(normal)
+	        }
+	        \uIf{material\_type == METALLIC}{
+	            ray = bounce\_ray\_for\_metallic(ray, position, normal)\\
+	        }
+	        \uIf{material\_type == EMIT}{
+	            add\_emissive\_light(result)\\
+	            break
+	        }
+	    }
+	    \KwRet result
+		\caption{Výpočet nepřímého osvětlení}
+	\end{czechalgorithm}
+\end{center}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{images/indirect_probe.png}
+	\caption{Textura sondy obsahující informace o nepřímém osvětlení. Na levé straně pouze vnější osvětlení, vpravo vliv emitujícího materiálu.}
+	\label{fig:diffuse_rays}
+\end{figure}
+
 
 
 
@@ -943,10 +999,6 @@ Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využit�
 	\end{czechalgorithm}
 \end{center}
 
-
-
-
-
 \section{Demonstrační aplikace}
 Demonstrační aplikace slouží k vizualizaci výsledků a práci s modely/scénami. Aplikace může pracovat ve dvou režimech:
 \begin{itemize}
@@ -993,6 +1045,12 @@ UI aplikace je rozděleno do následujících částí:
 	\caption{Ukázka oken demonstrační aplikace}
 	\label{fig:UI}
 \end{figure}
+
+
+\subsubsection{Konfigurace}
+Důležitou součástí aplikace je konfigurační soubor, který je blíže popsán v příloze \ref{appendix:configfile}. Tento soubor obsahuje primárně informace o cestách ke zdrojům (cesta k modelům, shaderům...). Také je v něm obsažena definice velikosti okna demonstrační aplikace a velikost pracovní skupiny pro vykreslování za pomocí octree. Aplikace automaticky ukládá data, která uživatel nastavil v uživatelském rozhraní.
+
+Typ souboru zvolený pro konfiguraci je \texttt{TOML}. Tento formát byl zvolen primárně z toho důvodu, že je velice snadno čitelný pro uživatele a není tedy nutné vytvářet separátní program pro manipulaci s konfigurací. Samozřejmě existují podobné, uživatelsky přívětivé, formáty, jako například \texttt{YAML} nebo \texttt{INI}, ale \texttt{TOML} byl zvolen také kvůli knihovně \texttt{toml++}, díky které je manipulace s konfiguračním souborem relativně pohodlná. 
 
 
 \chapter{Vyhodnocení}
