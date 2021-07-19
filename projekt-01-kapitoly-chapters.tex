@@ -588,7 +588,7 @@ Tuto metodu jsem se rozhodl použít pro výpočet primárních paprsků kvůli 
 	\label{fig:svo_example}
 \end{figure}
 
-\subsection{Light field probes}
+\subsection{Light field probes}\label{sec:lfp_design}
 Light field probes byly již krátce představeny v sekci \ref{sec:ray_tracing}. Každá sonda je reprezentována svou pozicí a texturou, která obsahuje následující informace:
 \begin{itemize}
  \item Radiální vzdálenost ke geometrii.
@@ -785,6 +785,7 @@ Jelikož informace o materiálech poskytované zdrojovými modely jsou poměrně
 \end{figure}
 
 
+\section{Struktura vykreslovacího řetězce}
 
 
 \chapter{Implementace}
@@ -826,7 +827,7 @@ Dále jsem použil následující nástroje pro statickou analýzu kódu, formá
 \section{Knihovna pf\_common}
 Knihovna poskytující často používané funkce:
 \begin{itemize}
-	\item \texttt{Concept}y pro template meta programování a statický polymorfimus.
+	\item \texttt{Concept}y a další nástroje pro template meta programování a statický polymorfimus.
 	\item Jednoduché coroutines (\texttt{iota}, \texttt{range}...)
 	\item Implementace výjimek se stack trace reporting.
 	\item Některé idiomy \texttt{c++} -- \texttt{RAII}, \texttt{Visitor}...
@@ -886,7 +887,7 @@ V knihovně je také implementováno podstatné množství layoutů -- grid layo
 
 Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti včetně například \texttt{drag and drop} a rozhraní pro nastavení stylu/ barvy elementu. 
 
-Implementace \texttt{CheckBox} vyžaduje jen \~10 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru - s~tím, že dědí z~\texttt{ItemElement}, \texttt{Labellable}, \texttt{Savable}, \texttt{ValueObservable<bool>}, \texttt{ColorCustomizable<...>} a \texttt{StyleCustomizable<...>}.
+Implementace \texttt{CheckBox} vyžaduje jen \textasciitilde10 řádků kódu - nepočítaje deklarace funkcí a tělo konstruktoru - s~tím, že dědí z~\texttt{ItemElement}, \texttt{Labellable}, \texttt{Savable}, \texttt{ValueObservable<bool>}, \texttt{ColorCustomizable<...>} a \texttt{StyleCustomizable<...>}.
 
 Ukázka vytvoření tlačítka, které reaguje na kliknutí otevřením dialogu pro výběr \texttt{txt} souboru:
 
@@ -1117,6 +1118,10 @@ I~když to není z~grafu moc znatelné, transformace s~minimalizací je o~pár p
 Vzhledem k~rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a mám v~úmyslu je v~budoucnu zrychlit.
 
 \section{Paměťová náročnost}
+V této sekci je popsána paměťová náročnost dvou hlavních částí částí programu. Jedná se o vyhodnocení využití VRAM.
+
+\subsubsection{Octree}
+
 Každý uzel octree zabírá v~prvé řadě 4 bajty (15 bitů \texttt{child pointer} + 1 bit \texttt{far} + 8 bitů \texttt{valid mask} + 8bitů \texttt{leaf mask}). Dále pro dohledání materiálů a ostatních parametrů další 4 bajty (24 bitů \texttt{value pointer} + 8 bitů \texttt{mask}). Tyto dva záznamy nejsou vytvářeny pro listové uzly. Pokud budeme předpokládat strom, který má prostor obsazený přesně z~50 \% a je obsazen pouze každý druhý voxel, s~hloubkou stromu 6 -- tedy 37448 voxelů -- celková obsazená paměť zmíněnými záznamy bude 18724 bajtů. Při popsaném rozložení voxelů se samozřejmě jedná o~nejhorší možný případ.
 
 \begin{table}[H]
@@ -1156,6 +1161,27 @@ Celková paměťová náročnost pro octree se zmíněnými parametry je tedy:
 
 Ve všech případech se jedná o~nejhorší možný případ. Realisticky použitelné modely mají paměťovou náročnost výrazně nižší a také u~nich dochází k~minimalizaci stromu (která v~uvažovaném nejhorším případě není možná).
 
+
+\subsubsection{Light field probes}
+Jak bylo zmíněno v sekci \ref{sec:lfp_design}, každá sonda sestává ze dvou textur, první z nich má rozlišení 1024x1024 s datovým typem \texttt{RG32F}, tedy využívá 8 bajtů paměti. Z těchto 8 bajtů jsou 4 využity pro radianci/nepřímé osvětlení, 2 pro normály a 2 pro hloubku. Druhá textura má $\frac{1}{16}$ rozlišení hlavní textury a obsahuje pouze informace o hloubce. Datovým typem této textury je \texttt{R16F}, což znamená, že každý texel zabírá 2 bajty. Využití paměti jedné sondy je tedy 8396800 bajtů (\textasciitilde{}8.4 MB).
+
+Samozřejmě není použita jen jedna sonda. Množství sond je, kvůli implementaci algoritmů s nimi pracujících, omezeno na mocniny dvou v každé ose. V následující tabulce je seznam využití paměti pro množství sond, které se nejpravděpodobněji využijí.
+
+\begin{table}[H]
+	\centering
+\begin{tabular}{|l|l|}
+\hline
+počet sond & využití paměti {[}MB{]} \\ \hline
+1          & 8.4                     \\ \hline
+4          & 33.5                    \\ \hline
+16         & 134.3                   \\ \hline
+128        & 1074.8                  \\ \hline
+512        & 4299.1                  \\ \hline
+\end{tabular}
+\end{table}
+
+
+\section{Výsledky}
 
 \chapter{Závěr}
 \label{zaver}
