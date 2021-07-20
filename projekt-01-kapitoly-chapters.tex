@@ -495,12 +495,12 @@ Renderovací metoda využívající ray casting/tracing pro vizualizaci voxelov�
 \end{center}
 
 \section{Vulkan API}
-Vulkan je API pro 3D grafiku a výpočty pomocí GPU \cite{vulkan_web}. Cílem Vulkan je poskytnout uživateli možnost vyvíjet vysoce výkonné grafické aplikace. V~porovnání s~OpenGL či podobnými staršími API přináší výrazně vyšší výkon, ovšem práce s~ním je poněkud časově náročnější, jelikož Vulkan pracuje na výrazně nižší úrovni, než jeho předchůdci. Byl také navržen s~předpokladem, že bude používán z~více vláken. Některé výhody Vulkan oproti předchozím grafickým API:
+Vulkan je API pro 3D grafiku a výpočty pomocí GPU \cite{vulkan_web}. Je produktem Khronos Group. Jedná se o nízko-úrovňové rozhraní s nízkou režií, zároveň je také multiplatformní, produkty postavené na tomto API lze tedy spouštět na velkém množství různých systémů. Oproti OpenGL, které je jistým způsobem předchůdcem Vulkanu, je ve Vulkanu nutné nastavovat výrazně větší množství parametrů. Díky této vlastnosti má programátor výrazně větší kontrolu nad stavem grafické karty. Nevýhodou ovšem je výrazné zvýšení komplexity programu oproti jednodušším API. Některé výhody, které Vulkan poskytuje oproti jiným grafickým API:
 
 \begin{itemize}
 	\item Jednotné API jak pro mobilní zařízení, tak pro PC.
 	\item Dostupnost na velkém množství operačních systému (podobně jako OpenGL).
-	\item Nízký overhead driverů.
+	\item Nízký overhead.
 	\item Pro shadery používá binární formát SPIR-V\footnote{\url{https://www.khronos.org/opengl/wiki/SPIR-V}}, díky čemuž můžou vývojáři distribuovat pouze binární formu shaderů.
 	\item Sjednocení grafického (graphics pipeline) a výpočetního (compute shaders) API.
 	\item Ray tracing pomocí rozšíření (tuto funkci podporuje i DirectX12).
