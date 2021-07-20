@@ -381,11 +381,20 @@ Vhodnější alternativou pro výpočet průsečíku paprsku s~voxelem lze nají
 \subsection{Používané formáty} \label{sec:format}
 Pro ukládání voxelových scén existuje poměrně velké množství formátů. Bohužel neexistuje žádný standardizovaný formát, i když nějaké pokusy o~to již byly (například VolDat\footnote{\url{http://www.volumesoffun.com/voldat-format/}}). Následuje popis vybraných formátů.
 
-\paragraph{Vox} formát byl vytvořen pro aplikaci MagicaVoxel\footnote{\url{http://ephtracy.github.io/}}, což je modelovací software pro voxelové scény. Jedná se o~binární formát, kde jsou barvy zakódovány pomocí palety. Také podporuje různé typy materiálů, ač s malým množstvím parametrů. Jelikož MagicaVoxel nepodporuje větší modely než 256x256x256 voxelů, zpravidla v~tomto formátu větší scény nejsou. Specifikace formátu jsou v~\cite{vox_format}.
+\paragraph{Vox} formát byl vytvořen pro aplikaci MagicaVoxel\footnote{\url{http://ephtracy.github.io/}}, což je modelovací software pro voxelové scény. Jedná se o~binární formát, kde jsou barvy zakódovány pomocí palety. Také podporuje různé typy materiálů, ač s malým množstvím parametrů. Scéna je složena z částí (modelů), které mají maximální velikost 256x256x256 voxelů -- při načítání je tedy nutné se rozhodnout, zda je celý soubor jedním modelem nebo je rozdělen na chunky. Specifikace formátu jsou v~\cite{vox_format}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.5]{images/magica_voxel_vox.png}
+	\caption{Ukázka rozdělení VOX modelu na chunky v programu MagicaVoxel}
+	\label{fig:magica_vox}
+\end{figure}
 
 \paragraph{SVX} (Simple Voxels) je archivový formát. Archiv obsahuje soubor manifest.xml, který popisuje velikost mřížky, velikost voxelů, paletu materiálů a další metadata. Samotné voxely jsou popsány pomocí obrázků v~jednokanálovém formátu PNG, přičemž každý pixel slouží jako odkaz do palety modelů. Tento formát je používán především pro 3D tisk. Specifikaci formátu najdete na \cite{svx_format_2014}.
 
 Existuje spousta dalších formátů, značné množství pro 3D tisk, ale také pro využití v~medicíně, jak již bylo zmíněno dříve. Dle mého průzkumu je nejčastějším přístupem při volbě formátu pro vykreslovací engine vytvořit formát vlastní.
+
+\paragraph{VolDat} byl vytvořen jako pokus o jistou formu standardizace voxelových formátů. Tento formát byl popsán v \cite{williams_2013}. Scéna je rozdělena na 2D části (průřezy napříč osou Y) a každý tento průřez je uložen v obrázku. Pixely obrázku reprezentují jednotlivé voxely, jejich hodnota vyjadřuje barvu a také odkaz do separátního textového souboru, kde jsou uloženy doplňující data, jako například informace o materiálech. 
 
 
 \section{Hierarchické struktury}
@@ -526,7 +535,9 @@ kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. P�
 	\label{fig:octree_child}
 \end{figure}
 
-Samozřejmě krom informací o~obsazenosti prostoru je nutné ukládat i informace o~materiálu. První možností by bylo rozšířit záznamy ve stromu o~tato data, ale s~velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, byla by zhoršena lokalita paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s~ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položky slouží k~vyhledávání specifického záznamu v~separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
+Samozřejmě krom informací o~obsazenosti prostoru je nutné ukládat i informace o~materiálu. První možností by bylo rozšířit záznamy ve stromu o~tato data, ale s~velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, došlo by ke zhoršení prostorové lokality paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s~ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položky slouží k~vyhledávání specifického záznamu v~separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
+
+\paragraph{Ukládání voxelových dat}. Pro načítání modelů je využit formát VOX, který byl popsán v sekci \ref{sec:format}. Při načítání je ovšem nutné data transformovat do formátu octree popsaného výše, což může způsobit výrazné zpomalení aplikace. Namísto opakované transformace by bylo tedy vhodné data ukládat tak, aby docházelo pouze k načtení, tím by došlo k výraznému zrychlení. Vzhledem k tomu, že je pro nás důležitá spíše rychlost a ne využití místa na disku je dostačující serializovat strukturu popsanou výše přímo do binárního souboru. Zpravidla dojde k malému zvětšení oproti VOX, ale doba načítání se zkrátí na zlomek času.
 
 \section{Vykreslování}\label{sec:rendering}
 V této sekci jsou popsány metody využité pro vykreslování scény v této práci. Je zde popsán ray marching pomocí sparse voxel octrees, light field probes a jejich modifikace pro nepřímé osvětlení.
