@@ -21,9 +21,9 @@ Tato sekce popisuje princip a použití různých technik realistického zobrazo
 
 Realistické zobrazování je podle knihy \cite{gfx_principles_practice} definováno jako tvoření obrazu podle definovaného modelu scény a osvětlení v~ní přítomné. Jednotlivé pixely ve vytvořeném snímku (angl. rendered image) se dají chápat jako množství světla procházejícího podél paprsků ve scéně; to odpovídá integrálu vstupující světelné energie v~bodě, případně v~regionu.
 
-Dle knihy \cite{real_time_render}, základní komponentou zobrazování v~počítačové grafice je zobrazovací řetězec (angl. rendering pipeline). Funkcí zobrazovacího řetězce je vygenerování dvourozměrného snímku daného virtuální kamerou, scénou obsahující vykreslované modely a zdroji světla.
+Dle knihy \cite{real_time_render} je základní komponentou zobrazování v~počítačové grafice zobrazovací řetězec (angl. rendering pipeline). Funkcí zobrazovacího řetězce je vygenerování dvourozměrného snímku daného virtuální kamerou, scénou obsahující vykreslované modely a zdroji světla.
 
-V~článku \cite{render_eq} je představena zobrazovací rovnice. Je to integrální rovnice, jež zobecňuje přenos světelných paprsků ve scéně. Rovnice je ve tvaru
+V~článku \cite{render_eq} je představena zobrazovací rovnice. Je to integrální rovnice, jež zobecňuje přenos světelných paprsků ve scéně. Tato rovnice je uvedena v rovnici \ref{eq:render}.
 
 \begin{equation} \label{eq:render}
 	\begin{gathered}
@@ -35,7 +35,7 @@ kde $I(x, x')$ je intenzita světla z~bodu $x'$ do bodu $x$, $g(x, x')$ je geome
 
 Jak je dále uvedeno v~článku \cite{render_eq}, rovnice vychází z~fyzikální rovnice radiozity. Popisuje přenos intenzity světla z~jednoho povrchového bodu do jiného jako sumu emitovaného osvětlení a celkové intenzity rozptýleného světla v~bodě $x$ od všech okolních povrchových bodů.
 
-Podobná zobrazovací rovnice byla představena souběžně se dříve zmíněnou rovnicí v~článku \cite{render_eq_2}. Tato rovnice je popsána pomocí vektorů a je v~literatuře používána častěji. Nejznámější formu zobrazovací rovnice popisuje kniha \cite{gfx_principles_practice}:
+Podobná zobrazovací rovnice byla představena souběžně se dříve zmíněnou rovnicí v~článku \cite{render_eq_2}. Tato rovnice je popsána pomocí vektorů a je v~literatuře používána častěji. Nejznámější formu zobrazovací rovnice popisuje kniha \cite{gfx_principles_practice}, je uvedena v rovnici \ref{eq:render_2}.
 
 \begin{equation} \label{eq:render_2}
 	\begin{gathered}
@@ -47,13 +47,14 @@ kde $L(P, \omega)$ je příchozí ($L_{in}$) či odchozí ($L_{out}$) světlo v~
 Existuje mnoho metod realistického zobrazování, následuje základní popis vybraných.
 
 \subsection{Ray tracing}\label{sec:ray_tracing}
-Neboli sledování paprsku. Pravděpodobně nejznámější metoda globálního osvětlení. Kniha \cite{advanced_global} popisuje ray tracing jako algoritmus počítající radianční hodnotu $L_{pixel}$ pro každý pixel ve výsledném obrázku. Tato hodnota je váženou hodnotou osvětlení ve scéně obsaženou v~cestě paprsku:
+Neboli sledování paprsku. Pravděpodobně nejznámější metoda globálního osvětlení. Kniha \cite{advanced_global} popisuje ray tracing jako algoritmus počítající radianční hodnotu $L_{pixel}$ pro každý pixel ve výsledném obrázku. Tato hodnota je váženou hodnotou osvětlení ve scéně obsaženou v~cestě paprsku, výpočet je v rovnici \ref{eq:rt_1}.
 
 \begin{equation} \label{eq:rt_1}
-	\begin{gathered}
+	\begin{align}
 		L_{pixel} = \int_{imageplane}L(p \xrightarrow{} eye)h(p)dp \\= \int_{imageplane}L(x \xrightarrow{} eye)h(p)dp
-	\end{gathered}
+	\end{align}
 \end{equation}
+
 kde $p$ je bod na rovině obrázku a $h(p)$ váhová či filtrační funkce, $x$ je viditelný bod od kamery skrze $p$.
 
 \begin{figure}[H]
@@ -65,7 +66,7 @@ kde $p$ je bod na rovině obrázku a $h(p)$ váhová či filtrační funkce, $x$
 \end{figure}
 
 
-Jak název napovídá, ray tracing používá paprsky k~výpočtu barvy výsledného obrázku. Paprsek je polopřímka a je tedy definován počátečním bodem $\Vec{o}$ (origin) a směrem $\Vec{d}$ (direction). Nutnou funkcí pro funkčnost tohoto algoritmu je výpočet průsečíku paprsku s~primitivy, pomocí kterých je scéna vytvořena. Možnosti výpočtu průsečíku paprsku s~voxelem je popsána v~sekci \ref{sec:voxel_intersection}. Jednoduchý ray tracing je popsán v~algoritmu \ref{alg:rt_1}. Takto naivní implementace je samozřejmě velice neefektivní a pro běžně používané scény je nutné použít akcelerační struktury pro urychlení hledání průsečíku \cite{accelerated_rt}. Pro realistické zobrazování jsou krom primárních paprsků generovány i paprsky sekundární. Tyto paprsky jsou použity například pro odrazy, refrakci a stíny.
+Jak název napovídá, ray tracing používá paprsky k~výpočtu barvy výsledného obrázku. Paprsek je polopřímka a je tedy definován počátečním bodem $\Vec{o}$ (origin) a směrem $\Vec{d}$ (direction). Nutnou funkcí pro funkčnost tohoto algoritmu je výpočet průsečíku paprsku s~primitivy, pomocí kterých je scéna vytvořena. Možnosti výpočtu průsečíku paprsku s~voxelem je popsána v~sekci \ref{sec:voxel_render}. Jednoduchý ray tracing je popsán v~algoritmu \ref{alg:rt_1}. Takto naivní implementace je samozřejmě velice neefektivní a pro běžně používané scény je nutné použít akcelerační struktury pro urychlení hledání průsečíku \cite{accelerated_rt}. Pro realistické zobrazování jsou krom primárních paprsků generovány i paprsky sekundární. Tyto paprsky jsou použity například pro odrazy, refrakci a stíny.
 
 Ve své standardní formě ray tracing neumožňuje generování měkkých stínů a spousty dalších sekundárních efektů.  Pro dosažení tíženého efektu lze využít například \textbf{Monte carlo ray tracing} (stochaistic ray tracing nebo distributed ray tracing) \cite{distributed_rt}. Namísto jediného paprsku pro výpočet stínů, odrazů a refrakcí je využito paprsků více a výsledky jejich výpočtu jsou následně průměrovány. Metoda umožňuje vytvoření mnoha dalších efektů, jako například hloubka pole, rozmazání pohybu atd.
 
@@ -78,7 +79,7 @@ Ve své standardní formě ray tracing neumožňuje generování měkkých stín
 			(intersected, distance) = intersect(ray, primitive)\\
 			\uIf{intersected \And distance < min\_distance}{
 				hit\_primitive = primitive\\
-				min\_distance = distance\\
+				min\_distance = distance
 			}
 		}
 		\caption{Ray tracing}
@@ -135,7 +136,7 @@ Prostor ve scéně je rozdělen pomocí pravidelné mřížky a do každé diskr
 Algoritmus vykreslování postupuje napříč před-připravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně opakuje tento proces napříč scénou, dokud nedojde k~jisté intersekci nebo minutí geometrie scény.
 
 \subsection{Radiozita}
-Metody radiozity byly vyvinuty již v~padesátých letech minulého století pro simulaci tepelného přenosu. Později byla popsána varianta pro vykreslování v~článku \cite{radiosity}. Metoda je založena na jednoduchém principu; vzhledem k~tomu, že každý povrch ve scéně může odrážet světlo, se dá tento povrch považovat za zdroj světla. Radiozita povrchu je dána rovnicí:
+Metody radiozity byly vyvinuty již v~padesátých letech minulého století pro simulaci tepelného přenosu. Později byla popsána varianta pro vykreslování v~článku \cite{radiosity}. Metoda je založena na jednoduchém principu; vzhledem k~tomu, že každý povrch ve scéně může odrážet světlo, se dá tento povrch považovat za zdroj světla. Radiozita povrchu je dána rovnicí \ref{eq:voxel_coords}.
 
 
 \begin{equation} \label{eq:voxel_coords}
@@ -149,7 +150,7 @@ Kde $B$ je celkové množství energie vyzařované z~povrchu, $E$ je množství
 Z~mého průzkumu vyplývá, že je radiozita primárně používána pro předvýpočet globální iluminace v~některých scénách a dále není opakovaně počítána. Důvodem je nejspíše poměrně velká náročnost algoritmu.
 
 \subsection{Materiály}
-Pro simulaci interakce světla s~povrchy je nutné mít tyto povrchy popsány určitými parametry. Použité parametry závisí na osvětlovacím modelu a také renderovacímu algoritmu. Publikace \cite{materials} popisuje interakci světla s~povrchem rovnicí:
+Pro simulaci interakce světla s~povrchy je nutné mít tyto povrchy popsány určitými parametry. Použité parametry závisí na osvětlovacím modelu a také renderovacímu algoritmu. Publikace \cite{materials} popisuje interakci světla s~povrchem rovnicí \ref{eq:surface_photon}.
 
 \begin{equation} \label{eq:surface_photon}
 	\begin{gathered}
@@ -168,7 +169,15 @@ kde levá strana reprezentuje foton interagující s~povrchem a pravá strana fo
 
 Kde $L_0$ je podíl intenzity světla vycházející z~povrchu na bodu $\vec{x}$ ve směru $\hat{\omega_0}$ a intenzity světla příchozího do bodu $\vec{x}$ ze směru $\hat{\omega_i}$.
 
-Dle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika základních kategorií podle typu interakce se světlem:
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{obrazky-figures/reflection_types.png}
+	\caption{Typy odrazu světla (difuzní, zrcadlové, lesklé)}
+	\textbf{Zdroj: \cite{materials}}
+	\label{fig:refl_types}
+\end{figure}
+
+Dle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika základních kategorií podle typu interakce se světlem, tyto typy jsou uvedeny v tabulce \ref{tab:mats_distr}. Vizualizace některých možných odrazů světla je v obrázku \ref{fig:refl_types}.
 
 \begin{table}[H]
 	\centering
@@ -181,15 +190,9 @@ Dle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika zák
 		průhledný             & běžný přenos          \\ \hline
 	\end{tabular}
 	\caption{Typy materiálů a jejich interakce se světlem}
+	\label{tab:mats_distr}
 \end{table}
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[scale=1]{obrazky-figures/reflection_types.png}
-	\caption{Typy odrazu světla (difuzní, zrcadlové, lesklé)}
-	\textbf{Zdroj: \cite{materials}}
-	\label{fig:3d_grid}
-\end{figure}
 
 Dalším podstatným parametrem je tvar povrchu. Tvar povrchu výrazně mění to, jak dochází k~odrazu světla. Vzhledem k~potenciální složitosti této vlastnosti se používají například následující metody:
 
@@ -284,7 +287,7 @@ Dalším častým využitím je modelování terénu; voxely přináší možnos
 	\label{fig:minecraft}
 \end{figure}
 
-\subsection{Vykreslování voxelových modelů}
+\subsection{Vykreslování voxelových modelů}\label{sec:voxel_render}
 Níže jsou popsány základní metody vykreslování voxelových modelů. Jedná se jen o~základní příklady, ve skutečnosti existuje mnohem více metod, než by bylo rozumné zde popisovat.
 
 \subsubsection{Rasterizace}
@@ -302,7 +305,7 @@ Pro vykreslování voxelových scén pomocí rasterizace je nutné ji převést 
 	\end{czechalgorithm}
 \end{center}
 
-\paragraph{Marching cubes \cite{marching_cubes}} je příkladem algoritmu pro extrakci povrchu z~voxelových dat. Původně představen pro vizualizaci dat v~medicínském odvětví, je současně využíván například pro vizualizaci terénu \cite{nguyen_2008}. Pro každou oblast v~mřížce prostoru je zjištěno, který z~rohů voxelu se nachází uvnitř či vně tělesa. Na základně toho je vypočten tvar a pozice generovaných trojúhelníků. V~některých úpravách algoritmu je možné značně snížit počet vygenerovaných trojúhelníků a snížení redundantnosti dat. Po vygenerování často dochází k~minimalizaci počtu trojúhelníku. Následuje zjednodušená verze algoritmu.
+\paragraph{Marching cubes \cite{marching_cubes}} je příkladem algoritmu pro extrakci povrchu z~voxelových dat. Původně představen pro vizualizaci dat v~medicínském odvětví, je současně využíván například pro vizualizaci terénu \cite{nguyen_2008}. Pro každou oblast v~mřížce prostoru je zjištěno, který z~rohů voxelu se nachází uvnitř či vně tělesa. Na základně toho je vypočten tvar a pozice generovaných trojúhelníků. V~některých úpravách algoritmu je možné značně snížit počet vygenerovaných trojúhelníků a snížení redundantnosti dat. Po vygenerování často dochází k~minimalizaci počtu trojúhelníku. Algoritmus \ref{alg:marching_cubes} obsahuje zjednodušenou verzi této metody.
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:marching_cubes}
@@ -525,19 +528,19 @@ Pro implicitní zakódování pozice lze využít octree (sekce \ref{octree}). N
 
 kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. Při použití tohoto rozložení by ovšem musela být celá oblast uvnitř octree rozdělena na nejmenší bloky a docházelo by k~obrovskému plýtvání paměti.
 
-Úsporný způsob pro reprezentaci octree byl představen v~\cite{Laine2011EfficientSV}. Metoda kóduje informace o~uzlu bitově na data o~velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si jej můžeme dovolit reprezentovat menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velkých stromech nemusí být 15 bitů dostačující. Tento pointer je uložen v~oddělené části bufferu. \texttt{Valid mask} je bitová maska o~velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, dává nám ovšem vědět, jestli je potomek na indexu terminálním uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
-
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=1.3]{obrazky-figures/octree_child_data.png}
+	\includegraphics[scale=1.7]{obrazky-figures/octree_child_data.png}
 	\caption{Položka reprezentující uzel octree}
 	\textbf{Zdroj: \cite{Laine2011EfficientSV}}
 	\label{fig:octree_child}
 \end{figure}
 
+Úsporný způsob pro reprezentaci octree byl představen v článku \cite{Laine2011EfficientSV}. Metoda kóduje informace o~uzlu bitově na data o~velikosti 4 bytů. Vizualizace je na obrázku \ref{fig:octree_child}. Každý nelistový uzel je reprezentován svými daty, listové uzly jsou implicitně kódovány pomocí masek. \texttt{Child pointer} určuje pozici potomků uzlu pro daný uzel. Je uložen jako rozdíl od pozice současného uzlu, čímž si jej můžeme dovolit reprezentovat menším rozsahem. Přepínač \texttt{far} určuje, zda \texttt{child pointer} odkazuje na pozice potomků, či na 32 bitový ukazatel na ně - při velkých stromech nemusí být 15 bitů dostačující. Tento pointer je uložen v~oddělené části bufferu. \texttt{Valid mask} je bitová maska o~velikosti 8 bitů, pokud je hodnota nastavena na 1, pak je ve stromu potomek na tomto indexu reprezentován. \texttt{Leaf mask} odpovídá funkci \texttt{valid mask}, dává nám ovšem vědět, jestli je potomek na indexu terminálním uzlem. Pokud je tedy nastavena na 1, tak je vyhledávání ve stromu na této úrovni ukončeno.
+
 Samozřejmě krom informací o~obsazenosti prostoru je nutné ukládat i informace o~materiálu. První možností by bylo rozšířit záznamy ve stromu o~tato data, ale s~velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, došlo by ke zhoršení prostorové lokality paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s~ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položky slouží k~vyhledávání specifického záznamu v~separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
 
-\paragraph{Ukládání voxelových dat}. Pro načítání modelů je využit formát VOX, který byl popsán v sekci \ref{sec:format}. Při načítání je ovšem nutné data transformovat do formátu octree popsaného výše, což může způsobit výrazné zpomalení aplikace. Namísto opakované transformace by bylo tedy vhodné data ukládat tak, aby docházelo pouze k načtení, tím by došlo k výraznému zrychlení. Vzhledem k tomu, že je pro nás důležitá spíše rychlost a ne využití místa na disku je dostačující serializovat strukturu popsanou výše přímo do binárního souboru. Zpravidla dojde k malému zvětšení oproti VOX, ale doba načítání se zkrátí na zlomek času.
+\paragraph{Ukládání voxelových dat} Pro načítání modelů je využit formát VOX, který byl popsán v sekci \ref{sec:format}. Při načítání je ovšem nutné data transformovat do formátu octree popsaného výše, což může způsobit výrazné zpomalení aplikace. Namísto opakované transformace by bylo tedy vhodné data ukládat tak, aby docházelo pouze k načtení, tím by došlo k výraznému zrychlení. Vzhledem k tomu, že je důležitá spíše rychlost a ne využití místa na disku je dostačující serializovat strukturu popsanou výše přímo do binárního souboru. Zpravidla dojde k malému zvětšení oproti VOX, ale doba načítání se zkrátí na zlomek času.
 
 \section{Vykreslování}\label{sec:rendering}
 V této sekci jsou popsány metody využité pro vykreslování scény v této práci. Je zde popsán ray marching pomocí sparse voxel octrees, light field probes a jejich modifikace pro nepřímé osvětlení.
@@ -574,9 +577,9 @@ Pro usnadnění práce s modely a úsporu výpočetního výkonu při jejich tra
 
 Regularita dat uložených pomocí octree je klíčovým faktorem umožňujícím efektivní sledování paprsku. Většina dat asociovaných s voxelem je uložena v jeho rodiči a samotný voxel je tedy reprezentován indexem jeho rodiče a indexem voxelu v rozsahu $[0, 7]$. Jelikož struktura neukládá prostorové informace, je také nutné v průběhu sledování paprsku skrze octree udržovat informace o velikosti a pozici zkoumaného voxelu. Voxel je v prostoru tedy reprezentován vektorem $\vec{pos}$, který je v rozsahu $[0, 1]$ v každé dimenzi a pozitivním celým číslem $scale$, které určuje délku hran voxelu. Vzhledem k využití těchto vlastností se model vždy nachází v prostoru souřadnic v rozsahu $[0, 1]$ a pro aplikaci transformací a následné efektivní sledování paprsku je nutné paprsek transformovat pomocí inverzní transformace do tohoto prostoru.
 
-Definujme paprsek jako $p_t(t) = p + t\cdot d$. Cílem je získat hodnotu $t$, tedy vzdálenost k průsečíku paprsku a jednoho z voxelů patřících do octree. Pro osově zarovnanou rovinu získáme rovnici $t_x(x) = \frac{1}{d_x}x + -\frac{p_x}{dx}$ pro osu $x$, obdobné rovnice jsou získány pro osy $y$ a $z$. Můžeme tedy reprezentovat osově zarovnanou krychli jako dvojici rohů (bodů v prostoru) $(x_0, y_0, z_0)$ a $(x_1, y_1, z_1)$ tak, že $t_y(y_0) \leq t_y(y_1)$, $t_y(y_0) \leq t_z(z_1)$ a $t_z(z_0) \leq t_z(z_1)$. S touto definicí je rozsah $t$ hodnot protnutých s krychlí dán rovnicemi $tc_{min} = \max(t_x(x_0), t_y(y_0), t_z(z_0))$ a $tc_{max} = \max(t_x(x_1), t_y(y_1), t_z(z_1))$.
+Definujme paprsek jako $p_t(t) = p + t\cdot d$. Cílem je získat hodnotu $t$, tedy vzdálenost k průsečíku paprsku a jednoho z voxelů patřících do octree. Pro osově zarovnanou rovinu získáme rovnici $t_x(x) = \frac{1}{d_x}x + -\frac{p_x}{dx}$ pro osu $x$, obdobné rovnice jsou získány pro osy $y$ a $z$. Osově zarovnanou krychli je možné reprezentovat jako dvojici rohů (bodů v prostoru) $(x_0, y_0, z_0)$ a $(x_1, y_1, z_1)$ tak, že $t_y(y_0) \leq t_y(y_1)$, $t_y(y_0) \leq t_z(z_1)$ a $t_z(z_0) \leq t_z(z_1)$. S touto definicí je rozsah $t$ hodnot protnutých s krychlí dán rovnicemi $tc_{min} = \max(t_x(x_0), t_y(y_0), t_z(z_0))$ a $tc_{max} = \max(t_x(x_1), t_y(y_1), t_z(z_1))$.
 
-Při průchodu voxely na stejné úrovni můžeme získat následující voxel stejné škály porovnáním hodnot $t_x(x_1), t_y(y_1)$ a $t_z(z_1)$ proti $tc_{max}$. Posuneme se na další voxel v osách, ve kterých jsou si hodnoty rovné.
+Při průchodu voxely na stejné úrovni lze získat následující voxel stejné škály porovnáním hodnot $t_x(x_1), t_y(y_1)$ a $t_z(z_1)$ proti $tc_{max}$. Algoritmus se posune na další voxel v osách, ve kterých jsou si hodnoty rovné.
 
 Jelikož je využitá octree struktura \textit{sparse} -- tedy neobsahuje informace o prázdném prostoru -- je nutné provádět inkrementální průchod hierarchií. Algoritmus provádí prohledávání do hloubky, tedy snaží se co nejdříve dostat na listové uzly pro nejrychlejší konvergenci k výsledku. Při každé iteraci může docházet k jednomu ze tří způsobů výběru dalšího zkoumaného voxelu:
 
@@ -622,9 +625,9 @@ Dalším parametrem jsou normály. Ty lze zakódovat na 2 float hodnoty mnoha me
 
 \begin{equation} \label{eq:normal_encode}
 	\begin{gathered}
-		\vec{p} = normal.xy \frac{1.0}{|normal.x| + |normal.y| + |normal.z|} \\
+		\vec{p} = normal_{xy} \frac{1}{|normal_x| + |normal_y| + |normal_z|} \\
 		\vec{encoded\_normal} = \begin{cases}
-            (1.0 - |p.yx|) * sign(\vec{p}),& \text{pokud } normal.z \leq 0.0\\
+            (1 - |p_{yx}|) * sign(\vec{p}),& \text{pokud } normal_z \leq 0.0\\
             \vec{p},              & \text{jinak}
         \end{cases}\\
 	\end{gathered}
@@ -634,10 +637,10 @@ Kde $normal$ je normála, $p$ je pomocný vektor k projekci a $encoded\_normal$ 
 
 \begin{equation} \label{eq:normal_decode}
 	\begin{gathered}
-	    z = 1.0 - |encoded\_normal.x| - |encoded\_normal.y|\\
-	    \vec{v} = \langle encoded\_normal.xy, z \rangle\\
+	    z = 1 - |encoded\_normal_x| - |encoded\_normal_y|\\
+	    \vec{v} = \langle encoded\_normal_{xy}, z \rangle\\
 		\vec{decoded\_normal} = \begin{cases}
-            \langle (1.0 - |v.yx|) * sign(v.xy), v.z \rangle,& \text{pokud } v.z < 0.0\\
+            \langle (1 - |v_{yx}|) * sign(v_{xy}), v_z \rangle,& \text{pokud } v_z < 0.0\\
             normalize(\vec{v}),              & \text{jinak}
         \end{cases}\\
 	\end{gathered}
@@ -741,7 +744,7 @@ Na obrázku \ref{fig:lfp_scene_render} je zobrazena scéna vykreslená čistě p
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{images/probe_scene_render.png}
-	\caption{Scéna vykreslena pomocí sledování paprsku skrze light field}
+	\caption{Scéna vykreslena algoritmem sledování paprsku skrze light field (vlastní implementace)}
 	\label{fig:lfp_scene_render}
 \end{figure}
 
@@ -1031,6 +1034,15 @@ Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využit�
 		\caption{Průchod paprsku hierarchií obalových těles}
 	\end{czechalgorithm}
 \end{center}
+
+\section{Správa modelů} \label{sec:model_management}
+Rozdělení na buffery - SVO, model info, materials.
+
+Využívání bufferů jako memory pool + ukázka kodu.
+
+Co je potřeba udělat při přidání/odstranění uzlu - vyvojovy diagram?
+
+\subsection{Načítání a ukládání scén}
 
 \section{Demonstrační aplikace}
 Demonstrační aplikace slouží k vizualizaci výsledků a práci s modely/scénami. Aplikace může pracovat ve dvou režimech:
