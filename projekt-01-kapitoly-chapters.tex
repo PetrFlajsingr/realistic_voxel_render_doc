@@ -705,7 +705,7 @@ Pro urychlení tohoto algoritmu je pro každou sondu vytvořena další textura,
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=1]{images/lfp_trace.png}
+	\includegraphics[scale=0.85]{images/lfp_trace.png}
 	\caption{Vizualizace sledování paprsku v textuře sondy. Oranžová část je prováděna pouze na textuře s nižším rozlišením, zelená při nalezení potenciálního průsečíku}
 	\label{fig:lfp_trace}
 \end{figure}
@@ -1034,20 +1034,56 @@ Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využit�
 \end{center}
 
 \section{Správa modelů} \label{sec:model_management}
-Rozdělení na buffery - SVO, model info, materials.
 
-Využívání bufferů jako memory pool + ukázka kodu.
+Pro modely ve scéně jsou použity tři samostatné struktury. Pro uložení základních informací jako je transformační matice či obalové těleso má každý model samostatnou strukturu. Data modelu -- octree a materiály -- jsou uloženy ve dvou bufferech, přičemž jsou tyto buffery sdíleny napříč všemi modely. Informační struktura obsahuje offsety pro umístění dat modelu ve zmíněných bufferech. Rozmístění těchto dat je na obrázku \ref{fig:model_storage}.
 
-Co je potřeba udělat při přidání/odstranění uzlu - vyvojovy diagram?
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.7]{images/model_storage.png}
+	\caption{Informace o modelu a jejich vztah k datovým bufferům}
+	\label{fig:model_storage}
+\end{figure}
+
+Pro usnadnění práce s alokací GPU paměti byla vytvořena třída \texttt{BufferMemoryPool}, která spravuje předaný buffer. Třída umožňuje zvolit zarovnání bloků při propůjčení paměti a zaručuje, že nedojde k přepisu již zapůjčených dat. Zapůjčené paměťové bloky využívají RAII\footnote{\url{https://en.cppreference.com/w/cpp/language/raii}} ke zněmožnění úniku paměti.  Ukázka použití této třídy je ve výpisu \ref{lst:memory_pool}.
+
+\begin{lstlisting}[label={lst:memory_pool}, language=C++, caption={Ukázka využití memory pool}]
+auto buffer = createBuffer(100_MB);
+auto memoryPool = BufferMemoryPool{buffer, ALIGNMENT};
+
+auto memoryBlock = memoryPool.leaseMemory(2_MB);
+modelInfo.setMemoryOffset(memoryBlock.getOffset());
+memoryBlock.mapping().set(data);
+// ...
+memoryPool.returnMemory(memoryBlock);
+\end{lstlisting}
+
+Celý proces načtení nového modelu z disku je popsán v obrázku \ref{fig:load_model_diagram}. Program umožňuje načítat dva typy formátů -- \texttt{VOX}, jehož data je nutné transformovat do octree a \texttt{PF\_VOX}, jež má již vhodnou podobu. Po načtení dochází k alokaci paměti grafické paměti a odeslání dat do ní. Finálním krokem je aktualizace hierarchie obalových těles.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.7]{images/load_diagram.png}
-	\caption{TODO}
-	\label{fig:imgui_classes}
+	\caption{Diagram načtení dat modelů}
+	\label{fig:load_model_diagram}
 \end{figure}
 
 \subsection{Načítání a ukládání scén}
+Pro účel zjednodušení práce s modely aplikace podporuje jednoduchý konfigurační soubor pro uložení rozložení scény. Formátem tohoto souboru je \texttt{TOML}, podobně jako u konfiguračního souboru aplikace. Soubor definice scény je rozdělen na dvě části.
+
+První částí je definice pozice a rozložení pole sond (light field probes). Položka \texttt{probeGridPos} určuje pozici počátku mřížky sond a \texttt{probeGridStep} definuje vzdálenost jednotlivých sond. \texttt{proximityGridSize} určuje rozdělení prostoru pokrytým sondami na voxely, které obsahují informace o sondách pro tento pod-prostor nejvhodnějších.
+
+Další částí je pole modelů ve scéně obsažených. Záznamy modelů obsahují cestu k souboru pro načtení dat modelu a také vektory k jeho transformaci.
+
+\begin{lstlisting}[label={lst:scene_config}, language=toml, caption={Definice jednoduché scény}]
+probeGridPos = [ -1.0, 0.0, -1.0 ]
+probeGridStep = 1.5
+proximityGridSize = [ 64, 64, 64 ]
+
+[[models]]
+path = '/chair.vox'
+rotateVec = [ 0.0, 0.0, 0.0 ]
+scaleVec = [ 4.0, 4.0, 4.0 ]
+translateVec = [ 0.0, 0.0, 0.0 ]
+\end{lstlisting}
 
 \section{Demonstrační aplikace}
 Demonstrační aplikace slouží k vizualizaci výsledků a práci s modely/scénami. Aplikace může pracovat ve dvou režimech:
