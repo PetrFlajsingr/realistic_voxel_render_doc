@@ -57,14 +57,14 @@ kde $p$ je bod na rovině obrázku, $h(p)$ váhová či filtrační funkce a $x$
 
 \begin{figure}[H]
 	\centering
+	\captionsetup{justification=centering}
 	\includegraphics[scale=1]{obrazky-figures/ray_tracing_plane.png}
-	\caption{Interakce paprsku se scénou}
-	\textbf{Zdroj: \cite{advanced_global}}
-	\label{fig:3d_grid}
+	\boldcaption[\textbf{Vrhání paprsku do scény.}]{ Počátkem paprsku je \textit{eye}, nebo-li umístění kamery. Paprsek dále prochází \textit{image plane}, což je rovina odpovídající výslednému vykreslenému obrázku. Převzato z Advanced global illumination \cite{advanced_global}.}
+	\label{fig:scene_ray}
 \end{figure}
 
 
-Jak napovídá již samotný název – ray tracing používá paprsky k~výpočtu barvy výsledného obrázku. Paprsek je polopřímka a je tedy definován počátečním bodem $\Vec{o}$ (origin) a směrem $\Vec{d}$ (direction). Nutnou funkcí pro funkčnost tohoto algoritmu je výpočet průsečíku paprsku s~primitivy, pomocí kterých je scéna vytvořena. Možnosti výpočtu průsečíku paprsku s~voxelem jsou uvedeny v~sekci \ref{sec:voxel_render}. Jednoduchý ray tracing je popsán algoritmem \ref{alg:rt_1}. Takto zjednodušená implementace je v praxi samozřejmě velice neefektivní a pro běžně používané scény je nutné použít akcelerační struktury pro urychlení hledání průsečíku \cite{accelerated_rt}. Pro realistické zobrazování jsou kromě primárních paprsků generovány i paprsky sekundární. Tyto paprsky jsou použity například pro odrazy, refrakci a stíny.
+Jak napovídá již samotný název – ray tracing používá paprsky k~výpočtu barvy výsledného obrázku. Paprsek je polopřímka a je tedy definován počátečním bodem $\Vec{o}$ (origin) a směrem $\Vec{d}$ (direction). Nutnou funkcí pro funkčnost tohoto algoritmu je výpočet průsečíku paprsku s~primitivy, pomocí kterých je scéna vytvořena. Možnosti výpočtu průsečíku paprsku s~voxelem jsou uvedeny v~sekci \ref{sec:voxel_render}. Jednoduchý ray tracing je popsán algoritmem \ref{alg:rt_1}. Takto zjednodušená implementace je v praxi samozřejmě velice neefektivní a pro běžně používané scény je nutné použít akcelerační struktury pro urychlení hledání průsečíku jak uvádí kniha \cite{accelerated_rt}. Pro realistické zobrazování jsou kromě primárních paprsků generovány i paprsky sekundární. Tyto paprsky jsou použity například pro odrazy, refrakci a stíny.
 
 Ve své standardní formě ray tracing neumožňuje generování měkkých stínů a spousty dalších sekundárních efektů.  Pro dosažení kýženého efektu lze využít například \textbf{Monte carlo ray tracing} (stochaistic ray tracing nebo distributed ray tracing) \cite{distributed_rt}. Namísto jediného paprsku pro výpočet stínů, odrazů a refrakcí je využito paprsků více a výsledky jejich výpočtu jsou následně průměrovány. Metoda umožňuje vytvoření mnoha dalších efektů, mezi které patří například hloubka pole, rozmazání pohybu a další.
 
@@ -89,13 +89,13 @@ Další metoda, kterou by bylo vhodné zmínit, je taktéž algoritmus ray march
 
 \begin{figure}[H]
 	\centering
+	\captionsetup{justification=centering}
 	\includegraphics[scale=0.8]{obrazky-figures/ray_marching.png}
-	\caption{Ray marching}
-	\textbf{Zdroj: \cite{Keinert2014EnhancedST}}
+	\boldcaption[\textbf{Ray marching.}]{ Kružnice zobrazují vzdálenost současné pozice paprsku ke scéně, což odpovídá kroku paprsku v současné iteraci. Převzato z Enhanced Sphere Tracing \cite{Keinert2014EnhancedST}.}
 	\label{fig:ray_marching}
 \end{figure}
 
-Článek \cite{sphere_tracing} popisuje algoritmus ray marching následovně: pro funkčnost algoritmu je podmínkou, aby existovala možnost vypočítat z~každého bodu ve scéně vzdálenost k~jejímu povrchu. Pro tento účel lze využít takzvaných signed distance functions (SDF). Pro každý paprsek, kdy generování paprsků probíhá stejně jako u~již zmíněného ray tracing, se iteruje napříč scénou, dokud do ní paprsek nenarazí, nepřekoná maximální počet iterací či vykreslovací vzdálenost (algoritmus \ref{alg:ray_marching}).
+Článek \cite{sphere_tracing} popisuje algoritmus ray marching následovně: pro funkčnost algoritmu je podmínkou, aby existovala možnost vypočítat z~každého bodu ve scéně vzdálenost k~jejímu povrchu. Pro tento účel lze využít takzvaných signed distance functions (SDF). Každý paprsek, pro něž jeho generování probíhá stejně jako u~již zmíněného ray tracing, se iteruje napříč scénou, dokud do ní paprsek nenarazí, nepřekoná maximální počet iterací či maximální vykreslovací vzdálenost (algoritmus \ref{alg:ray_marching}).
 
 
 \begin{center}
@@ -125,13 +125,13 @@ Prostor ve scéně je rozdělen pomocí pravidelné mřížky. Do každé diskr�
 
 \begin{figure}[H]
 	\centering
+	\captionsetup{justification=centering}
 	\includegraphics[scale=0.25]{obrazky-figures/light_field_probes.png}
-	\caption{Sondy umístěné ve scéně}
-	\textbf{Zdroj: \cite{light_field_probes}}
-	\label{fig:ray_marching}
+	\boldcaption[\textbf{Umístění sond ve scéně.}]{ Pro obecné případy jsou sondy rozmístěny ve scéně rovnoměrně ve formě mřížky. Převzato z Real-Time Global Illumination Using Precomputed Light Field Probes \cite{light_field_probes}.}
+	\label{fig:probes_in_scene}
 \end{figure}
 
-Algoritmus vykreslování postupuje napříč předpřipravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně je tento proces opakován napříč scénou, dokud nedojde k~jisté intersekci nebo minutí geometrie scény.
+Algoritmus vykreslování postupuje napříč připravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně je tento proces opakován napříč scénou, dokud nedojde k~jisté intersekci nebo minutí geometrie scény.
 
 \subsection{Radiozita}
 Metody radiozity byly vyvinuty již v~padesátých letech minulého století pro simulaci tepelného přenosu. Později byla popsána varianta pro vykreslování v~článku \cite{radiosity}. Metoda je založena na jednoduchém principu – vzhledem k~tomu, že každý povrch ve scéně může odrážet světlo, je možné tento povrch považovat za zdroj světla. Radiozita povrchu je dána rovnicí \ref{eq:voxel_coords},
@@ -170,8 +170,8 @@ kde $L_0$ je podíl intenzity světla vycházející z~povrchu na bodu $\vec{x}$
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{obrazky-figures/reflection_types.png}
-	\caption{Typy odrazu světla (difuzní, zrcadlové, lesklé)}
-	\textbf{Zdroj: \cite{materials}}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Typy odrazu světla.}]{ (a) difuzní, (b) zrcadlové, (c) lesklé. Převzato z Realistic Materials in Computer Graphics \cite{materials}.}
 	\label{fig:refl_types}
 \end{figure}
 
@@ -187,7 +187,8 @@ Dle knihy \cite{hunter_harold_1987} můžeme materiály dělit do několika zák
 		průsvitný             & difuzní přenos        \\ \hline
 		průhledný             & běžný přenos          \\ \hline
 	\end{tabular}
-	\caption{Typy materiálů a jejich interakce se světlem}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Typy materiálů a jejich interakce se světlem.}]{ }
 	\label{tab:mats_distr}
 \end{table}
 
@@ -227,7 +228,8 @@ Každá z~těchto kategorií má mírně odlišný přístup k~problému aliasin
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=2]{obrazky-figures/aliasing.png}
-	\caption{Aliasing}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Aliasing.}]{ Ukázka aliasingu vznikajícího kvůli nedostatečnému rozlišení výsledného obrázku.}
 	\label{fig:aliasing}
 \end{figure}
 
@@ -241,8 +243,9 @@ Vybraný zástupce GAA je \textbf{Geometric PostProcessing AA (GPAA)}. Při rend
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=3]{obrazky-figures/ssaa_diff.png}
-	\caption{Rozdíl kvality obrázku po použití SSAA}
-	\label{fig:aliasing}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Rozdíl kvality po použití SSAA.}]{ Levá polovina obrázku obsahuje snímek, ve kterém není využit anti-aliasing. V pravé části bylo využito SSAA.}
+	\label{fig:aliasing_ssaa}
 \end{figure}
 
 
@@ -260,8 +263,8 @@ Jak uvádí kniha \cite{gfx_principles_practice}, voxel, neboli \textbf{vo}lume 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.5]{obrazky-figures/3d_grid.png}
-	\caption{3D mřížka}
-	\textbf{Zdroj: }\cite{3d_grid_image}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{3D mřížka.}]{Převzato z Applied Mathematics and Computation \cite{3d_grid_image}.}
 	\label{fig:3d_grid}
 \end{figure}
 
@@ -270,8 +273,8 @@ Voxely jsou často využívány v~medicíně \cite{medical_vox}, například pro
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{obrazky-figures/voxel_mri.png}
-	\caption{Zobrazení výsledku magnetické resonance pomocí voxelů}
-	\textbf{Zdroj: \cite{mri}}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Zobrazení výsledku magnetické resonance pomocí voxelů.}]{Převzato z Computational and Mathematical Methods in Medicine \cite{mri}.}
 	\label{fig:mri_vox}
 \end{figure}
 
@@ -280,8 +283,8 @@ Dalším častým využitím je modelování terénu, kde voxely přináší mo�
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.13]{obrazky-figures/minecraft.jpg}
-	\caption{Minecraft}
-	\textbf{Zdroj: \url{https://forums-cdn.spongepowered.org/uploads/default/original/2X/8/83abd20efc6cf5104c2f8c5459808bcd1addef7a.jpg}}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Minecraft.}]{ Převzato z \url{https://forums-cdn.spongepowered.org/uploads/default/original/2X/8/83abd20efc6cf5104c2f8c5459808bcd1addef7a.jpg}.}
 	\label{fig:minecraft}
 \end{figure}
 
@@ -348,7 +351,7 @@ Při vykreslování pomocí paprsků lze problém rozdělit na dvě části. Prv
 	\end{czechalgorithm}
 \end{center}
 
-Vhodnější alternativu pro výpočet průsečíku paprsku s~voxelem lze najít v~publikaci \cite{efficient_box_intersect}. Tato metoda využívá dlaždic (slabs), kdy je voxel považován za průsečík tří z~nich. Na obrázku \ref{fig:slabs} je vizualizace výpočtu ve 2D, nicméně ve 3D je výpočet obdobný. Algoritmus pro 2D je popsán v~rovnici \ref{eq:slabs}.
+Vhodnější alternativu pro výpočet průsečíku paprsku s~voxelem lze najít v~publikaci \cite{efficient_box_intersect}. Tato metoda využívá dlaždic (slabs), kdy je voxel považován za průsečík tří z~nich. Na obrázku \ref{fig:slabs} je vizualizace výpočtu. Algoritmus pro 2D je popsán v~rovnici \ref{eq:slabs}.
 
 
 \begin{equation} \label{eq:slabs}
@@ -373,8 +376,8 @@ Vhodnější alternativu pro výpočet průsečíku paprsku s~voxelem lze najít
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1.3]{obrazky-figures/slab_intersect.png}
-	\caption{Průsečík s~voxelem metodou dlaždic}
-	\textbf{Zdroj: \cite{Cunha13}}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Průsečík s obdelníkem metodou dlaždic.}]{ Vizualizace výpočtu ve 2D. Ve 3D se výpočet provádí velice podobně. Převzato z Ray Tracing: intersection and shading \cite{Cunha13}.}
 	\label{fig:slabs}
 \end{figure}
 
@@ -387,7 +390,8 @@ Pro ukládání voxelových scén existuje poměrně velké množství formátů
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.5]{images/magica_voxel_vox.png}
-	\caption{Ukázka rozdělení VOX modelu na chunky v programu MagicaVoxel}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{VOX model rozdělený na chunky.}]{ Dělba modelů na chunky, zobrazeno pomocí MagicaVoxel.}
 	\label{fig:magica_vox}
 \end{figure}
 
@@ -430,8 +434,8 @@ Samotná hierarchie těchto těles je tvořena jako stromová struktura, kde ka�
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.5]{images/fig03-bvh.png}
-	\caption{2D hierarchie obalových těles}
-	\textbf{Zdroj: \url{https://developer.nvidia.com/blog/thinking-parallel-part-ii-tree-traversal-gpu/}}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{2D hierarchie obalových těles.}]{ \textit{O} reprezentuje objekty ve scéně a \textit{N} uzly stromu. Převzato z \url{https://developer.nvidia.com/blog/thinking-parallel-part-ii-tree-traversal-gpu/}.}
 	\label{fig:slabs}
 \end{figure}
 
@@ -464,9 +468,9 @@ Octree, poprvé představen v~knize \cite{rensselaer1980octree}, je popsán jako
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.1]{obrazky-figures/Octree2.pdf}
-	\caption{Octree}
-	\textbf{Zdroj: \url{https://en.wikipedia.org/wiki/Octree}}
+	\includegraphics[scale=0.12]{obrazky-figures/Octree2.pdf}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Octree.}]{Převzato z \url{https://en.wikipedia.org/wiki/Octree}.}
 	\label{fig:slabs}
 \end{figure}
 
@@ -529,8 +533,8 @@ kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. P�
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1.7]{obrazky-figures/octree_child_data.png}
-	\caption{Položka reprezentující uzel octree}
-	\textbf{Zdroj: \cite{Laine2011EfficientSV}}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Položka reprezentující uzel octree.}]{Převzato z \cite{Laine2011EfficientSV}.}
 	\label{fig:octree_child}
 \end{figure}
 
@@ -549,7 +553,8 @@ Pro rendering voxelové scény existuje několik možností, vhodným kandidáte
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{obrazky-figures/color_iter_svo.png}
-	\caption{Render voxelizované "Utah teapot", vlevo barevný výstup, vpravo počet iterací }
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Render voxelizované "Utah teapot".}]{ Levá část vyobrazuje běžné vykreslení, pravá obsahuje počet iterací algoritmu v daném pixelu -- plně bílá barva je v tomto případě \textasciitilde{}128 iterací.}
 	\label{fig:octree_child}
 \end{figure}
 
@@ -560,7 +565,8 @@ Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{obrazky-figures/normals_teapot.png}
-	\caption{Render voxelizované "Utah teapot", vizualizace normál }
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Vizualizace normál pro model "Utah teapot".}]{ }
 	\label{fig:octree_child}
 \end{figure}
 
@@ -569,7 +575,8 @@ Pro usnadnění práce s modely a úsporu výpočetního výkonu při jejich tra
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{images/bvh_octree.png}
-	\caption{Reprezentace scény - levá část reprezentuje hierarchii obalových těles, obsahující v listech octree (vpravo)}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Rozložení hierarchií scény.}]{ Levá část reprezentuje hierarchii obalových těles, kde se v každém listu nachází octree.}
 	\label{fig:scene_bvh_repr}
 \end{figure}
 
@@ -587,18 +594,20 @@ Jelikož je využitá octree struktura \textit{sparse} -- tedy neobsahuje inform
     \item \textit{POP} - Posun do uzlu, který byl uložen na zásobník.
 \end{itemize}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.2]{obrazky-figures/svo_snowman.png}	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Reprezentace modelu pomocí sparse octree.}]{ V obrázku je vidět, že oblasti pro které není nutné udržovat detail jsou velice úsporné.}
+	\label{fig:svo_example}
+\end{figure}
+
 Pro průchod octree je tedy nutné využít datové struktury zásobník. Kdykoli, kdy algoritmus postoupí do nižší úrovně stromu (\textit{PUSH}), je potenciálně uložen předchozí rodič. Pokud je současná větev nevhodná pro další výpočty, je vyvolán \textit{POP} a tím se posune algoritmus v hierarchii výše. 
 
 Při postupu v hierarchii níže dochází k volbě vhodného potomka. Volba je založena na vyhodnocení $t_x$, $t_y$ a $t_z$ a jejich porovnání s $tc_{min}$.
 
 Tuto metodu jsem se rozhodl použít pro výpočet primárních paprsků kvůli vysoké přesnosti a poměrně nízké výpočetní náročnosti tohoto algoritmu. Metoda pro výpočet sekundárních paprsků je popsána v následující sekci.
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[scale=0.2]{obrazky-figures/svo_snowman.png}
-	\caption{Ukázka reprezentace modelu pomocí sparse voxel octree}
-	\label{fig:svo_example}
-\end{figure}
+
 
 \subsection{Light field probes}\label{sec:lfp_design}
 Light field probes byly již krátce představeny v sekci \ref{sec:ray_tracing}. Každá sonda je reprezentována svou pozicí a texturou, která obsahuje následující informace:
@@ -653,7 +662,8 @@ Jelikož sonda reprezentuje světelné pole ve svém okolí jakožto kouli, je n
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=2]{images/octahedral_wrap.png}
-	\caption{Vizualizace projekce na osmistěn a následně na rovinu}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Vizualizace projekce koule na osmistěn a následně na rovinu.}]{ }
 	\label{fig:octahedral_wrap}
 \end{figure}
 
@@ -663,7 +673,8 @@ Výpočet informací o geometrii je prováděn pomocí ray tracingu představen�
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{images/probe_with_scene.png}
-	\caption{Vizualizace dat uložených pro sondu (horní část v pořadí radiance, normály, hloubka) a její pozice ve scéně (dolní část, červená koule je zobrazovaná sonda)}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Vizualizace dat uložených pro sondu.}]{ V horní polovině obrázku je vyobrazena radiance, normály a hloubka. Dolní část ukazuje pozici sondy ve scéně (červená).}
 	\label{fig:probe_in_scene}
 \end{figure}
 
@@ -706,7 +717,8 @@ Pro urychlení tohoto algoritmu je pro každou sondu vytvořena další textura,
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.85]{images/lfp_trace.png}
-	\caption{Vizualizace sledování paprsku v textuře sondy. Oranžová část je prováděna pouze na textuře s nižším rozlišením, zelená při nalezení potenciálního průsečíku}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Sledování paprsku v textuře sondy.}]{ Oranžová část paprsku je prováděna pouze na textuře s nižším rozlišením, zelená je prováděna na vysokém rozlišení pokud dochází k detekci potenciálního průsečíku. Převzato z Real-Time Global Illumination using Precomputed Light Field Probes \cite{light_field_probes}.}
 	\label{fig:lfp_trace}
 \end{figure}
 
@@ -715,7 +727,8 @@ Pro urychlení tohoto algoritmu je pro každou sondu vytvořena další textura,
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{images/probe_cube.png}
-	\caption{Pořadí výběru sondy pro lokální skupinu}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Pořadí výběru sondy pro lokální skupinu.}]{Převzato z Real-Time Global Illumination using Precomputed Light Field Probes \cite{light_field_probes}.}
 	\label{fig:lfp_cube}
 \end{figure}
 
@@ -737,12 +750,13 @@ Namísto výběru sondy tak, jak je popsáno v předchozím odstavci, je možné
 	\end{czechalgorithm}
 \end{center}
 
-Na obrázku \ref{fig:lfp_scene_render} je zobrazena scéna vykreslená čistě pomocí výše popsané metody. Zelené oblasti značí \textit{miss}, červené \textit{unknown}. Je vidět, že dochází k mnoha nepřesnostem a ve scéně, kde je spousta objektů dochází ke vzniku míst, kde sondy nenaleznou řešení.
+Na obrázku \ref{fig:lfp_scene_render} je zobrazena scéna vykreslená čistě pomocí výše popsané metody.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{images/probe_scene_render.png}
-	\caption{Scéna vykreslena algoritmem sledování paprsku skrze light field (vlastní implementace)}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Scéna vykreslena algoritmem sledování paprsku skrze light field.}]{ Zelené oblasti značí \textit{miss}, červené \textit{unknown}. Je vidět, že dochází k mnoha nepřesnostem a ve scéně, kde je spousta objektů dochází ke vzniku míst, kde sondy nenaleznou řešení.}
 	\label{fig:lfp_scene_render}
 \end{figure}
 
@@ -755,8 +769,8 @@ Pro již zmíněnou metodu se nabízí modifikace, která by umožnila přidat f
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.15]{images/diffuse_bounce.png}
-	\caption{Paprsky odražené z difuzního materiálu}
-	\textbf{Zdroj: \url{https://renderstuff.com/tutorials/indirect-illumination-in-v-ray-tutorial-176/}}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Paprsky odražené z difuzního materiálu.}]{Převzato z \url{https://renderstuff.com/tutorials/indirect-illumination-in-v-ray-tutorial-176/}.}
 	\label{fig:diffuse_rays}
 \end{figure}
 
@@ -792,7 +806,8 @@ Jelikož informace o materiálech poskytované zdrojovými modely jsou poměrně
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{images/indirect_probe.png}
-	\caption{Textura sondy obsahující informace o nepřímém osvětlení. Na levé straně pouze vnější osvětlení, vpravo vliv emitujícího materiálu.}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Textura sondy obsahující informace o nepřímém osvětlení.}]{ Na levé straně je zdrojem pouze vnější osvětlení, vpravo je vidět vliv emitujícího materiálu. }
 	\label{fig:diffuse_rays}
 \end{figure}
 
@@ -972,7 +987,8 @@ Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Po
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.7]{obrazky-figures/levels_render.png}
-	\caption{Vizualizace voxelů podle jejich hloubky ve stromu, vlevo render, vpravo barevně odlišené úrovně}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Vizualizace hloubky voxelů ve stromu.}]{ Levá část obsahuje render, vpravo jsou barevně odlišené úrovně octree. }
 	\label{fig:imgui_classes}
 \end{figure}
 
@@ -1040,7 +1056,8 @@ Pro modely ve scéně jsou použity tři samostatné struktury. Pro uložení z�
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.7]{images/model_storage.png}
-	\caption{Informace o modelu a jejich vztah k datovým bufferům}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Informace o modelu a vztahy k datovým bufferům.}]{ }
 	\label{fig:model_storage}
 \end{figure}
 
@@ -1062,7 +1079,8 @@ Celý proces načtení nového modelu z disku je popsán v obrázku \ref{fig:loa
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.7]{images/load_diagram.png}
-	\caption{Diagram načtení dat modelů}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Diagram načítání dat modelů.}]{ }
 	\label{fig:load_model_diagram}
 \end{figure}
 
@@ -1072,6 +1090,8 @@ Pro účel zjednodušení práce s modely aplikace podporuje jednoduchý konfigu
 První částí je definice pozice a rozložení pole sond (light field probes). Položka \texttt{probeGridPos} určuje pozici počátku mřížky sond a \texttt{probeGridStep} definuje vzdálenost jednotlivých sond. \texttt{proximityGridSize} určuje rozdělení prostoru pokrytým sondami na voxely, které obsahují informace o sondách pro tento pod-prostor nejvhodnějších.
 
 Další částí je pole modelů ve scéně obsažených. Záznamy modelů obsahují cestu k souboru pro načtení dat modelu a také vektory k jeho transformaci.
+
+Ukázka jednoduchého souboru scény je ve výpisu \ref{lst:scene_config}.\\\\
 
 \begin{lstlisting}[label={lst:scene_config}, language=toml, caption={Definice jednoduché scény}]
 probeGridPos = [ -1.0, 0.0, -1.0 ]
@@ -1094,6 +1114,20 @@ Demonstrační aplikace slouží k vizualizaci výsledků a práci s modely/scé
 
 Uživatelské rozhraní je implementováno pomocí knihovny \texttt{pf\_imgui} představené v sekci \ref{sec:pf_imgui}. Většina prvků uživatelského rozhraní obsahuje tooltipy pro snadné zjištění funkce jednotlivých komponent a UI okna lze přetáhnout ven z hlavního okna pro lepší přehlednost. Bližší popis se nachází na přiloženém paměťovém médiu, základní přehled zde ale bude uveden.
 
+UI aplikace je rozděleno do následujících částí:
+
+\begin{itemize}
+	\item Info - zobrazení statistik vykreslování (počet snímků za sekundu, flame graph), informace o~kameře a její parametry, a také informace o právě vykreslované scéně.
+	\item Render settings - výběr typu zobrazení (stínování, normály, počet iterací, hloubka v~stromě...), ovládání světla.
+	\item Debug - memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
+	\item Debug images - okno pro zobrazení textury reprezentující počet iterací při průchodu octree.
+	\item Shader controls - ovládání parametrů pro shadery.
+	\item Probe grid controls - ovládání mřížky sond.
+	\item Models - ovládání modelů zobrazených ve scéně.
+	\item Probes info - vizualizace atlasu sond a renderování scény pomocí něj.
+\end{itemize}
+
+
 \begin{figure}[H]
 	\centering
 	\captionsetup{justification=centering}
@@ -1115,23 +1149,11 @@ Uživatelské rozhraní je implementováno pomocí knihovny \texttt{pf\_imgui} p
         	\caption{\textbf{Informační okno}}
         	\label{fig:info_ui}
 	\end{subfigure}\\
-	\caption{Ukázka oken demonstrační aplikace}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Ukázka oken demonstrační aplikace.}]{ }
 	\label{fig:UI}
 \end{figure}
 
-
-UI aplikace je rozděleno do následujících částí:
-
-\begin{itemize}
-	\item Info - zobrazení statistik vykreslování (počet snímků za sekundu, flame graph), informace o~kameře a její parametry, a také informace o právě vykreslované scéně.
-	\item Render settings - výběr typu zobrazení (stínování, normály, počet iterací, hloubka v~stromě...), ovládání světla.
-	\item Debug - memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
-	\item Debug images - okno pro zobrazení textury reprezentující počet iterací při průchodu octree.
-	\item Shader controls - ovládání parametrů pro shadery.
-	\item Probe grid controls - ovládání mřížky sond.
-	\item Models - ovládání modelů zobrazených ve scéně.
-	\item Probes info - vizualizace atlasu sond a renderování scény pomocí něj.
-\end{itemize}
 
 \subsubsection{Konfigurace}
 Důležitou součástí aplikace je konfigurační soubor, který je blíže popsán v příloze \ref{appendix:configfile}. Tento soubor obsahuje primárně informace o cestách ke zdrojům (cesta k modelům, shaderům...). Také je v něm obsažena definice velikosti okna demonstrační aplikace a velikost pracovní skupiny pro vykreslování za pomocí octree. Aplikace automaticky ukládá data, která uživatel nastavil v uživatelském rozhraní.
@@ -1159,7 +1181,7 @@ Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}.
 				\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert.txt};
 			\end{axis}
 		\end{tikzpicture}
-		\caption{Bez minimalizace}
+		\caption{\textbf{Bez minimalizace}}
 		\label{fig:time_convert}
 	\end{subfigure}
 	\begin{subfigure}{.5\textwidth}
@@ -1173,10 +1195,11 @@ Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}.
 				\addplot table [x=size, y=time, mark=none, color=red]{data/time_convert_mini.txt};
 			\end{axis}
 		\end{tikzpicture}
-		\caption{S~minimalizací}
+		\caption{\textbf{S~minimalizací}}
 		\label{fig:time_convert_mini}
 	\end{subfigure}
-	\caption{Čas tvorby octree}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Doba tvorby octree.}]{ }
 \end{figure}
 
 I~když to není z~grafu moc znatelné, transformace s~minimalizací je o~pár procent rychlejší, jelikož není nutné vytvářet tak velký finální strom. Pokud by vstupní data byla pro minimalizaci nepříznivá, byla by tato metoda pomalejší.
@@ -1202,7 +1225,8 @@ Každý uzel octree zabírá v~prvé řadě 4 bajty (15 bitů \texttt{child poin
 		5                                    & 18724                                       \\ \hline
 		6                                    & 149796                                      \\ \hline
 	\end{tabular}
-	\caption{Využití paměti podle hloubky stromu při maximální nepříznivosti podmínek}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Využití paměti podle hloubky stromu při maximální nepříznivosti podmínek.}]{ }
 \end{table}
 
 Tímto jsou pokryta základní data popisující strom a vyhledávací strukturu do parametrů. Další paměť je využita \texttt{far} pointery. V~pesimistickém případě je může potřebovat \textasciitilde5 \% uzlů, ovšem jsou potřeba až pro hloubku stromu vyšší než 7, kvůli množství potomků v~úrovni.
@@ -1223,6 +1247,8 @@ Celková paměťová náročnost pro octree se zmíněnými parametry je tedy:
 		5                                    & 84260                                       \\ \hline
 		6                                    & 674084                                      \\ \hline
 	\end{tabular}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Využití paměti podle hloubky stromu při využití barevných parametrů pro voxely.}]{ }
 \end{table}
 
 Ve všech případech se jedná o~nejhorší možný případ. Realisticky použitelné modely mají paměťovou náročnost výrazně nižší a také u~nich dochází k~minimalizaci stromu (která v~uvažovaném nejhorším případě není možná).
@@ -1235,15 +1261,17 @@ Samozřejmě není použita jen jedna sonda. Množství sond je, kvůli implemen
 
 \begin{table}[H]
 	\centering
-\begin{tabular}{|l|l|}
-\hline
-počet sond & využití paměti {[}MB{]} \\ \hline
-1          & 8.4                     \\ \hline
-4          & 33.5                    \\ \hline
-16         & 134.3                   \\ \hline
-128        & 1074.8                  \\ \hline
-512        & 4299.1                  \\ \hline
-\end{tabular}
+    \begin{tabular}{|l|l|}
+    \hline
+    počet sond & využití paměti {[}MB{]} \\ \hline
+    1          & 8.4                     \\ \hline
+    4          & 33.5                    \\ \hline
+    16         & 134.3                   \\ \hline
+    128        & 1074.8                  \\ \hline
+    512        & 4299.1                  \\ \hline
+    \end{tabular}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Využití paměti pro časté velikosti mřížky.}]{ }
 \end{table}
 
 
