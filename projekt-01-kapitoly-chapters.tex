@@ -64,7 +64,7 @@ kde $p$ je bod na rovině obrázku, $h(p)$ váhová či filtrační funkce a $x$
 \end{figure}
 
 
-Jak napovídá již samotný název – ray tracing používá paprsky k~výpočtu barvy výsledného obrázku. Paprsek je polopřímka a je tedy definován počátečním bodem $\Vec{o}$ (origin) a směrem $\Vec{d}$ (direction). Nutnou funkcí pro funkčnost tohoto algoritmu je výpočet průsečíku paprsku s~primitivy, pomocí kterých je scéna vytvořena. Možnosti výpočtu průsečíku paprsku s~voxelem jsou uvedeny v~sekci \ref{sec:voxel_render}. Jednoduchý ray tracing je popsán algoritmem \ref{alg:rt_1}. Takto zjednodušená implementace je v praxi samozřejmě velice neefektivní a pro běžně používané scény je nutné použít akcelerační struktury pro urychlení hledání průsečíku jak uvádí kniha \cite{accelerated_rt}. Pro realistické zobrazování jsou kromě primárních paprsků generovány i paprsky sekundární. Tyto paprsky jsou použity například pro odrazy, refrakci a stíny.
+Jak napovídá již samotný název -- ray tracing používá paprsky k~výpočtu barvy výsledného obrázku. Paprsek je polopřímka a je tedy definován počátečním bodem $\Vec{o}$ (origin) a směrem $\Vec{d}$ (direction). Nutnou funkcí pro funkčnost tohoto algoritmu je výpočet průsečíku paprsku s~primitivy, pomocí kterých je scéna vytvořena. Možnosti výpočtu průsečíku paprsku s~voxelem jsou uvedeny v~sekci \ref{sec:voxel_render}. Jednoduchý ray tracing je popsán algoritmem \ref{alg:rt_1}. Takto zjednodušená implementace je v praxi samozřejmě velice neefektivní a pro běžně používané scény je nutné použít akcelerační struktury pro urychlení hledání průsečíku jak uvádí kniha \cite{accelerated_rt}. Pro realistické zobrazování jsou kromě primárních paprsků generovány i paprsky sekundární. Tyto paprsky jsou použity například pro odrazy, refrakci a stíny.
 
 Ve své standardní formě ray tracing neumožňuje generování měkkých stínů a spousty dalších sekundárních efektů.  Pro dosažení kýženého efektu lze využít například \textbf{Monte carlo ray tracing} (stochaistic ray tracing nebo distributed ray tracing) \cite{distributed_rt}. Namísto jediného paprsku pro výpočet stínů, odrazů a refrakcí je využito paprsků více a výsledky jejich výpočtu jsou následně průměrovány. Metoda umožňuje vytvoření mnoha dalších efektů, mezi které patří například hloubka pole, rozmazání pohybu a další.
 
@@ -134,7 +134,7 @@ Prostor ve scéně je rozdělen pomocí pravidelné mřížky. Do každé diskr�
 Algoritmus vykreslování postupuje napříč připravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně je tento proces opakován napříč scénou, dokud nedojde k~jisté intersekci nebo minutí geometrie scény.
 
 \subsection{Radiozita}
-Metody radiozity byly vyvinuty již v~padesátých letech minulého století pro simulaci tepelného přenosu. Později byla popsána varianta pro vykreslování v~článku \cite{radiosity}. Metoda je založena na jednoduchém principu – vzhledem k~tomu, že každý povrch ve scéně může odrážet světlo, je možné tento povrch považovat za zdroj světla. Radiozita povrchu je dána rovnicí \ref{eq:voxel_coords},
+Metody radiozity byly vyvinuty již v~padesátých letech minulého století pro simulaci tepelného přenosu. Později byla popsána varianta pro vykreslování v~článku \cite{radiosity}. Metoda je založena na jednoduchém principu -- vzhledem k~tomu, že každý povrch ve scéně může odrážet světlo, je možné tento povrch považovat za zdroj světla. Radiozita povrchu je dána rovnicí \ref{eq:voxel_coords},
 
 
 \begin{equation} \label{eq:voxel_coords}
@@ -403,7 +403,7 @@ Existuje spousta dalších formátů, značné množství pro 3D tisk, ale také
 
 
 \section{Hierarchické struktury}
-Jak již bylo zmíněn – pro efektivní práci s~velkým množstvím voxelů je potřeba využít akceleračních struktur. V~této sekci je obsažen popis některých struktur, které se dají pro voxely použít.
+Jak již bylo zmíněn -- pro efektivní práci s~velkým množstvím voxelů je potřeba využít akceleračních struktur. V~této sekci je obsažen popis některých struktur, které se dají pro voxely použít.
 
 \subsection{Mřížka}
 Mřížka, nebo také grid, je poměrně jednoduchá struktura pro dělbu prostoru. Na nejnižší úrovni může mřížka odpovídat té, pomocí které dělí prostor samotné voxely. V~takovém případě by však nedošlo k~žádnému zrychlení. Pro akceleraci je prostor obsahující voxely rozdělen do několika částí (tzv. chunks). V~těchto oblastech jsou voxely sdružovány a při hledání požadované položky je možné nejdříve vybrat správný chunk a teprve následně vyhledávat v~omezené množině voxelů. Samotná struktura má minimální paměťové nároky, ale nepřináší velké zrychlení, alespoň ve srovnání s~ostatními metodami. Jednoduchá trojrozměrná mřížka je na obrázku \ref{fig:3d_grid}.
@@ -518,7 +518,7 @@ Současnou verzí API je Vulkan 1.2.184\cite{vulkanspec}.
 Následující část práce popisuje návrh aplikace pro realistické zobrazování voxelových scén. Kapitola je rozdělena na část popisu reprezentace voxelových dat a dále jejich vykreslování pomocí sparse voxel octree algoritmu.
 
 \section{Reprezentace voxelových dat}\label{sec:voxel_representation}
-Jak již bylo popsáno v~sekci \ref{voxels} – voxely jsou reprezentovány svou pozicí a jejich materiální vlastnosti různými parametry. Logickým krokem je rozdělení těchto dvou vlastností. V~některých strukturách je lze kódovat implicitně a nemusíme tedy plýtvat paměťovým prostorem.
+Jak již bylo popsáno v~sekci \ref{voxels} -- voxely jsou reprezentovány svou pozicí a jejich materiální vlastnosti různými parametry. Logickým krokem je rozdělení těchto dvou vlastností. V~některých strukturách je lze kódovat implicitně a nemusíme tedy plýtvat paměťovým prostorem.
 
 Pro implicitní zakódování pozice lze využít octree (sekce \ref{octree}). Nejnižší úroveň stromu reprezentuje samotné voxely a jediným nutným parametrem je počáteční pozice stromu a velikost prostoru, který obaluje. Samotný strom by mohl být vytvořen se statickým rozestupem rodičů a potomků, kde by se výpočet indexu následníka mohl řídit rovnicí:
 
@@ -542,10 +542,10 @@ kde $I_{child_j}$ je index $j$-tého potomka, $i$ je index současného uzlu. P�
 
 Kromě informací o~obsazenosti prostoru je nutné ukládat i informace o~materiálu. První možností by bylo rozšířit záznamy ve stromu o~tato data, ale s~velkým množstvím parametrů by velikost stromu rapidně narostla. Proto by bylo vhodnější tato data ukládat separátně. Tyto informace také nejsou relevantní při procházení stromu a pokud by byla uložena ve struktuře, došlo by ke zhoršení prostorové lokality paměti. Vhodným řešením je za oblastí stromu vytvořit oblast s~ekvivalentní strukturou, kde jsou uloženy odkazy na materiálová data. Výpočet offsetu do struktury je triviální, jelikož je pozice dat na stejném indexu jako je index uzlu. Nalezené položky slouží k~vyhledávání specifického záznamu v~separátním bufferu. Výhodou tohoto přístupu je možnost snadno ukládat samostatné materiály pro vyšší úrovně stromu, což může být použito pro aplikaci level of detail.
 
-\paragraph{Ukládání voxelových dat} Pro načítání modelů je využit formát VOX, který byl popsán v sekci \ref{sec:format}. Při načítání je ovšem nutné data transformovat do formátu octree popsaného výše, což může způsobit výrazné zpomalení aplikace. Namísto opakované transformace by bylo tedy vhodné data ukládat tak, aby docházelo pouze k načtení – tím by došlo k výraznému zrychlení. Vzhledem k tomu, že je důležitá spíše rychlost a ne využití místa na disku, je dostačující serializovat strukturu popsanou výše přímo do binárního souboru. Zpravidla dojde k malému zvětšení oproti VOX, ale doba načítání se zkrátí na zlomek času.
+\paragraph{Ukládání voxelových dat} Pro načítání modelů je využit formát VOX, který byl popsán v sekci \ref{sec:format}. Při načítání je ovšem nutné data transformovat do formátu octree popsaného výše, což může způsobit výrazné zpomalení aplikace. Namísto opakované transformace by bylo tedy vhodné data ukládat tak, aby docházelo pouze k načtení -- tím by došlo k výraznému zrychlení. Vzhledem k tomu, že je důležitá spíše rychlost a ne využití místa na disku, je dostačující serializovat strukturu popsanou výše přímo do binárního souboru. Zpravidla dojde k malému zvětšení oproti VOX, ale doba načítání se zkrátí na zlomek času.
 
 \section{Vykreslování}\label{sec:rendering}
-Následující sekce popisuje metody využité pro vykreslování scény v této práci – jmenovitě ray marching pomocí sparse voxel octrees, light field probes a jejich modifikace pro nepřímé osvětlení.
+Následující sekce popisuje metody využité pro vykreslování scény v této práci -- jmenovitě ray marching pomocí sparse voxel octrees, light field probes a jejich modifikace pro nepřímé osvětlení.
 
 \subsection{Sparse voxel octree}
 Pro rendering voxelové scény existuje několik možností, přičemž vhodným kandidátem je přístup sparse voxel octree (sekce \ref{svo_alg}). Při vržení paprsku dochází k~procházení stromu a vcházení pouze do podoblastí, které mohou obsahovat vyhledávaný voxel. Algoritmus je velice úsporný oproti primitivním metodám. Tato metoda je popsána v \cite{Laine2011EfficientSV}.
@@ -634,7 +634,7 @@ Dalším parametrem jsou normály. Ty lze zakódovat na 2 float hodnoty mnoha me
 	\begin{gathered}
 		\vec{p} = normal_{xy} \frac{1}{|normal_x| + |normal_y| + |normal_z|} \\
 		\vec{encoded\_normal} = \begin{cases}
-            (1 - |p_{yx}|) * sign(\vec{p}),& \text{pokud } normal_z \leq 0.0\\
+            (1 - |p_{yx}|) \cdot sign(\vec{p}),& \text{pokud } normal_z \leq 0.0\\
             \vec{p},              & \text{jinak}
         \end{cases}\\
 	\end{gathered}
@@ -647,7 +647,7 @@ Kde $normal$ je normála, $p$ je pomocný vektor k projekci a $encoded\_normal$ 
 	    z = 1 - |encoded\_normal_x| - |encoded\_normal_y|\\
 	    \vec{v} = \langle encoded\_normal_{xy}, z \rangle\\
 		\vec{decoded\_normal} = \begin{cases}
-            \langle (1 - |v_{yx}|) * sign(v_{xy}), v_z \rangle,& \text{pokud } v_z < 0.0\\
+            \langle (1 - |v_{yx}|) \cdot sign(v_{xy}), v_z \rangle,& \text{pokud } v_z < 0.0\\
             normalize(\vec{v}),              & \text{jinak}
         \end{cases}\\
 	\end{gathered}
@@ -957,7 +957,7 @@ Načítání dat je rozděleno na dvě části. V~první části jsou ze vstupn�
 	\end{czechalgorithm}
 \end{center}
 
-Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Pokud jsou některé oblasti zaplněné, je možné snížit jeho složitost – označíme uzel na vyšší úrovni jako terminální a jeho potomky odstraníme.
+Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Pokud jsou některé oblasti zaplněné, je možné snížit jeho složitost -- označíme uzel na vyšší úrovni jako terminální a jeho potomky odstraníme.
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:minimize_svo}
@@ -998,7 +998,19 @@ Finálním krokem je transformace vytvořeného stromu do jeho binární repreze
 
 
 \section{Výpočet průsečíku se scénou} \label{sec:bvh_traversal_impl}
-Paprsky vycházející z kamery jsou generováno <TODO>
+Paprsky vycházející z kamery jsou generovány podle rovnice \ref{eq:ray_gen}. $\vec{c}$ značí normalizovanou pozici současného pixelu, $\vec{near}$ určuje pozici blízké roviny (near plane), $\vec{far}$ roviny vzdálené (far plane) a $p$ je výsledný paprsek pro pozici na obrazovce.
+
+
+\begin{equation} \label{eq:ray_gen}
+	\begin{gathered}
+	    \vec{c} = calculateNormalizedScreenCoords()\\
+	    \vec{near} = inverseProjectionView \cdot <c_{xy}, -1, 1>\\
+	    \vec{far} = inverseProjectionView \cdot <c_{xy}, 1, 1>\\
+	    \vec{origin} = \frac{near_{xyz}}{near_w}\\
+	    \vec{direction} = normalize(\frac{far_{xyz}}{far_w} - origin)\\
+	    p = (\vec{origin}, \vec{direction})
+	\end{gathered}
+\end{equation}
 
 Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využití zásobníku. Důležitou součástí tohoto algoritmu je řazení potomků uzlu podle jejich vzdálenosti od počátku paprsku. Díky tomu jsou uzly stromu procházeny v pořadí od nejbližšího, lze tedy od určité chvíle naprosto ignorovat modely, jejichž obalové těleso (AABB) se nachází dále než prozatím nejbližší průsečík scény. Je zde také menší pravděpodobnost, že bude docházet k větvení kvůli pořadí průchodu.
 
@@ -1012,38 +1024,32 @@ Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využit�
 		\SetKwProg{Fn}{Function}{:}{}
 
 		\Fn{\FTraverseBVH{$ray$}}{
-		    best\_model\_intersection\_distance = INFINITY\\
-		    intersection\_a = IntersectNode(root)\\
+		    node = root\\
 		    stack = EmptyStack()\\
-		    \While{intersection\_a.hit}{
-		       \While{\Not intersection\_a.is\_leaf \And intersection\_a.hit}{
-		            intersection\_a = IntersectNode(intersection\_a.node.left\_child)\\
-		            intersection\_b = IntersectNode(intersection\_a.node.right\_child)\\
-		            \uIf{intersection\_a.distance < instersection\_b.distance}{
-		                swap(intersection\_a, intersection\_b)
+		    calculate intersection with root\\
+		    \While{intersected}{
+		       \While{intersected \And \Not intersected is leaf}{
+		            intersection\_a = IntersectNode(node.left\_child)\\
+		            intersection\_b = IntersectNode(node.right\_child)\\
+		            swap intersections so that the closer one is in instersection\_a\\
+		            \uIf{intersection\_b hit \And intersection\_b is closer than nearest geometry hit}{
+		                stack.Push(node.right\_child)
 		            }
-		            \uIf{intersection\_b.hit \And intersection\_b.distance < best\_model\_intersection\_distance}{
-		                stack.Push(intersection\_b)
-		            }
-		            \uIf{\Not intersection\_a.hit \And \Not stack.Empty()}{
+		            \uIf{neither node hit \And \Not stack.Empty()}{
 		                intersection\_a = stack.Pop()
 		            }
 		        }
+		        \uIf{intersected is leaf}{
+        		    \uIf{intersection is closer than nearest geometry hit}{
+        		        calculate model intersection and save distance if hit
+        		    }
+        		}
+        		\eIf{stack.Empty()}{
+        		    intersected = false
+        		} {
+        		    node = stack.Pop()
+        		}
 			}
-		    
-    		\uIf{intersection\_a.is\_leaf}{
-    		    \uIf{intersection\_a.distance < best\_model\_intersection\_distance}{
-    		        model\_intersection = TraceModel(intersection\_a.model\_id\\
-    		        \uIf{model\_intersection.hit \And model\_intersection.distance < best\_model\_intersection\_distance}{
-    		            best\_model\_intersection\_distance = model\_intersection.distance 
-    		        }
-    		    }
-    		}
-    		\eIf{stack.Empty()}{
-    		    intersection\_a.hit = false
-    		} {
-    		    intersection\_a = stack.Pop()
-    		}
 		}
 		\caption{Průchod paprsku hierarchií obalových těles}
 	\end{czechalgorithm}
