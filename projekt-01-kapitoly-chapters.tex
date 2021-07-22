@@ -1094,7 +1094,7 @@ Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využit�
 
 \section{Správa modelů} \label{sec:model_management}
 
-Pro modely ve scéně jsou použity tři samostatné struktury. Pro uložení základních informací jako je transformační matice či obalové těleso má každý model samostatnou strukturu. Data modelu -- octree a materiály -- jsou uloženy ve dvou bufferech, přičemž jsou tyto buffery sdíleny napříč všemi modely. Informační struktura obsahuje offsety pro umístění dat modelu ve zmíněných bufferech. Rozmístění těchto dat je na obrázku \ref{fig:model_storage}.
+Pro modely ve scéně jsou použity tři samostatné struktury. Pro uložení základních informací, jako je transformační matice či obalové těleso, má každý model samostatnou strukturu. Data modelu -- octree a materiály -- jsou uloženy ve dvou bufferech, přičemž jsou tyto buffery sdíleny napříč všemi modely. Informační struktura obsahuje offsety pro umístění dat modelu ve zmíněných bufferech. Rozmístění těchto dat je na obrázku \ref{fig:model_storage}.
 
 \begin{figure}[H]
 	\centering
@@ -1104,7 +1104,7 @@ Pro modely ve scéně jsou použity tři samostatné struktury. Pro uložení z�
 	\label{fig:model_storage}
 \end{figure}
 
-Pro usnadnění práce s alokací GPU paměti byla vytvořena třída \texttt{BufferMemoryPool}, která spravuje předaný buffer. Třída umožňuje zvolit zarovnání bloků při propůjčení paměti a zaručuje, že nedojde k přepisu již zapůjčených dat. Zapůjčené paměťové bloky využívají RAII\footnote{\url{https://en.cppreference.com/w/cpp/language/raii}} ke zněmožnění úniku paměti.  Ukázka použití této třídy je ve výpisu \ref{lst:memory_pool}.
+Pro usnadnění práce s alokací GPU paměti byla vytvořena třída \texttt{BufferMemoryPool}, která spravuje předaný buffer. Třída umožňuje zvolit zarovnání bloků při propůjčení paměti a zaručuje, že nedojde k přepisu již zapůjčených dat. Zapůjčené paměťové bloky využívají RAII\footnote{\url{https://en.cppreference.com/w/cpp/language/raii}} ke znemožnění úniku paměti.  Ukázka použití této třídy je ve výpisu \ref{lst:memory_pool}.
 
 \begin{lstlisting}[label={lst:memory_pool}, language=C++, caption={Ukázka využití memory pool}]
 auto buffer = createBuffer(100_MB);
@@ -1117,7 +1117,7 @@ memoryBlock.mapping().set(data);
 memoryPool.returnMemory(memoryBlock);
 \end{lstlisting}
 
-Celý proces načtení nového modelu z disku je popsán v obrázku \ref{fig:load_model_diagram}. Program umožňuje načítat dva typy formátů -- \texttt{VOX}, jehož data je nutné transformovat do octree a \texttt{PF\_VOX}, jež má již vhodnou podobu. Po načtení dochází k alokaci paměti grafické paměti a odeslání dat do ní. Finálním krokem je aktualizace hierarchie obalových těles.
+Celý proces načtení nového modelu z disku je popsán v obrázku \ref{fig:load_model_diagram}. Program umožňuje načítat dva typy formátů -- \texttt{VOX}, jehož data je nutné transformovat do octree a \texttt{PF\_VOX}, jež má již vhodnou podobu. Po načtení dochází k alokaci grafické paměti a odeslání dat do ní. Finálním krokem je aktualizace hierarchie obalových těles.
 
 \begin{figure}[H]
 	\centering
@@ -1130,7 +1130,7 @@ Celý proces načtení nového modelu z disku je popsán v obrázku \ref{fig:loa
 \subsection{Načítání a ukládání scén}
 Pro účel zjednodušení práce s modely aplikace podporuje jednoduchý konfigurační soubor pro uložení rozložení scény. Formátem tohoto souboru je \texttt{TOML}, podobně jako u konfiguračního souboru aplikace. Soubor definice scény je rozdělen na dvě části.
 
-První částí je definice pozice a rozložení pole sond (light field probes). Položka \texttt{probeGridPos} určuje pozici počátku mřížky sond a \texttt{probeGridStep} definuje vzdálenost jednotlivých sond. \texttt{proximityGridSize} určuje rozdělení prostoru pokrytým sondami na voxely, které obsahují informace o sondách pro tento pod-prostor nejvhodnějších.
+První částí je definice pozice a rozložení pole sond (light field probes). Položka \texttt{probeGridPos} určuje pozici počátku mřížky sond a \texttt{probeGridStep} definuje vzdálenost jednotlivých sond. \texttt{proximityGridSize} určuje rozdělení prostoru pokrytým sondami na voxely, které obsahují informace o sondách pro tento podprostor nejvhodnějších.
 
 Další částí je pole modelů ve scéně obsažených. Záznamy modelů obsahují cestu k souboru pro načtení dat modelu a také vektory k jeho transformaci.
 
@@ -1148,12 +1148,12 @@ scaleVec = [ 4.0, 4.0, 4.0 ]
 translateVec = [ 0.0, 0.0, 0.0 ]
 \end{lstlisting}
 
-V implementaci je i téměř dokončená logika pro načítání scén připravených pro hru Teardown. Modely ve formátu co hra využívá jsou na nejnižší úrovni ve \texttt{VOX} souborech. Definice scény je v samostatném \texttt{XML} souboru, který určuje transformace modelů a umožňuje definovat objekty "texturované" jiným modelem.
+V implementaci je i téměř dokončená logika pro načítání scén připravených pro hru Teardown. Modely ve formátu, které hra využívá, jsou na nejnižší úrovni ve \texttt{VOX} souborech. Definice scény je v samostatném \texttt{XML} souboru, který určuje transformace modelů a umožňuje definovat objekty "texturované" jiným modelem.
 
 \section{Demonstrační aplikace}\label{sec:demo_app}
 Demonstrační aplikace slouží k vizualizaci výsledků a práci s modely/scénami. Aplikace může pracovat ve dvou režimech:
 \begin{itemize}
-    \item Editační režim -- v tomto režimu je scéna vykreslována pouze pomocí sparse voxel octree ray marchingu a slouží primárně k vytvoření scény a jejímu uložení na disk. Také je lze možné sledovat stav sond.
+    \item Editační režim -- v tomto režimu je scéna vykreslována pouze pomocí sparse voxel octree ray marchingu a slouží primárně k vytvoření scény a jejímu uložení na disk. Také je zde možné sledovat stav sond.
     \item Renderovací režim -- slouží k načítání scén vytvořených v předchozím režimu a demonstraci výsledného algoritmu.
 \end{itemize}
 
@@ -1162,14 +1162,14 @@ Uživatelské rozhraní je implementováno pomocí knihovny \texttt{pf\_imgui} p
 UI aplikace je rozděleno do následujících částí:
 
 \begin{itemize}
-	\item Info - zobrazení statistik vykreslování (počet snímků za sekundu, flame graph), informace o~kameře a její parametry, a také informace o právě vykreslované scéně.
-	\item Render settings - výběr typu zobrazení (stínování, normály, počet iterací, hloubka v~stromě...), ovládání světla.
-	\item Debug - memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
-	\item Debug images - okno pro zobrazení textury reprezentující počet iterací při průchodu octree.
-	\item Shader controls - ovládání parametrů pro shadery.
-	\item Probe grid controls - ovládání mřížky sond.
-	\item Models - ovládání modelů zobrazených ve scéně.
-	\item Probes info - vizualizace atlasu sond a renderování scény pomocí něj.
+	\item Info -- zobrazení statistik vykreslování (počet snímků za sekundu, flame graph), informace o~kameře a její parametry, a také informace o právě vykreslované scéně.
+	\item Render settings -- výběr typu zobrazení (stínování, normály, počet iterací, hloubka ve~stromě...), ovládání světla.
+	\item Debug -- memo pro výstup logů, připravený Chaiscript pro přidávání složitějších funkcí.
+	\item Debug images -- okno pro zobrazení textury reprezentující počet iterací při průchodu octree.
+	\item Shader controls -- ovládání parametrů pro shadery.
+	\item Probe grid controls -- ovládání mřížky sond.
+	\item Models -- ovládání modelů zobrazených ve scéně.
+	\item Probes info -- vizualizace atlasu sond a renderování scény pomocí něj.
 \end{itemize}
 
 
@@ -1201,9 +1201,9 @@ UI aplikace je rozděleno do následujících částí:
 
 
 \subsubsection{Konfigurace}
-Důležitou součástí aplikace je konfigurační soubor, který je blíže popsán v příloze \ref{appendix:configfile}. Tento soubor obsahuje primárně informace o cestách ke zdrojům (cesta k modelům, shaderům...). Také je v něm obsažena definice velikosti okna demonstrační aplikace a velikost pracovní skupiny pro vykreslování za pomocí octree. Aplikace automaticky ukládá data, která uživatel nastavil v uživatelském rozhraní.
+Důležitou součástí aplikace je konfigurační soubor, který je blíže popsán v příloze \ref{appendix:configfile}. Tento soubor obsahuje primárně informace o cestách ke zdrojům (cesta k modelům, shaderům...). Také je v něm obsažena definice velikosti okna demonstrační aplikace a velikost pracovní skupiny pro vykreslování za pomoci octree. Aplikace automaticky ukládá data, která uživatel nastavil v uživatelském rozhraní.
 
-Typ souboru zvolený pro konfiguraci je \texttt{TOML}. Tento formát byl zvolen primárně z toho důvodu, že je velice snadno čitelný pro uživatele a není tedy nutné vytvářet separátní program pro manipulaci s konfigurací. Samozřejmě existují podobné, uživatelsky přívětivé, formáty, jako například \texttt{YAML} nebo \texttt{INI}, ale \texttt{TOML} byl zvolen také kvůli knihovně \texttt{toml++}, díky které je manipulace s konfiguračním souborem relativně pohodlná. 
+Typ souboru zvolený pro konfiguraci je \texttt{TOML}. Tento formát byl zvolen primárně z toho důvodu, že je velice snadno čitelný pro uživatele a není tedy nutné vytvářet separátní program pro manipulaci s konfigurací. Samozřejmě existují podobné, uživatelsky přívětivé formáty, jako například \texttt{YAML} nebo \texttt{INI}, ale \texttt{TOML} byl zvolen také kvůli knihovně \texttt{toml++}, díky které je manipulace s konfiguračním souborem relativně pohodlná. 
 
 
 \chapter{Vyhodnocení}
@@ -1211,7 +1211,7 @@ Typ souboru zvolený pro konfiguraci je \texttt{TOML}. Tento formát byl zvolen 
 V~této kapitole je krátký popis dosažených výsledků týkající se doby převodu vstupních dat a také analýza využití paměti na grafické kartě.
 
 \section{Převod vstupních dat na octree}
-Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jednom vlákně, ale v~budoucí verzi jej plánuji předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s~aktivovanou minimalizací. Měření byla prováděna s~nejvyšší úrovní optimalizací kompilace. Pro měření bylo použito CPU \texttt{Ryzen 3600} a probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v~testech použit byly plné koule o~různých poloměrech.
+Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jednom vlákně, ale v~budoucí verzi jej autor plánuje předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s~aktivovanou minimalizací. Měření byla prováděna s~nejvyšší úrovní optimalizací kompilace. Pro měření bylo použito CPU \texttt{Ryzen 3600} a probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v~testech použit, byly plné koule o~různých poloměrech.
 
 
 \begin{figure}[H]
@@ -1247,9 +1247,9 @@ Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}.
 	\boldcaption[\textbf{Doba tvorby octree.}]{ }
 \end{figure}
 
-I~když to není z~grafu moc znatelné, transformace s~minimalizací je o~pár procent rychlejší, jelikož není nutné vytvářet tak velký finální strom. Pokud by vstupní data byla pro minimalizaci nepříznivá, byla by tato metoda pomalejší.
+I~když to není z~grafu příliš znatelné, transformace s~minimalizací je o~několik procent rychlejší, jelikož není nutné vytvářet tak velký finální strom. Pokud by vstupní data byla pro minimalizaci nepříznivá, byla by tato metoda pomalejší.
 
-Vzhledem k~rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a mám v~úmyslu je v~budoucnu zrychlit.
+Vzhledem k~rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a budou v budoucnu zrychleny.
 
 \section{Paměťová náročnost}
 V této sekci je popsána paměťová náročnost dvou hlavních částí částí programu. Jedná se o vyhodnocení využití VRAM.
@@ -1274,7 +1274,7 @@ Každý uzel octree zabírá v~prvé řadě 4 bajty (15 bitů \texttt{child poin
 	\boldcaption[\textbf{Využití paměti podle hloubky stromu při maximální nepříznivosti podmínek.}]{ }
 \end{table}
 
-Tímto jsou pokryta základní data popisující strom a vyhledávací strukturu do parametrů. Další paměť je využita \texttt{far} pointery. V~pesimistickém případě je může potřebovat \textasciitilde5 \% uzlů, ovšem jsou potřeba až pro hloubku stromu vyšší než 7, kvůli množství potomků v~úrovni.
+Tímto jsou pokryta základní data popisující strom a vyhledávací strukturu do parametrů. Další paměť je využita \texttt{far} pointery. V~pesimistickém případě je může potřebovat \textasciitilde5 \% uzlů, ovšem jsou potřeba až pro hloubku stromu vyšší než 7, a to kvůli množství potomků v~úrovni.
 
 Poslední data vyžadující velké množství paměti jsou samotné parametry voxelů. Samozřejmě záleží na využitých parametrech, pro phongovo stínování je dostačující barva, tedy 4 bajty (RGBA formát, kde je každý kanál reprezentován 8 bity). Samozřejmě se data dají zakódovat efektivněji.
 
@@ -1300,9 +1300,9 @@ Ve všech případech se jedná o~nejhorší možný případ. Realisticky použ
 
 
 \subsubsection{Light field probes}
-Jak bylo zmíněno v sekci \ref{sec:lfp_design}, každá sonda sestává ze dvou textur, první z nich má rozlišení 1024x1024 s datovým typem \texttt{RG32F}, tedy využívá 8 bajtů paměti. Z těchto 8 bajtů jsou 4 využity pro radianci/nepřímé osvětlení, 2 pro normály a 2 pro hloubku. Druhá textura má $\frac{1}{16}$ rozlišení hlavní textury a obsahuje pouze informace o hloubce. Datovým typem této textury je \texttt{R16F}, což znamená, že každý texel zabírá 2 bajty. Využití paměti jedné sondy je tedy 8396800 bajtů (\textasciitilde{}8.4 MB).
+Jak bylo zmíněno v sekci \ref{sec:lfp_design}, každá sonda sestává ze dvou textur. První z nich má rozlišení 1024x1024 s datovým typem \texttt{RG32F}, tedy využívá 8 bajtů paměti. Z těchto 8 bajtů jsou 4 využity pro radianci/nepřímé osvětlení, 2 pro normály a 2 pro hloubku. Druhá textura má $\frac{1}{16}$ rozlišení hlavní textury a obsahuje pouze informace o hloubce. Datovým typem této textury je \texttt{R16F}, což znamená, že každý texel zabírá 2 bajty. Využití paměti jedné sondy je tedy 8396800 bajtů (\textasciitilde{}8.4 MB).
 
-Samozřejmě není použita jen jedna sonda. Množství sond je, kvůli implementaci algoritmů s nimi pracujících, omezeno na mocniny dvou v každé ose. V následující tabulce je seznam využití paměti pro množství sond, které se nejpravděpodobněji využijí.
+Samozřejmě není použita jen jedna sonda. Množství sond je kvůli implementaci algoritmů s nimi pracujících omezeno na mocniny dvou v každé ose. V následující tabulce je seznam využití paměti pro množství sond, které se nejpravděpodobněji využijí.
 
 \begin{table}[H]
 	\centering
