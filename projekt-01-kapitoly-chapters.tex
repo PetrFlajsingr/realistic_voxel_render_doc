@@ -547,7 +547,7 @@ Kromě informací o~obsazenosti prostoru je nutné ukládat i informace o~materi
 \section{Vykreslování}\label{sec:rendering}
 Následující sekce popisuje metody využité pro vykreslování scény v této práci -- jmenovitě ray marching pomocí sparse voxel octrees, light field probes a jejich modifikace pro nepřímé osvětlení.
 
-\subsection{Sparse voxel octree}
+\subsection{Sparse voxel octree}\label{sec:svo_design}
 Pro rendering voxelové scény existuje několik možností, přičemž vhodným kandidátem je přístup sparse voxel octree (sekce \ref{svo_alg}). Při vržení paprsku dochází k~procházení stromu a vcházení pouze do podoblastí, které mohou obsahovat vyhledávaný voxel. Algoritmus je velice úsporný oproti primitivním metodám. Tato metoda je popsána v \cite{Laine2011EfficientSV}.
 
 \begin{figure}[H]
@@ -678,7 +678,7 @@ Výpočet informací o geometrii je prováděn pomocí ray tracingu představen�
 	\label{fig:probe_in_scene}
 \end{figure}
 
-\subsection{Renderování scény pomocí light field probes}
+\subsection{Renderování scény pomocí light field probes}\label{sec:render_lfp}
 Pomocí atlasu textur, který byl vytvořen pro všechny sondy pokrývající scénu, je možné provádět trasování paprsku. Tato metoda byla popsána v publikaci \cite{light_field_probes}. Díky radiální vzdálenosti a normálám zakódovaných v sondách je možné vypočítat průsečíky nesouvislých paprsků. 
 
 V prvé řadě je nutné pro paprsek vybrat vhodnou sondu, ve které zahájíme jeho sledování. Pokud tato sonda není schopná poskytnout nám jistý \textit{miss} (minutí scény) nebo \textit{hit} (protnutí scény) je nutné vybrat alternativní sondu, která má nějakou šanci paprsek sledovat. Sledování paprsku v rámci jedné sondy tedy vrací tři stavy:
@@ -813,6 +813,31 @@ Jelikož informace o materiálech poskytované zdrojovými modely jsou poměrně
 
 
 \section{Struktura vykreslovacího řetězce}
+
+K vykreslení finálního snímku je samozřejmě potřeba zkombinovat metody popsané v předchozí sekci. Jak je vidět z obrázku \ref{fig:lfp_scene_render}, používat light field probes jako primární vykreslovací algoritmus není vhodné, jelikož dochází k vzniku velkého množství nepřesností. Z tohoto důvodu je pro první fázi využit ray tracing ve sparse voxel octree -- popsáno v sekci \ref{sec:svo_design}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.5]{images/my_render_pipeline.png}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Postup vykreslování jednotlivých snímků.}]{ Výpočet nepřímého osvětlení pro sondy je prováděn pouze při inicializaci, případě jako reakce na požadavek uživatele. }
+	\label{fig:gbuffer_contents}
+\end{figure}
+
+Před zahájením vykreslování snímku je nutné připravit atlas sond. Pro "online" výpočet sekundárních paprsků by bylo dostačující připravit do atlasu radianci, normály a hloubku, vzhledem k vysoké časové náročnosti tato metoda nebude použita. Namísto radiance je tedy v atlasu sond uložen příspěvek nepřímého osvětlení (obrázek \ref{fig:diffuse_rays}). Tento proces, s ohledem na jeho náročnost, může trvat delší dobu, ale je dostačující ho provést pouze při inicializaci scény. Celý řetězec je na obrázku \ref{fig:gbuffer_contents}.
+
+Další krok je již opakován periodicky pro každý snímek. Pomocí sparse voxel octree je vykreslen buffer, který obsahuje informace o místě průsečíku scény, index materiálu a normálu -- tento buffer je zobrazen v obrázku \ref{fig:gbuffer_contents}. 
+
+Následně je na základě hodnot v bufferu dohledáno ze sond a jejich atlasu nepřímé osvětlení. Díky použití mřížky k urychlení nalezení potenciálně vhodné sondy (sekce \ref{sec:render_lfp}) lze očekávat, že tato operace nezabere příliš mnoho času. Také je možné, že pro daný fragment existuje několik různých zdrojů dat o nepřímém osvětlení, jelikož tato data mohou být uložena ve více sondách, čímž se efektivně výrazně zvyšuje počet sekundárních paprsků. V tomto kroku paralelně též probíhá výpočet odražených paprsků pro metalické materiály.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1]{images/gbuffer_render.png}
+	\captionsetup{justification=centering}
+	\boldcaption[\textbf{Složky bufferu vykreslené na začátku rámce.}]{ Zleva se jedná o index materiálu (zobrazeno jako barva materiálu), normály, pozici ve světe (zobrazeno jako hloubka). }
+	\label{fig:gbuffer_contents}
+\end{figure}
 
 
 \chapter{Implementace}
@@ -1110,6 +1135,8 @@ rotateVec = [ 0.0, 0.0, 0.0 ]
 scaleVec = [ 4.0, 4.0, 4.0 ]
 translateVec = [ 0.0, 0.0, 0.0 ]
 \end{lstlisting}
+
+V implementaci je i téměř dokončená logika pro načítání scén připravených pro hru Teardown. Modely ve formátu co hra využívá jsou na nejnižší úrovni ve \texttt{VOX} souborech. Definice scény je v samostatném \texttt{XML} souboru, který určuje transformace modelů a umožňuje definovat objekty "texturované" jiným modelem.
 
 \section{Demonstrační aplikace}
 Demonstrační aplikace slouží k vizualizaci výsledků a práci s modely/scénami. Aplikace může pracovat ve dvou režimech:
