@@ -762,7 +762,7 @@ Na obrázku \ref{fig:lfp_scene_render} je zobrazena scéna vykreslená čistě p
 	\label{fig:lfp_scene_render}
 \end{figure}
 
-\subsection{Nepřímé osvětlení}
+\subsection{Nepřímé osvětlení}\label{sec:indirect}
 Původním záměrem autora bylo využít výše popsané sondy k výpočtu sekundárních paprsků ve scéně online, ale ukázalo se, že pro takový přístup je tato metoda příliš pomalá. Bylo tedy nutné vymyslet alternativní řešení. 
 
 Pro již zmíněnou metodu se nabízí modifikace, která by umožnila přidat funkčnost nepřímého osvětlení tak, že do atlasu textur sond je vypočteno nepřímé osvětlení při jejich inicializaci a posléze jsou aplikovány při renderování scény.  K výpočtu je použit ray tracing implementovaný pomocí metody popsané v první části sekce. Pro každý texel, který reprezentuje difuzní materiál, je vysláno několik paprsků z místa prvního průsečíku scény. Tyto paprsky se dále odráží ve scéně a sbírají světlo z vnějších zdrojů/emitujících materiálů.
@@ -1208,7 +1208,11 @@ Typ souboru zvolený pro konfiguraci je \texttt{TOML}. Tento formát byl zvolen 
 
 \chapter{Vyhodnocení}
 \label{testovani}
-V~této kapitole je krátký popis dosažených výsledků týkající se doby převodu vstupních dat a také analýza využití paměti na grafické kartě.
+V~této kapitole je krátký popis dosažených výsledků týkající se doby převodu vstupních dat a také analýza využití paměti na grafické kartě. Poslední sekce se zabývá grafickými výstupy implementace. Pro měření byla použita následující PC konfigurace:
+\begin{itemize}
+    \item CPU: AMD Ryzen 5 3600, 6-core, 4.2 GHz.
+    \item GPU: ASUS GeForce ROG STRIX RTX 2070S. 
+\end{itemize}
 
 \section{Převod vstupních dat na octree}
 Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}. Převod je prozatím prováděn sekvenčně na jednom vlákně, ale v~budoucí verzi jej autor plánuje předělat tak, aby využíval více vláken procesoru. Na obrázku \ref{fig:time_convert} je graf závislosti času převodu na počtu vstupních voxelů. Graf \ref{fig:time_convert_mini} zobrazuje stejné měření s~aktivovanou minimalizací. Měření byla prováděna s~nejvyšší úrovní optimalizací kompilace. Pro měření bylo použito CPU \texttt{Ryzen 3600} a probíhalo na jednom vláknu za využití knihovny \texttt{nanobench}\footnote{\url{https://github.com/martinus/nanobench}}. Model, který byl v~testech použit, byly plné koule o~různých poloměrech.
@@ -1248,8 +1252,6 @@ Převod vstupních dat na octree byl popsán v~sekci \ref{sec:voxel_conversion}.
 \end{figure}
 
 I~když to není z~grafu příliš znatelné, transformace s~minimalizací je o~několik procent rychlejší, jelikož není nutné vytvářet tak velký finální strom. Pokud by vstupní data byla pro minimalizaci nepříznivá, byla by tato metoda pomalejší.
-
-Vzhledem k~rychlostem zpracování je jasné, že algoritmy nejsou příliš dobře optimalizované a budou v budoucnu zrychleny.
 
 \section{Paměťová náročnost}
 V této sekci je popsána paměťová náročnost dvou hlavních částí částí programu. Jedná se o vyhodnocení využití VRAM.
@@ -1321,6 +1323,75 @@ Samozřejmě není použita jen jedna sonda. Množství sond je kvůli implement
 
 
 \section{Výsledky}
+
+\begin{figure}[H]
+	\centering
+	\captionsetup{justification=centering}
+	\includegraphics[scale=0.2]{images/12M_scene.png}
+	\boldcaption[\textbf{Scéna vykreslena pomocí sparse voxel octree ray tracing.}]{ V horní části obrázku se nachází vykreslená scéna se stíny, v dolní části je počet iterací nutný k výpočtu hodnot jednotlivých pixelů -- bílá barva v tomto případě znamená 200 iterací.}
+	\label{fig:12M_render}
+\end{figure}
+
+
+Na obrázku \ref{fig:12M_render} je vykreslena scéna pomocí sparse voxel octree ray tracing. Scéna obsahuje 36 modelů složených z 12-ti milionů voxelů. Hierarchie obalových těles této scény obsahuje 71 uzlů, má tedy hloubku 7 úrovní. Nejvyšší počet iterací nutných k výpočtu průsečíku zde bylo \textasciitilde{}200 iterací (kroků průchodu stromu). Ve scéně je prováděn výpočet ostrých stínů. Na hardware, který byl zmíněn na začátku kapitoly, a při rozlišení 1920x1080 pixelů byla tato scéna vykreslena rychlostí 100 snímků za sekundu. Při vypnutí paprsků pro stíny došlo ke zrychlení o 20\%, tedy 120 snímků za sekundu. Samozřejmě na snímku dochází k nejhoršímu možnému případu -- všechny modely jsou viditelné a plocha, která je naspod, je velice neefektivní, jelikož se jedná o velký model, který má výšku pouze jednoho voxelu. Dělba prostoru pomocí octree je v tomto případě poněkud neefektivní.  Po jeho odstranění dojde ke zrychlení na 300 snímků za sekundu. 
+
+\begin{figure}[H]
+	\centering
+	\captionsetup{justification=centering}
+	\includegraphics[scale=1]{images/render_probe_vs_svo.png}
+	\boldcaption[\textbf{Srovnání scény vykreslené pomocí light field probes a sparse voxel octree.}]{ V levé části obrázku je scéna vykreslena pomocí light field probe ray tracing. Zelené oblasti zobrazují minutí scény, červené nemožnost zjistit výsledek pro paprsek. Pravá část je stejná scéna vykreslena pomocí sparse voxel octree.}
+	\label{fig:probe_vs_svo_render}
+\end{figure}
+
+Obrázek \ref{fig:probe_vs_svo_render} obsahuje porovnání vykreslení scény z pohledu kamery pomocí light field probe ray tracing a sparse voxel octree ray tracing. Z obrázku je jasně vidět, že metoda není vhodná jako primární vykreslovací algoritmus. Výsledek obsahuje spoustu pixelů, kde nebyl nalezen výsledek a dochází k mnoha nepřesnostem, jak je lépe vidět na obrázku \ref{fig:probes_inaccuracy}.
+
+\begin{figure}[H]
+	\centering
+	\captionsetup{justification=centering}
+	\includegraphics[scale=2.5]{images/probes_inaccuracy.png}
+	\boldcaption[\textbf{Přiblížení na artefakty light field probes ray tracing.}]{}
+	\label{fig:probes_inaccuracy}
+\end{figure}
+
+Jak bylo popsáno v sekci \ref{sec:indirect}, namísto radiance zobrazené výše je v sondách vykreslen příspěvek nepřímého osvětlení. Obrázek \ref{fig:probes_indirect_scene} zobrazuje nepřímé osvětlení ve scéně.
+
+\begin{figure}[H]
+	\centering
+	\captionsetup{justification=centering}
+	\includegraphics[scale=1]{images/probe_indirect_render.png}
+	\boldcaption[\textbf{Scéna vykreslena pomocí light field probes s nepřímým osvětlením.}]{}
+	\label{fig:probes_indirect_scene}
+\end{figure}
+
+Při kombinaci zmíněných algoritmů je vykreslena scéna pomocí sparse voxel octree a ze sond je získáno nepřímé osvětlení. Výsledek je na obrázku \ref{fig:render_indirect_1}. Z obrázku je vidět, že ne u všech fragmentů došlo k úspěšnému dohledání hodnot pro nepřímé osvětlení. Důvodem jsou dříve zmíněná "neviditelná" místa, kdy žádná z kandidátních sond "nevidí" na pozici.
+
+\begin{figure}[H]
+	\centering
+	\captionsetup{justification=centering}
+	\includegraphics[scale=0.9]{images/render_svo_indirect_1.png}
+	\boldcaption[\textbf{Scéna vykreslena kombinací light field probes a sparse voxel octree.}]{}
+	\label{fig:render_indirect_1}
+\end{figure}
+
+Tento přístup je tedy vhodnější pro scény, kde nedochází k častému překryvu, jako ve scéně výše. Na obrázku \ref{fig:tree_closeup} je bližší snímek vánočního stromu z obrázku \ref{fig:render_indirect_1}. Žádná ze sond na toto místo nevidí a vznikají tím nehezké artefakty. Je možné pokusit se zakrýt tyto problémy čtením dat ze sondy pouze ve směru místa průsečíku namísto přesné vzdálenosti, to ale přináší podobné problémy. 
+
+\begin{figure}[H]
+	\centering
+	\captionsetup{justification=centering}
+	\includegraphics[scale=1.15]{images/tree_closeup.png}
+	\boldcaption[\textbf{Artefakty v prostoru kde sonda "nevidí".}]{}
+	\label{fig:tree_closeup}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\captionsetup{justification=centering}
+	\includegraphics[scale=0.9]{images/indirect_render_2.png}
+	\boldcaption[\textbf{Ukázka scény s emisivním a reflektivním materiálem.}]{Oranžové objekty jsou zdroji světla. Ve středu spodní části obrázku se nachází reflektivní materiál. Ve scéně se nenachází zdaleka tolik artefaktů jako v té předchozí díky její jednoduchosti.}
+	\label{fig:indirect_render_2}
+\end{figure}
+
 
 \chapter{Závěr}
 \label{zaver}
