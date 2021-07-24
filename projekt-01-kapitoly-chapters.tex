@@ -10,7 +10,7 @@ První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou
 
 Kapitola druhá se zabývá návrhem řešení. Je zde popsán způsob reprezentace voxelových dat s~využitím akcelerační struktury a její detaily. Kapitola také vysvětluje navrhovaný způsob vykreslování voxelových scén s~využitím ray casting přístupu pro primární paprsky a představuje způsob výpočtu nepřímého osvětlení za pomocí sond. V poslední části je vysvětleno jak do sebe jednotlivé části zapadají ve větším celku.
 
-Následující kapitola se zabývá specifikami implementace. V~prvé radě jsou uvedeny nástroje a knihovny využité v~samotné implementaci. Dále jsou popsány knihovny, které byly v~rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s~\texttt{Vulkan} a \texttt{GLFW}, a knihovna pro vytváření a interakci s~uživatelským rozhraním. Také je zde popsána základní struktura výsledného programu společně se specifikami implementace jako je transformace modelů či správa modelů v paměti. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
+Následující kapitola se zabývá specifikami implementace. V~prvé radě jsou uvedeny nástroje a knihovny využité v~samotné implementaci. Dále jsou popsány knihovny, které byly v~rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s~Vulkan a GLFW, a knihovna pro vytváření a interakci s~uživatelským rozhraním. Také je zde popsána základní struktura výsledného programu společně se specifikami implementace jako je transformace modelů či správa modelů v paměti. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
 
 Poslední kapitola se věnuje vyhodnocením dosažených výsledků. Obsahem je analýza doby převodu scén do interní reprezentace, paměťová náročnost využitých datových struktur a také vyhodnocení dosažených grafických výstupů implementace.
 
@@ -280,7 +280,7 @@ Voxely jsou často využívány v~medicíně \cite{medical_vox}, například pro
 	\label{fig:mri_vox}
 \end{figure}
 
-Dalším častým využitím je modelování terénu, kde voxely přináší možnost reprezentovat převisy, čímž je terén značně realističtější než je tomu při aplikaci často používaných výškových map. Pravděpodobně nejznámější software používající voxely pro terén je \texttt{Minecraft} (obrázek \ref{fig:minecraft}). Za zmínku stojí také hra \texttt{Teardown} (2020)\footnote{\url{https://www.teardowngame.com/}}, kde je celý herní svět vytvořen pomocí voxelů a umožňuje téměř neomezenou destrukci.
+Dalším častým využitím je modelování terénu, kde voxely přináší možnost reprezentovat převisy, čímž je terén značně realističtější než je tomu při aplikaci často používaných výškových map. Pravděpodobně nejznámější software používající voxely pro terén je \textbf{Minecraft} (obrázek \ref{fig:minecraft}). Za zmínku stojí také hra \textbf{Teardown} (2020)\footnote{\url{https://www.teardowngame.com/}}, kde je celý herní svět vytvořen pomocí voxelů a umožňuje téměř neomezenou destrukci.
 
 \begin{figure}[H]
 	\centering
@@ -937,11 +937,11 @@ Součástí knihovny je též rozhraní pro kompilaci shader souborů z disku ne
 	\item Některé elementy navíc, například \texttt{Memo}.
 \end{itemize}
 
-Knihovna je postavena nezávisle na renderovacím backendu, v repository je poskytnut backend pro \texttt{Vulkan} a \texttt{GLFW}. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, přičemž jsou implementovány wrappery pro všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
+Knihovna je postavena nezávisle na renderovacím backendu, v repository je poskytnut backend pro Vulkan a GLFW. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro Vulkan by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, přičemž jsou implementovány wrappery pro všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
 
 V knihovně je také implementováno podstatné množství layoutů -- grid layout, anchor layout a další.
 
-Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti, a to například včetně \texttt{drag and drop} a rozhraní pro nastavení stylu/ barvy elementu. 
+Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti, a to například včetně \textit{drag and drop} a rozhraní pro nastavení stylu/ barvy elementu. 
 
 Kupříkladu implementace \texttt{CheckBox} vyžaduje pouze \textasciitilde10 řádků kódu -- nepočítaje deklarace funkcí a tělo konstruktoru -- s~tím, že dědí z~\texttt{ItemElement}, \texttt{Labellable}, \texttt{Savable}, \texttt{ValueObservable<bool>}, \texttt{ColorCustomizable<...>} a \texttt{StyleCustomizable<...>}.
 
