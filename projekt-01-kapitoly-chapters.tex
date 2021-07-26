@@ -6,11 +6,11 @@ Vzhledem ke změnám možností využití grafické karty, především existenc
 
 Cílem této práce je navrhnout a implementovat systém pro vykreslování voxelových scén. Z~mnoha dostupných metod jsou zde využity dvě -- sparse voxel octree ray tracing z~článku \cite{Laine2011EfficientSV} a light field probes z~článku \cite{light_field_probes}. Pro light field probes byla vytvořena vlastní modifikace k~výpočtu a vykreslení nepřímého osvětlení ve scéně.
 
-První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje, co jsou voxely, jak se s~nimi dá pracovat v~kontextu rozdělení prostoru a základní metody vykreslování. Dále jsou zde popsány vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V~poslední řadě obsahuje krátký popis moderního API pro práci s~grafickými kartami: \texttt{Vulkan}.
+První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje, co jsou voxely, jak se s~nimi dá pracovat v~kontextu rozdělení prostoru a základní metody vykreslování. Dále jsou zde popsány vybrané hierarchické struktury, pomocí kterých lze urychlit průchod voxelovým prostorem. V~poslední řadě obsahuje krátký popis moderního API pro práci s~grafickými kartami: Vulkan.
 
 Kapitola druhá se zabývá návrhem řešení. Je zde popsán způsob reprezentace voxelových dat s~využitím akcelerační struktury a její detaily. Kapitola také vysvětluje navrhovaný způsob vykreslování voxelových scén s~využitím ray casting přístupu pro primární paprsky a představuje způsob výpočtu nepřímého osvětlení za pomocí sond. V~poslední části je vysvětleno jak do sebe jednotlivé části zapadají ve větším celku.
 
-Následující kapitola se zabývá specifikami implementace. V~prvé radě jsou uvedeny nástroje a knihovny využité v~samotné implementaci. Dále jsou popsány knihovny, které byly v~rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s~\texttt{Vulkan} a \texttt{GLFW}, a knihovna pro vytváření a interakci s~uživatelským rozhraním. Také je zde popsána základní struktura výsledného programu společně se specifikami implementace jako je transformace modelů či správa modelů v~paměti. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
+Následující kapitola se zabývá specifikami implementace. V~prvé radě jsou uvedeny nástroje a knihovny využité v~samotné implementaci. Dále jsou popsány knihovny, které byly v~rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s~Vulkan a GLFW, a knihovna pro vytváření a interakci s~uživatelským rozhraním. Také je zde popsána základní struktura výsledného programu společně se specifikami implementace jako je transformace modelů či správa modelů v paměti. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
 
 Poslední kapitola se věnuje vyhodnocením dosažených výsledků. Obsahem je analýza doby převodu scén do interní reprezentace, paměťová náročnost využitých datových struktur a také vyhodnocení dosažených grafických výstupů implementace.
 
@@ -133,7 +133,7 @@ Prostor ve scéně je rozdělen pomocí pravidelné mřížky. Do každé diskr�
 	\label{fig:probes_in_scene}
 \end{figure}
 
-Algoritmus vykreslování postupuje napříč připravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně je tento proces opakován napříč scénou, dokud nedojde k~jisté intersekci nebo minutí geometrie scény.
+Algoritmus vykreslování postupuje napříč připravenými sondami. Při průchodu paprskem dochází k~výběru sondy, trasování uvnitř ní a následně je tento proces opakován napříč scénou, dokud nedojde k~jistému protnutí nebo minutí geometrie scény.
 
 \subsection{Radiozita}
 Metody radiozity byly vyvinuty již v~padesátých letech minulého století pro simulaci tepelného přenosu. Později byla popsána varianta pro vykreslování v~článku \cite{radiosity}. Metoda je založena na jednoduchém principu -- vzhledem k~tomu, že každý povrch ve scéně může odrážet světlo, je možné tento povrch považovat za zdroj světla. Radiozita povrchu je dána rovnicí \ref{eq:voxel_coords},
@@ -235,9 +235,9 @@ Každá z~těchto kategorií má mírně odlišný přístup k~problému aliasin
 	\label{fig:aliasing}
 \end{figure}
 
-Příkladem FSAA je \textbf{Super Sampling Anti-Aliasing (SSAA)}, kde je počet pixelů pro renderování navýšen oproti cílové velikosti renderovaného obrázku. Při dokončení jsou přilehlé pixely a jejich barva/hloubka zprůměrovány. Tato metoda dosahuje výborných výsledků, ale je velmi výpočetně náročná. Optimalizovanou alternativou je \textbf{Sampling Ant-Aliasing (MSAA)}. Jedná se o~metodu fungující na stejném principu, ale namísto navýšení rozlišení celého renderovaného snímku dochází k~výběru oblastí, u~kterých je velká pravděpodobnost vzniku aliasingu a super sampling probíhá pouze v~těchto oblastech.
+Příkladem FSAA je \textbf{Super Sampling Anti-Aliasing (SSAA)}, kde je počet pixelů pro renderování navýšen oproti cílové velikosti renderovaného obrázku. Při dokončení jsou přilehlé pixely a jejich barva/hloubka zprůměrovány. Tato metoda dosahuje výborných výsledků, ale je velmi výpočetně náročná. Optimalizovanou alternativou je \textbf{Multisample Anti-Aliasing (MSAA)}. Jedná se o~metodu fungující na stejném principu, ale namísto navýšení rozlišení celého renderovaného snímku dochází k~výběru oblastí, u~kterých je velká pravděpodobnost vzniku aliasingu a super sampling probíhá pouze v~těchto oblastech.
 
-Z~rodiny IAA uveďme\textbf{ Morphological Anti-Aliasing (MLAA)}. Tato metoda si dává za cíl minimalizovat aliasing z~okrajů a siluet. Algoritmus detekuje podezřelé oblasti podle rozdílu sousedních pixelů a používá rozmazání s~okolím. Detekce aliasingu může být i složitější, jako například vyhledávání specifických tvarů.
+Z~rodiny IAA uveďme \textbf{Morphological Anti-Aliasing (MLAA)}. Tato metoda si dává za cíl minimalizovat aliasing z~okrajů a siluet. Algoritmus detekuje podezřelé oblasti podle rozdílu sousedních pixelů a používá rozmazání s~okolím. Detekce aliasingu může být i složitější, jako například vyhledávání specifických tvarů.
 
 
 Vybraný zástupce GAA je \textbf{Geometric PostProcessing AA (GPAA)}. Při renderování obrazu dochází k~ukládání informací o~geometrii scény do separátního bufferu. Podle vzdálenosti sousedních pixelů ve finálním kroku dochází k~rozhodnutí, zda je nutné provádět anti-aliasing. Pokud ano, jsou vypočteny hodnoty okolních pixelů a dochází k~rozmazání.
@@ -254,7 +254,7 @@ Vybraný zástupce GAA je \textbf{Geometric PostProcessing AA (GPAA)}. Při rend
 
 
 \section{Voxel} \label{voxels}
-Jak uvádí kniha \cite{gfx_principles_practice}, voxel, neboli \textbf{vo}lume \textbf{el}ement, reprezentuje hodnotu na pravidelné mřížce ve 3D prostoru (obrázek \ref{fig:3d_grid}). Díky tomu, že je prostor rozdělen mřížkou pravidelně, lze voxel definovat pomocí třísložkového vektoru (rovnice \ref{eq:voxel_coords}). Pro účely vykreslování jsou voxelům přiřazovány další vlastnosti, jako například barva nebo materiál.
+Jak uvádí kniha \cite{gfx_principles_practice}, voxel, neboli \textbf{vo}lume \textbf{el}ement, reprezentuje hodnotu na pravidelné mřížce ve 3D prostoru (obrázek \ref{fig:3d_grid}). Díky tomu, že je prostor rozdělen mřížkou pravidelně, lze voxel definovat pomocí tří-složkového vektoru (rovnice \ref{eq:voxel_coords}). Pro účely vykreslování jsou voxelům přiřazovány další vlastnosti, jako například barva nebo materiál.
 
 \begin{equation} \label{eq:voxel_coords}
 	\begin{gathered}
@@ -280,7 +280,7 @@ Voxely jsou často využívány v~medicíně \cite{medical_vox}, například pro
 	\label{fig:mri_vox}
 \end{figure}
 
-Dalším častým využitím je modelování terénu, kde voxely přináší možnost reprezentovat převisy, čímž je terén značně realističtější než je tomu při aplikaci často používaných výškových map. Pravděpodobně nejznámější software používající voxely pro terén je \texttt{Minecraft} (obrázek \ref{fig:minecraft}). Za zmínku stojí také hra \texttt{Teardown} (2020)\footnote{\url{https://www.teardowngame.com/}}, kde je celý herní svět vytvořen pomocí voxelů a umožňuje téměř neomezenou destrukci.
+Dalším častým využitím je modelování terénu, kde voxely přináší možnost reprezentovat převisy, čímž je terén značně realističtější než je tomu při aplikaci často používaných výškových map. Pravděpodobně nejznámější software používající voxely pro terén je \textbf{Minecraft} (obrázek \ref{fig:minecraft}). Za zmínku stojí také hra \textbf{Teardown} (2020)\footnote{\url{https://www.teardowngame.com/}}, kde je celý herní svět vytvořen pomocí voxelů a umožňuje téměř neomezenou destrukci.
 
 \begin{figure}[H]
 	\centering
@@ -379,7 +379,7 @@ Vhodnější alternativu pro výpočet průsečíku paprsku s~voxelem lze najít
 	\centering
 	\includegraphics[scale=1.3]{obrazky-figures/slab_intersect.png}
 	\captionsetup{justification=centering}
-	\boldcaption[\textbf{Průsečík s~obdelníkem metodou dlaždic.}]{ Vizualizace výpočtu ve 2D. Ve 3D se výpočet provádí velice podobně. Převzato z~Ray Tracing: intersection and shading \cite{Cunha13}.}
+	\boldcaption[\textbf{Průsečík s obdélníkem metodou dlaždic.}]{ Vizualizace výpočtu ve 2D. Ve 3D se výpočet provádí velice podobně. Převzato z Ray Tracing: intersection and shading \cite{Cunha13}.}
 	\label{fig:slabs}
 \end{figure}
 
@@ -619,7 +619,7 @@ Light field probes byly již krátce představeny v~sekci \ref{sec:ray_tracing}.
  \item Informace o~materiálu, barvě či jiná data využitá v~další práci se sondami.
 \end{itemize}
 
-Tato textura má velikost 1024x1024 a každý texel reprezentuje dvě float hodnoty (\texttt{rg32f}). Vzhledem k~tomu, že paměťová náročnost je poměrně vysoká, je nutné ukládaná data nějakým vhodným způsobem komprimovat. Radiální vzdálenost ke geometrii je možné logaritmizovat pro zachování vyšší přesnosti pro bližší objekty a také kvantizovat na snížení paměťové náročnosti. Logaritmizace a linearizace hloubky obsahuje rovnice \ref{eq:depth_econde_decode},
+Tato textura má velikost 1024x1024 a každý texel reprezentuje dvě float hodnoty (\texttt{rg32f}). Vzhledem k tomu, že paměťová náročnost je poměrně vysoká, je nutné ukládaná data nějakým vhodným způsobem komprimovat. Radiální vzdálenost ke geometrii je možné logaritmovat pro zachování vyšší přesnosti pro bližší objekty a také kvantovat na snížení paměťové náročnosti. Logaritmizace a linearizace hloubky obsahuje rovnice \ref{eq:depth_econde_decode},
 
 \begin{equation} \label{eq:depth_econde_decode}
 	\begin{gathered}
@@ -630,7 +630,7 @@ Tato textura má velikost 1024x1024 a každý texel reprezentuje dvě float hodn
 
 kde $C$ je konstanta modifikující rozložení přesnosti, často nastavena na 1, $depth$ je hloubka a $Far$ je maximální vzdálenost. Po logaritmizaci je hodnota transformována na 16 bitů a uložena do textury sondy.
 
-Dalším parametrem jsou normály. Ty lze zakódovat na 2 float hodnoty mnoha metodami, jak je uvedeno v~\cite{Cigolle2014ASO}. Autor zvolil metodu projekce na osmistěn. Po projekci jsou složky výsledného vektoru kvantizovány na 8 bitů, čímž je celková potřebná paměť pro uložení těchto hodnot snížena na 16 bitů. Rovnice \ref{eq:normal_encode} popisuje zakódování normály a \ref{eq:normal_decode} její dekódování.
+Dalším parametrem jsou normály. Ty lze zakódovat na 2 float hodnoty mnoha metodami, jak je uvedeno v \cite{Cigolle2014ASO}. Autor zvolil metodu projekce na osmistěn. Po projekci jsou složky výsledného vektoru kvantovány na 8 bitů, čímž je celková potřebná paměť pro uložení těchto hodnot snížena na 16 bitů. Rovnice \ref{eq:normal_encode} popisuje zakódování normály a \ref{eq:normal_decode} její dekódování.
 
 \begin{equation} \label{eq:normal_encode}
 	\begin{gathered}
@@ -937,11 +937,11 @@ Součástí knihovny je též rozhraní pro kompilaci shader souborů z~disku ne
 	\item Některé elementy navíc, například \texttt{Memo}.
 \end{itemize}
 
-Knihovna je postavena nezávisle na renderovacím backendu, v~repository je poskytnut backend pro \texttt{Vulkan} a \texttt{GLFW}. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro \texttt{Vulkan} by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, přičemž jsou implementovány wrappery pro všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
+Knihovna je postavena nezávisle na renderovacím backendu, v repository je poskytnut backend pro Vulkan a GLFW. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro Vulkan by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, přičemž jsou implementovány wrappery pro všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
 
 V~knihovně je také implementováno podstatné množství layoutů -- grid layout, anchor layout a další.
 
-Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti, a to například včetně \texttt{drag and drop} a rozhraní pro nastavení stylu/ barvy elementu. 
+Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti, a to například včetně \textit{drag and drop} a rozhraní pro nastavení stylu/ barvy elementu. 
 
 Kupříkladu implementace \texttt{CheckBox} vyžaduje pouze \textasciitilde10 řádků kódu -- nepočítaje deklarace funkcí a tělo konstruktoru -- s~tím, že dědí z~\texttt{ItemElement}, \texttt{Labellable}, \texttt{Savable}, \texttt{ValueObservable<bool>}, \texttt{ColorCustomizable<...>} a \texttt{StyleCustomizable<...>}.
 
@@ -1148,7 +1148,7 @@ scaleVec = [ 4.0, 4.0, 4.0 ]
 translateVec = [ 0.0, 0.0, 0.0 ]
 \end{lstlisting}
 
-V~implementaci je i téměř dokončená logika pro načítání scén připravených pro hru Teardown. Modely ve formátu, které hra využívá, jsou na nejnižší úrovni ve \texttt{VOX} souborech. Definice scény je v~samostatném \texttt{XML} souboru, který určuje transformace modelů a umožňuje definovat objekty "texturované" jiným modelem.
+V implementaci je i téměř dokončená logika pro načítání scén připravených pro hru Teardown. Modely ve formátu, které hra využívá, jsou na nejnižší úrovni ve \texttt{VOX} souborech. Definice scény je v samostatném \texttt{XML} souboru, který určuje transformace modelů a umožňuje definovat objekty "otexturované" jiným modelem.
 
 \section{Demonstrační aplikace}\label{sec:demo_app}
 Demonstrační aplikace slouží k~vizualizaci výsledků a práci s~modely/scénami. Aplikace může pracovat ve dvou režimech:
