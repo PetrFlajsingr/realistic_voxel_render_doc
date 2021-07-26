@@ -401,7 +401,7 @@ Pro ukládání voxelových scén existuje poměrně velké množství formátů
 
 Existuje spousta dalších formátů, značné množství pro 3D tisk, ale také pro využití v~medicíně, jak již bylo zmíněno dříve. Dle autorova průzkumu je nejčastějším přístupem při volbě formátu pro vykreslovací engine vytvoření vlastního formátu.
 
-\paragraph{VolDat} byl vytvořen jako pokus o~jistou formu standardizace voxelových formátů. Tento formát byl popsán v~\cite{williams_2013}. Scéna je rozdělena na 2D části (průřezy napříč osou Y) a každý tento průřez je uložen v~obrázku. Pixely obrázku reprezentují jednotlivé voxely, jejich hodnota vyjadřuje barvu a také odkaz do separátního textového souboru, kde jsou uloženy doplňující data, jako například informace o~materiálech. 
+\paragraph{VolDat} byl vytvořen jako pokus o~jistou formu standardizace voxelových formátů. Tento formát byl popsán v~\cite{williams_2013}. Scéna je rozdělena na 2D části (průřezy napříč osou Y) a každý tento průřez je uložen v~obrázku. Pixely obrázku reprezentují jednotlivé voxely, jejich hodnota vyjadřuje barvu a také odkaz do separátního textového souboru, kde jsou uloženy doplňující data, jako například informace o~materiálech.
 
 
 \section{Hierarchické struktury}
@@ -411,7 +411,7 @@ Jak již bylo zmíněn -- pro efektivní práci s~velkým množstvím voxelů je
 Mřížka, nebo také grid, je poměrně jednoduchá struktura pro dělbu prostoru. Na nejnižší úrovni může mřížka odpovídat té, pomocí které dělí prostor samotné voxely. V~takovém případě by však nedošlo k~žádnému zrychlení. Pro akceleraci je prostor obsahující voxely rozdělen do několika částí (tzv. chunks). V~těchto oblastech jsou voxely sdružovány a při hledání požadované položky je možné nejdříve vybrat správný chunk a teprve následně vyhledávat v~omezené množině voxelů. Samotná struktura má minimální paměťové nároky, ale nepřináší velké zrychlení, alespoň ve srovnání s~ostatními metodami. Jednoduchá trojrozměrná mřížka je na obrázku \ref{fig:3d_grid}.
 
 \subsection{Hierarchie obalových těles} \label{sec:BVH}
-Obalové těleso (bounding volume) je jednoduchý geometrický objekt, který obaluje jeden či více objektů s~větší komplexitou \cite{ericson_2005}. Důležitým faktorem pro vhodnost tělesa k~využití v~hierarchii obalových těles (bounding volume hierarchies) pro ray tracing je náročnost výpočtu průsečíku s~tělesem. Jako příklad lze uvést kouli (rovnice \ref{eq:sphere_ray_intersection}), osově zarovnaný obdélník (axis aligned box) nebo konvexní obálku. 
+Obalové těleso (bounding volume) je jednoduchý geometrický objekt, který obaluje jeden či více objektů s~větší komplexitou \cite{ericson_2005}. Důležitým faktorem pro vhodnost tělesa k~využití v~hierarchii obalových těles (bounding volume hierarchies) pro ray tracing je náročnost výpočtu průsečíku s~tělesem. Jako příklad lze uvést kouli (rovnice \ref{eq:sphere_ray_intersection}), osově zarovnaný obdélník (axis aligned box) nebo konvexní obálku.
 
 \begin{equation} \label{eq:sphere_ray_intersection}
 	\begin{gathered}
@@ -572,7 +572,7 @@ Pro výpočet průsečíku s~voxelem je vhodné využít optimálnější metody
 	\label{fig:octree_child}
 \end{figure}
 
-Pro usnadnění práce s~modely a úsporu výpočetního výkonu při jejich transformaci má každý model svoji vlastní octree strukturu. Nutnost otestovat průsečíky se všemi těmito modely by byla velice náročná a proto je vhodné použít další akcelerační strukturu k~urychlení nalezení průsečíku. Autor práce zvolil hierarchii obalových těles (sekce \ref{sec:BVH}) s~využitím osově zarovnaných obdélníku. Každý listový uzel této hierarchie tedy obsahuje jeden octree, který definuje voxely modelu. 
+Pro usnadnění práce s~modely a úsporu výpočetního výkonu při jejich transformaci má každý model svoji vlastní octree strukturu. Nutnost otestovat průsečíky se všemi těmito modely by byla velice náročná a proto je vhodné použít další akcelerační strukturu k~urychlení nalezení průsečíku. Autor práce zvolil hierarchii obalových těles (sekce \ref{sec:BVH}) s~využitím osově zarovnaných obdélníku. Každý listový uzel této hierarchie tedy obsahuje jeden octree, který definuje voxely modelu.
 
 \begin{figure}[H]
 	\centering
@@ -603,7 +603,7 @@ Jelikož je využitá octree struktura \textit{sparse} -- tedy neobsahuje inform
 	\label{fig:svo_example}
 \end{figure}
 
-Pro průchod octree je tedy nutné využít datové struktury zásobník. Kdykoli, kdy algoritmus postoupí do nižší úrovně stromu (\textit{PUSH}), je potenciálně uložen předchozí rodič. Pokud je současná větev nevhodná pro další výpočty, je vyvolán \textit{POP} a tím se posune algoritmus v~hierarchii výše. 
+Pro průchod octree je tedy nutné využít datové struktury zásobník. Kdykoli, kdy algoritmus postoupí do nižší úrovně stromu (\textit{PUSH}), je potenciálně uložen předchozí rodič. Pokud je současná větev nevhodná pro další výpočty, je vyvolán \textit{POP} a tím se posune algoritmus v~hierarchii výše.
 
 Při postupu v~hierarchii níže dochází k~volbě vhodného potomka. Volba je založena na vyhodnocení $t_x$, $t_y$ a $t_z$ a jejich porovnání s~$tc_{min}$.
 
@@ -681,7 +681,7 @@ Výpočet informací o~geometrii je prováděn pomocí ray tracingu představen�
 \end{figure}
 
 \subsection{Renderování scény pomocí light field probes}\label{sec:render_lfp}
-Pomocí atlasu textur, který byl vytvořen pro všechny sondy pokrývající scénu, je možné provádět trasování paprsku. Tato metoda byla popsána v~publikaci \cite{light_field_probes}. Díky radiální vzdálenosti a normálám zakódovaných v~sondách je možné vypočítat průsečíky nesouvislých paprsků. 
+Pomocí atlasu textur, který byl vytvořen pro všechny sondy pokrývající scénu, je možné provádět trasování paprsku. Tato metoda byla popsána v~publikaci \cite{light_field_probes}. Díky radiální vzdálenosti a normálám zakódovaných v~sondách je možné vypočítat průsečíky nesouvislých paprsků.
 
 V~prvé řadě je nutné pro paprsek vybrat vhodnou sondu, ve které zahájíme jeho sledování. Pokud tato sonda není schopná poskytnout nám jistý \textit{miss} (minutí scény) nebo \textit{hit} (protnutí scény) je nutné vybrat alternativní sondu, která má nějakou šanci paprsek sledovat. Sledování paprsku v~rámci jedné sondy tedy vrací tři stavy:
 \begin{itemize}
@@ -690,9 +690,9 @@ V~prvé řadě je nutné pro paprsek vybrat vhodnou sondu, ve které zahájíme 
     \item \textit{unknown} -- neznámý výsledek
 \end{itemize}
 
-Stav \textit{unknown} nastane pouze v~případě, kdy paprsek prochází ve větší vzdálenosti, než jaká je v~dané pozici radiální hloubka. Jinými slovy: pokud sonda "ví", že nemá dostatečné informace o~scéně v~dané pozici, nemůže být paprsek spolehlivě vyhodnocen pouze pomocí informací z~této sondy. 
+Stav \textit{unknown} nastane pouze v~případě, kdy paprsek prochází ve větší vzdálenosti, než jaká je v~dané pozici radiální hloubka. Jinými slovy: pokud sonda "ví", že nemá dostatečné informace o~scéně v~dané pozici, nemůže být paprsek spolehlivě vyhodnocen pouze pomocí informací z~této sondy.
 
-Sledování paprsku začíná převedením jeho počátku do prostoru sondy. Následně je paprsek transformován pomocí projekce na osmistěn do souřadnic textury. Dochází tedy k~transformaci přímky z~$R^3$ do křivky v~$R^2$. Tato křivka má až čtyři segmenty, kde každý segment leží v~jiné stěně osmistěnu. Následně algoritmus postupuje po jednotlivých texelech nacházejících se na této křivce a vyhodnocuje, jestli dochází k~průsečíku pomocí porovnávání uložené hloubkové mapy se vzdáleností paprsku k~sondě. Pokud je paprsek ve stejné vzdálenosti nebo je dále, dochází k~průsečíku nebo paprsek prochází za geometrií. Algoritmus pro výpočet průsečíku obsahuje algoritmus \ref{alg:single_probe_trace}. 
+Sledování paprsku začíná převedením jeho počátku do prostoru sondy. Následně je paprsek transformován pomocí projekce na osmistěn do souřadnic textury. Dochází tedy k~transformaci přímky z~$R^3$ do křivky v~$R^2$. Tato křivka má až čtyři segmenty, kde každý segment leží v~jiné stěně osmistěnu. Následně algoritmus postupuje po jednotlivých texelech nacházejících se na této křivce a vyhodnocuje, jestli dochází k~průsečíku pomocí porovnávání uložené hloubkové mapy se vzdáleností paprsku k~sondě. Pokud je paprsek ve stejné vzdálenosti nebo je dále, dochází k~průsečíku nebo paprsek prochází za geometrií. Algoritmus pro výpočet průsečíku obsahuje algoritmus \ref{alg:single_probe_trace}.
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:single_probe_trace}
@@ -724,7 +724,7 @@ Pro urychlení tohoto algoritmu je pro každou sondu vytvořena další textura,
 	\label{fig:lfp_trace}
 \end{figure}
 
-\paragraph{Výběr sondy.} Nejdůležitějším krokem je výběr vhodné sondy pro zahájení algoritmu. Jedním možným řešením je výběr sondy čistě podle vzdálenosti k~počátku paprsku, což doporučuje taktéž článek \cite{light_field_probes}, s~tím, že výběr dalších sond se řídí pořadím uvedeným v~obrázku \ref{fig:lfp_cube}. Pokud se paprsek nenachází v~jiné skupině sond po dokončení průchodu této skupiny, je hledání ukončeno jako neúspěšné, jinak je prováděno v~nové skupině. V~případě autorova řešení docházelo k~velkému množství \textit{unknown} výsledků a proto se rozhodl implementovat jiné řešení. 
+\paragraph{Výběr sondy.} Nejdůležitějším krokem je výběr vhodné sondy pro zahájení algoritmu. Jedním možným řešením je výběr sondy čistě podle vzdálenosti k~počátku paprsku, což doporučuje taktéž článek \cite{light_field_probes}, s~tím, že výběr dalších sond se řídí pořadím uvedeným v~obrázku \ref{fig:lfp_cube}. Pokud se paprsek nenachází v~jiné skupině sond po dokončení průchodu této skupiny, je hledání ukončeno jako neúspěšné, jinak je prováděno v~nové skupině. V~případě autorova řešení docházelo k~velkému množství \textit{unknown} výsledků a proto se rozhodl implementovat jiné řešení.
 
 \begin{figure}[H]
 	\centering
@@ -734,7 +734,7 @@ Pro urychlení tohoto algoritmu je pro každou sondu vytvořena další textura,
 	\label{fig:lfp_cube}
 \end{figure}
 
-Namísto výběru sondy tak, jak je popsáno v~předchozím odstavci, je možné rozdělit prostor, jenž je sondami sledován, na voxelové pole (mřížku). Toto pole obsahuje pro každý voxel až čtyři sondy, pro které se daný voxel vyskytuje blíže, než je jejich radiální vzdálenost ke scéně. Namísto výběru nejbližší sondy je tedy sonda vybrána dle toho, ve kterém voxelu se paprsek současně nachází. Sledování je ukončeno pouze tehdy, pokud žádná ze sond uložená v~tomto poli nenalezla řešení a sledovaný bod paprsku se neposunul do jiného voxelu. 
+Namísto výběru sondy tak, jak je popsáno v~předchozím odstavci, je možné rozdělit prostor, jenž je sondami sledován, na voxelové pole (mřížku). Toto pole obsahuje pro každý voxel až čtyři sondy, pro které se daný voxel vyskytuje blíže, než je jejich radiální vzdálenost ke scéně. Namísto výběru nejbližší sondy je tedy sonda vybrána dle toho, ve kterém voxelu se paprsek současně nachází. Sledování je ukončeno pouze tehdy, pokud žádná ze sond uložená v~tomto poli nenalezla řešení a sledovaný bod paprsku se neposunul do jiného voxelu.
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:light_field_trace}
@@ -763,7 +763,7 @@ Na obrázku \ref{fig:lfp_scene_render} je zobrazena scéna vykreslená čistě p
 \end{figure}
 
 \subsection{Nepřímé osvětlení}\label{sec:indirect}
-Původním záměrem autora bylo využít výše popsané sondy k~výpočtu sekundárních paprsků ve scéně online, ale ukázalo se, že pro takový přístup je tato metoda příliš pomalá. Bylo tedy nutné vymyslet alternativní řešení. 
+Původním záměrem autora bylo využít výše popsané sondy k~výpočtu sekundárních paprsků ve scéně online, ale ukázalo se, že pro takový přístup je tato metoda příliš pomalá. Bylo tedy nutné vymyslet alternativní řešení.
 
 Pro již zmíněnou metodu se nabízí modifikace, která by umožnila přidat funkčnost nepřímého osvětlení tak, že do atlasu textur sond je vypočteno nepřímé osvětlení při jejich inicializaci a posléze jsou aplikovány při renderování scény.  K~výpočtu je použit ray tracing implementovaný pomocí metody popsané v~první části sekce. Pro každý texel, který reprezentuje difuzní materiál, je vysláno několik paprsků z~místa prvního průsečíku scény. Tyto paprsky se dále odráží ve scéně a sbírají světlo z~vnějších zdrojů/emitujících materiálů.
 
@@ -828,7 +828,7 @@ K~vykreslení finálního snímku je samozřejmě potřeba zkombinovat metody po
 
 Před zahájením vykreslování snímku je nutné připravit atlas sond. Pro "online" výpočet sekundárních paprsků by bylo dostačující připravit do atlasu radianci, normály a hloubku, vzhledem k~vysoké časové náročnosti tato metoda nebude použita. Namísto radiance je tedy v~atlasu sond uložen příspěvek nepřímého osvětlení (obrázek \ref{fig:diffuse_rays}). Tento proces, s~ohledem na jeho náročnost, může trvat delší dobu, ale je dostačující ho provést pouze při inicializaci scény. Celý řetězec je na obrázku \ref{fig:gbuffer_contents}.
 
-Další krok je již opakován periodicky pro každý snímek. Pomocí sparse voxel octree je vykreslen buffer, který obsahuje informace o~místě průsečíku scény, index materiálu a normálu -- tento buffer je zobrazen v~obrázku \ref{fig:gbuffer_contents}. 
+Další krok je již opakován periodicky pro každý snímek. Pomocí sparse voxel octree je vykreslen buffer, který obsahuje informace o~místě průsečíku scény, index materiálu a normálu -- tento buffer je zobrazen v~obrázku \ref{fig:gbuffer_contents}.
 
 Následně je na základě hodnot v~bufferu dohledáno ze sond a jejich atlasu nepřímé osvětlení. Díky použití mřížky k~urychlení nalezení potenciálně vhodné sondy (sekce \ref{sec:render_lfp}) lze očekávat, že tato operace nezabere příliš mnoho času. Také je možné, že pro daný fragment existuje několik různých zdrojů dat o~nepřímém osvětlení, jelikož tato data mohou být uložena ve více sondách, čímž se efektivně výrazně zvyšuje počet sekundárních paprsků. V~tomto kroku paralelně též probíhá výpočet odražených paprsků pro metalické materiály.
 
@@ -1203,7 +1203,7 @@ UI aplikace je rozděleno do následujících částí:
 \subsubsection{Konfigurace}
 Důležitou součástí aplikace je konfigurační soubor, který je blíže popsán v~příloze \ref{appendix:configfile}. Tento soubor obsahuje primárně informace o~cestách ke zdrojům (cesta k~modelům, shaderům...). Také je v~něm obsažena definice velikosti okna demonstrační aplikace a velikost pracovní skupiny pro vykreslování za pomoci octree. Aplikace automaticky ukládá data, která uživatel nastavil v~uživatelském rozhraní.
 
-Typ souboru zvolený pro konfiguraci je \texttt{TOML}. Tento formát byl zvolen primárně z~toho důvodu, že je velice snadno čitelný pro uživatele a není tedy nutné vytvářet separátní program pro manipulaci s~konfigurací. Samozřejmě existují podobné, uživatelsky přívětivé formáty, jako například \texttt{YAML} nebo \texttt{INI}, ale \texttt{TOML} byl zvolen také kvůli knihovně \texttt{toml++}, díky které je manipulace s~konfiguračním souborem relativně pohodlná. 
+Typ souboru zvolený pro konfiguraci je \texttt{TOML}. Tento formát byl zvolen primárně z~toho důvodu, že je velice snadno čitelný pro uživatele a není tedy nutné vytvářet separátní program pro manipulaci s~konfigurací. Samozřejmě existují podobné, uživatelsky přívětivé formáty, jako například \texttt{YAML} nebo \texttt{INI}, ale \texttt{TOML} byl zvolen také kvůli knihovně \texttt{toml++}, díky které je manipulace s~konfiguračním souborem relativně pohodlná.
 
 
 \chapter{Vyhodnocení}
@@ -1333,7 +1333,7 @@ Samozřejmě není použita jen jedna sonda. Množství sond je kvůli implement
 \end{figure}
 
 
-Na obrázku \ref{fig:12M_render} je vykreslena scéna pomocí sparse voxel octree ray tracing. Scéna obsahuje 36 modelů složených z~12-ti milionů voxelů. Hierarchie obalových těles této scény obsahuje 71 uzlů, má tedy hloubku 7 úrovní. Nejvyšší počet iterací nutných k~výpočtu průsečíku zde bylo \textasciitilde{}200 iterací (kroků průchodu stromu). Ve scéně je prováděn výpočet ostrých stínů. Na hardware, který byl zmíněn na začátku kapitoly, a při rozlišení 1920x1080 pixelů byla tato scéna vykreslena rychlostí 100 snímků za sekundu. Při vypnutí paprsků pro stíny došlo ke zrychlení o~20\%, tedy 120 snímků za sekundu. Samozřejmě na snímku dochází k~nejhoršímu možnému případu -- všechny modely jsou viditelné a plocha, která je naspod, je velice neefektivní, jelikož se jedná o~velký model, který má výšku pouze jednoho voxelu. Dělba prostoru pomocí octree je v~tomto případě poněkud neefektivní.  Po jeho odstranění dojde ke zrychlení na 300 snímků za sekundu. 
+Na obrázku \ref{fig:12M_render} je vykreslena scéna pomocí sparse voxel octree ray tracing. Scéna obsahuje 36 modelů složených z~12-ti milionů voxelů. Hierarchie obalových těles této scény obsahuje 71 uzlů, má tedy hloubku 7 úrovní. Nejvyšší počet iterací nutných k~výpočtu průsečíku zde bylo \textasciitilde{}200 iterací (kroků průchodu stromu). Ve scéně je prováděn výpočet ostrých stínů. Na hardware, který byl zmíněn na začátku kapitoly, a při rozlišení 1920x1080 pixelů byla tato scéna vykreslena rychlostí 100 snímků za sekundu. Při vypnutí paprsků pro stíny došlo ke zrychlení o~20\%, tedy 120 snímků za sekundu. Samozřejmě na snímku dochází k~nejhoršímu možnému případu -- všechny modely jsou viditelné a plocha, která je naspod, je velice neefektivní, jelikož se jedná o~velký model, který má výšku pouze jednoho voxelu. Dělba prostoru pomocí octree je v~tomto případě poněkud neefektivní.  Po jeho odstranění dojde ke zrychlení na 300 snímků za sekundu.
 
 \begin{figure}[H]
 	\centering
@@ -1373,7 +1373,7 @@ Při kombinaci zmíněných algoritmů je vykreslena scéna pomocí sparse voxel
 	\label{fig:render_indirect_1}
 \end{figure}
 
-Tento přístup je tedy vhodnější pro scény, kde nedochází k~častému překryvu, jako ve scéně výše. Na obrázku \ref{fig:tree_closeup} je bližší snímek vánočního stromu z~obrázku \ref{fig:render_indirect_1}. Žádná ze sond na toto místo nevidí a vznikají tím nehezké artefakty. Je možné pokusit se zakrýt tyto problémy čtením dat ze sondy pouze ve směru místa průsečíku namísto přesné vzdálenosti, to ale přináší podobné problémy. 
+Tento přístup je tedy vhodnější pro scény, kde nedochází k~častému překryvu, jako ve scéně výše. Na obrázku \ref{fig:tree_closeup} je bližší snímek vánočního stromu z~obrázku \ref{fig:render_indirect_1}. Žádná ze sond na toto místo nevidí a vznikají tím nehezké artefakty. Je možné pokusit se zakrýt tyto problémy čtením dat ze sondy pouze ve směru místa průsečíku namísto přesné vzdálenosti, to ale přináší podobné problémy.
 
 \begin{figure}[H]
 	\centering
@@ -1400,9 +1400,11 @@ Následný návrh se zabýval specifickou reprezentací voxelových dat k~možno
 
 Pro implementaci aplikace bylo využito API Vulkan společně s~mnoha dalšími knihovnami zmíněnými v~kapitole \ref{implementace}. V~průběhu implementace návrhu vznikly tři knihovny, které byly krátce popsány. Specificky se týkaly obecné funkčnosti, práce s~okny a grafickou kartou a uživatelského rozhraní. Kapitola specifikovala některé zajímavé části implementace, jako je budování octree pro modely a správa modelů uvnitř programu.
 
-Výsledná demonstrační aplikace umožňuje uživateli vytvořit si vlastní scénu, či nahrát již připravené. Demonstruje funkčnost sparse voxel octree ray tracing, pro který zobrazuje i informace pro evaluaci scény, a také light field probes, kdy je možné zkoumat obsah jednotlivých sond. V~alternativním režimu vykresluje scény kombinací těchto dvou algoritmů.
+Výsledná demonstrační aplikace umožňuje uživateli vytvořit si vlastní scénu, či nahrát již scény připravené. Demonstruje funkčnost sparse voxel octree ray tracing, pro který zobrazuje i informace pro evaluaci scény, a také light field probes, kdy je možné zkoumat obsah jednotlivých sond. V alternativním režimu vykresluje scény kombinací těchto dvou algoritmů.
 
-Z~pohledu efektivity algoritmů je načítání scén poměrně pomalé, díky implementaci vlastního formátu je ale možné tomuto zpomalení předejít. Náročnost algoritmů na paměť je pro reprezentaci voxelových modelů poměrně přijatelná, lze vykreslovat scény o~velikosti desítek milionů voxelů bez využití paměti, se kterou by neměly problémy ani starší grafické karty. Paměťová náročnost sond je poněkud vyšší, realistické využití s~dalšími strukturami je pro maximální velikost mřížky sond přibližně 8x8x8. Paměťové omezení dané sondami implikuje, že navržený systém je vhodnější spíše pro scény v~menší škále, ovšem s~vysokou úrovní detailu.
+Z pohledu efektivity algoritmů je načítání scén poměrně pomalé, díky implementaci vlastního formátu je ale možné tomuto zpomalení předejít. Náročnost algoritmů na paměť je pro reprezentaci voxelových modelů poměrně přijatelná, lze vykreslovat scény o velikosti desítek milionů voxelů s využitím paměti, se kterou by neměly problémy ani starší grafické karty. Paměťová náročnost sond je poněkud vyšší, realistické využití s dalšími strukturami je pro maximální velikost mřížky sond přibližně 8x8x8. Paměťové omezení dané sondami implikuje, že navržený systém je vhodnější spíše pro scény v menší škále, ovšem s vysokou úrovní detailu.
+
+Výsledné grafické výstupy tedy mohou obsahovat rozsáhlé scény, dochází ovšem ke vzniku artefaktů. Tyto artefakty jsou poměrně rušivé a s využitím použitých metod jim pravděpodobně nelze předejít. Alternativou k použitému přístupu by mohla být metoda uvedena v článku \textit{Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields}, která navíc umožňuje využívat dynamických scén, na rozdíl od metody použité zde, která zvládá pouze scény statické. Mezi další rozšíření by mohla patři implementace anti-aliasingu, specificky nějaká temporální metoda by byla zajímavá. Dalším vhodným rozšířením by byla implementace datové struktury, která by umožňovala optimalizované streamování dat scény z disku, aby bylo možné zobrazovat rozsáhlé scény bez nutnosti čekat na načtení modelů.
 
 
 
