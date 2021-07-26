@@ -72,14 +72,14 @@ Ve své standardní formě ray tracing neumožňuje generování měkkých stín
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:rt_1}
-		ray = build\_ray(camera.position, image\_plane)\\
-		min\_distance = MAX\\
-		hit\_primitive = false\\
-		\ForEach{\text{primitive in scene}} {
-			(intersected, distance) = intersect(ray, primitive)\\
-			\uIf{intersected \And distance < min\_distance}{
-				hit\_primitive = primitive\\
-				min\_distance = distance
+		ray = build\_ray(camera.position, image\_plane)\;
+		min\_distance = MAX\;
+		hit\_primitive = false\;
+		\ForEach{\text{primitive \textbf{in} scene}} {
+			(intersected, distance) = intersect(ray, primitive)\;
+			\If{intersected \textbf{and} distance < min\_distance}{
+				hit\_primitive = primitive\;
+				min\_distance = distance\;
 			}
 		}
 		\caption{Ray tracing}
@@ -102,17 +102,18 @@ Další metoda, kterou by bylo vhodné zmínit, je taktéž algoritmus ray march
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:ray_marching}
-		i = 0\\
-		t = t\_min\\
-		\While{t < t\_max \And i < MAX\_ITERATIONS}{\\
-			distance\_to\_scene = dist\_func(ray)\\
-			\uIf{distance\_to\_scene < \varepsilon}{\\
-				\KwRet t\\
-			}\\
-			t += distance\_to\_scene\\
-			i += 1\\
-		}\\
-		\KwRet t\_max\\
+		i = 0\;
+		t = t\_min\;
+		\While{t < t\_max \textbf{and} i < MAX\_ITERATIONS}{
+			distance\_to\_scene = dist\_func(ray)\;
+			\If{distance\_to\_scene < \textit{EPSILON}}{
+				 \KwRet t\;
+			}
+			t += distance\_to\_scene\;
+			i += 1\;
+			ray.origin += distance\_to\_scene\;
+		}
+		\KwRet t\_max\;
 		\caption{Ray marching}
 	\end{czechalgorithm}
 \end{center}
@@ -300,10 +301,10 @@ Pro vykreslování voxelových scén pomocí rasterizace je nutné ji převést 
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:instanced_cube}
-		voxel\_array = cull\_voxels(all\_voxels)\\
-		\ForEach{\text{voxel in voxel\_array}} {\\
-			render\_cube(voxel.position)\\
-		}\\
+		voxel\_array = cull\_voxels(all\_voxels)\;
+		\ForEach{\text{voxel \textbf{in} voxel\_array}} {
+			render\_cube(voxel.position)\;
+		}
 		\caption{Instancované vykreslování}
 	\end{czechalgorithm}
 \end{center}
@@ -312,11 +313,11 @@ Pro vykreslování voxelových scén pomocí rasterizace je nutné ji převést 
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:marching_cubes}
-		\ForEach{voxel in area} {\\
-			case = calculate\_case(voxel)\\
-			triangles = generate\_triangles(voxel.position, case)\\
-			result.add(triangles)\\
-		}\\
+		\ForEach{voxel \textbf{in} area} {
+			case = calculate\_case(voxel)\;
+			triangles = generate\_triangles(voxel.position, case)\;
+			result.add(triangles)\;
+		}
 		\caption{Marching cubes}
 	\end{czechalgorithm}
 \end{center}
@@ -330,22 +331,22 @@ Při vykreslování pomocí paprsků lze problém rozdělit na dvě části. Prv
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:ray_box_primitive}
-		corner_1 = voxel.position\\
-		corner_2 = voxel.position + voxel\_length\\
-		coeffs[0] = (corner_1.x - ray.origin.x) / ray.direction.x\\
-		coeffs[1] = (corner_1.y - ray.origin.y) / ray.direction.y\\
-		coeffs[2] = (corner_1.z - ray.origin.z) / ray.direction.z\\
-		coeffs[3] = (corner_2.x - ray.origin.x) / ray.direction.x\\
-		coeffs[4] = (corner_2.y - ray.origin.y) / ray.direction.y\\
-		coeffs[5] = (corner_2.z - ray.origin.z) / ray.direction.z\\
-		hit = false\\
-		distance = \inf\\
-		\ForEach{\text{coef in coefs}} {\\
-			\uIf {coef >= 0} {\\
-				hit = true\\
-				hit\_point = ray.origin + ray.direction * coef;\\
-				\uIf{is\_in\_box\_bounds(corner_1, hit\_point)}{\\
-					distance = coef\\
+		corner1 = voxel.position\;
+		corner2 = voxel.position + voxel\_length\;
+		coeffs[0] = (corner1.x - ray.origin.x) / ray.direction.x\;
+		coeffs[1] = (corner1.y - ray.origin.y) / ray.direction.y\;
+		coeffs[2] = (corner1.z - ray.origin.z) / ray.direction.z\;
+		coeffs[3] = (corner2.x - ray.origin.x) / ray.direction.x\;
+		coeffs[4] = (corner2.y - ray.origin.y) / ray.direction.y\;
+		coeffs[5] = (corner2.z - ray.origin.z) / ray.direction.z\;
+		hit = false\;
+		distance = \textit{inf}\;
+		\ForEach{\text{coef \textbf{in} coefs}} {
+			\If {coef >= 0} {
+				hit = true\;
+				hit\_point = ray.origin + ray.direction * coef;\;
+				\If{is\_in\_box\_bounds(corner1, hit\_point)}{
+					distance = coef\;
 				}
 			}
 		}
@@ -445,20 +446,20 @@ Díky snadnosti výpočtu průsečíků a možnosti netestovat průsečíky s~ni
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:bvh_traverse_naive}
-		current\_node = root\\
-		stack = empty()\\
-		exit = false\\
-		\While{\text{!exit}} {\\
+		current\_node = root\;
+		stack = empty()\;
+		exit = false\;
+		\While{\textbf{not} exit} {
 			\eIf{isInternalNode(current\_node)}{
-			    \uIf{intersectNode(current\_node)}{
-			        pushStack(stack, current\_node.first\_child)\\
-			        current\_node = current\_node.second\_child\\
+			    \If{intersectNode(current\_node)}{
+			        pushStack(stack, current\_node.first\_child)\;
+			        current\_node = current\_node.second\_child\;
 			    }
 			}{
-			    intersectLeaf(current\_node)\\
-			    (current\_node, exit) = popStack(stack)\\
+			    intersectLeaf(current\_node)\;
+			    (current\_node, exit) = popStack(stack)\;
 			}
-		}\\
+		}
 		\caption{Průchod BVH stromem pro ray tracing \cite{Vaidyanathan2019WideBT}}
 	\end{czechalgorithm}
 \end{center}
@@ -482,21 +483,21 @@ Jedná se o~renderovací metodu využívající ray casting/tracing pro vizualiz
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:svo}
-		voxel = tree.get\_root()\\
-		\While{not terminated}{\\
-			(hit, t) = intersect\_cube(ray, voxel)\\
-			\uIf{hit}{\\
-				\uIf{is\_voxel\_small(voxel, pixel\_size) || is\_voxel\_leaf(voxel)}{\\
-					\KwRet t\\
-				}\\
-				stack.push(voxel)\\
-				voxel = select\_child(voxel)\\
-				continue
-			} \uElse {\\
-				voxel = stack.pop()
-			}\\
-		}\\
-		\KwRet false
+		voxel = tree.get\_root()\;
+		\While{\textbf{not} terminated}{
+			(hit, t) = intersect\_cube(ray, voxel)\;
+			\eIf{hit}{
+				\If{is\_voxel\_small(voxel, pixel\_size) \textbf{or} is\_voxel\_leaf(voxel)}{
+					\KwRet t\;
+				}
+				stack.push(voxel)\;
+				voxel = select\_child(voxel)\;
+				\textbf{continue}\;
+			}{
+				voxel = stack.pop()\;
+			}
+		}
+		\KwRet false\;
 		\caption{Sparse voxel octree ray casting}
 	\end{czechalgorithm}
 \end{center}
@@ -696,20 +697,20 @@ Sledování paprsku začíná převedením jeho počátku do prostoru sondy. Ná
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:single_probe_trace}
-	    segments = compute\_segments(ray, probe)\\
-	    \ForEach{segment in segments}{
-	        coords\_on\_segment = create\_coords(segment)\\
-	        \ForEach{coord in coords\_on\_segment}{
-	            state = compare\_ray\_distance\_to\_radial(ray, coord, probe)\\
-	            \uIf{state == HIT}{
-	                \KwRet (HIT, coord)
+	    segments = compute\_segments(ray, probe)\;
+	    \ForEach{segment \textbf{in} segments}{
+	        coords\_on\_segment = create\_coords(segment)\;
+	        \ForEach{coord \textbf{in} coords\_on\_segment}{
+	            state = compare\_ray\_distance\_to\_radial(ray, coord, probe)\;
+	            \If{state == HIT}{
+	                \KwRet (HIT, coord)\;
 	            }
-	            \uIf{state == HIDDEN\_BEHIND\_SURFACE}{
-	                \KwRet (UNKNOWN, coord) 
+	            \If{state == HIDDEN\_BEHIND\_SURFACE}{
+	                \KwRet (UNKNOWN, coord) \;
 	            }
 	        }
 	    }
-	    \KwRet (MISS, last\_point\_on\_segments)
+	    \KwRet (MISS, last\_point\_on\_segments)\;
 		\caption{Sledování paprsku v~rámci jedné sondy}
 	\end{czechalgorithm}
 \end{center}
@@ -738,16 +739,16 @@ Namísto výběru sondy tak, jak je popsáno v~předchozím odstavci, je možné
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:light_field_trace}
-	    result = UNKNOWN\\
+	    result = UNKNOWN\;
 	    \While{result == UNKNOWN}{
-	        probe = select\_probe\_from\_voxel\_field(ray)\\
-	        \uIf{\Not is\_valid\_probe(probe)}{
-	            break
+	        probe = select\_probe\_from\_voxel\_field(ray)\;
+	        \If{\textbf{not} is\_valid\_probe(probe)}{
+	            \textbf{break}\;
 	        }
-	        (result, endpoint) = trace\_single\_probe(ray, probe)\\
-	        ray.origin = endpoint
+	        (result, endpoint) = trace\_single\_probe(ray, probe)\;
+	        ray.origin = endpoint\;
 	    }
-	    \KwRet result
+	    \KwRet result\;
 		\caption{Sledování paprsku skrze light field}
 	\end{czechalgorithm}
 \end{center}
@@ -781,26 +782,26 @@ Jelikož informace o~materiálech poskytované zdrojovými modely jsou poměrně
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:bounce_bake}
-	    result = vector(1, 1, 1)\\
-	    \For{i in range(0, MAX\_BOUNCES)}{
-	        (is\_hit, position, normal, material\_type) = trace\_ray(ray)\\
-	        \uIf{\Not is\_hit}{
-	            break
+	    result = vector(1, 1, 1)\;
+	    \For{i \textbf{in} range(0, MAX\_BOUNCES)}{
+	        (is\_hit, position, normal, material\_type) = trace\_ray(ray)\;
+	        \uIf{\textbf{not} is\_hit}{
+	            \textbf{break}\;
 	        }
-	        \uIf{material\_type == DIFFUSE}{
-	            result *= attentuation\\
-	            ray.origin = position\\
-	            ray.direction = random\_point\_on\_hemisphere(normal)
+	        \If{material\_type == DIFFUSE}{
+	            result *= attentuation\;
+	            ray.origin = position\;
+	            ray.direction = random\_point\_on\_hemisphere(normal)\;
 	        }
-	        \uIf{material\_type == METALLIC}{
-	            ray = bounce\_ray\_for\_metallic(ray, position, normal)\\
+	        \If{material\_type == METALLIC}{
+	            ray = bounce\_ray\_for\_metallic(ray, position, normal)\;
 	        }
-	        \uIf{material\_type == EMIT}{
-	            add\_emissive\_light(result)\\
-	            break
+	        \If{material\_type == EMIT}{
+	            add\_emissive\_light(result)\;
+	            \textbf{break}\;
 	        }
 	    }
-	    \KwRet result
+	    \KwRet result\;
 		\caption{Výpočet nepřímého osvětlení}
 	\end{czechalgorithm}
 \end{center}
@@ -977,18 +978,18 @@ Načítání dat je rozděleno na dvě části. V~první části jsou ze vstupn�
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:vox_to_svo}
-		voxels.sort() \\
-		tree\_depth = calculate\_tree\_depth(voxels)\\
-		root = tree.init\_root()\\
-		\ForEach{voxel in voxels}{
-			node = root\\
+		voxels.sort()\;
+		tree\_depth = calculate\_tree\_depth(voxels)\;
+		root = tree.init\_root()\;
+		\ForEach{voxel \textbf{in} voxels}{
+			node = root\;
 			\For{level = 0; level < tree\_depth; level++} {
-				index\_for\_level = getIndexForLevel(voxel.position, level, tree\_depth)\\
-				child\_node = node.get\_or\_create\_node(index\_for\_level)\\
+				index\_for\_level = getIndexForLevel(voxel.position, level, tree\_depth)\;
+				child\_node = node.getOrCreateNod(index\_for\_level)\;
 				// nastaveni hodnot voxelu (material...)\\
-				node = child\_node\\
+				node = child\_node\;
 			}
-			node.is\_terminal = true\\
+			node.is\_terminal = true\;
 		}
 		\caption{Převod voxelů do octree}
 	\end{czechalgorithm}
@@ -1003,17 +1004,16 @@ Po vytvoření stromové reprezentace je dalším krokem minimalizace stromu. Po
 		\SetKwProg{Fn}{Function}{:}{}
 
 		\Fn{\FIsFilled{$node$}}{
-			\KwRet $node$.child\_count == 8 \&\& all\_of($node$.children, IsFilled)\\
+			\KwRet $node$.child\_count == 8 \textbf{and} all\_of($node$.children, IsFilled)\;
 		}
 
 		\Fn{\FMinTree{$node$}}{
-			\uIf{IsNodeFilled($node$)}{
-				node.children.clear()\\
-				node.is\_terminal = true\\
-			}
-			\uElse{
-				\ForEach{child in $node$.children}{
-					MinimizeTree(child)\\
+			\eIf{IsNodeFilled($node$)}{
+				node.children.clear()\;
+				node.is\_terminal = true\;
+			}{
+				\ForEach{child \textbf{in} $node$.children}{
+					MinimizeTree(child)\;
 				}
 			}
 		}
@@ -1061,30 +1061,30 @@ Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využit�
 		\SetKwProg{Fn}{Function}{:}{}
 
 		\Fn{\FTraverseBVH{$ray$}}{
-		    node = root\\
-		    stack = EmptyStack()\\
-		    calculate intersection with root\\
+		    node = root\;
+		    stack = EmptyStack()\;
+		    calculate intersection with root\;
 		    \While{intersected}{
-		       \While{intersected \And \Not intersected is leaf}{
-		            intersection\_a = IntersectNode(node.left\_child)\\
-		            intersection\_b = IntersectNode(node.right\_child)\\
-		            swap intersections so that the closer one is in instersection\_a\\
-		            \uIf{intersection\_b hit \And intersection\_b is closer than nearest geometry hit}{
-		                stack.Push(node.right\_child)
+		       \While{intersected \textbf{and} \textbf{not} intersected is leaf}{
+		            intersection\_a = IntersectNode(node.left\_child)\;
+		            intersection\_b = IntersectNode(node.right\_child)\;
+		            swap intersections so that the closer one is in instersection\_a\;
+		            \If{intersection\_b hit \textbf{and} intersection\_b is closer than nearest geometry hit}{
+		                stack.Push(node.right\_child)\;
 		            }
-		            \uIf{neither node hit \And \Not stack.Empty()}{
-		                intersection\_a = stack.Pop()
+		            \If{neither node hit \textbf{and} \textbf{not} stack.Empty()}{
+		                intersection\_a = stack.Pop()\;
 		            }
 		        }
-		        \uIf{intersected is leaf}{
-        		    \uIf{intersection is closer than nearest geometry hit}{
-        		        calculate model intersection and save distance if hit
+		        \If{intersected is leaf}{
+        		    \If{intersection is closer than nearest geometry hit}{
+        		        calculate model intersection and save distance if hit\;
         		    }
         		}
         		\eIf{stack.Empty()}{
-        		    intersected = false
+        		    intersected = false\;
         		} {
-        		    node = stack.Pop()
+        		    node = stack.Pop()\;
         		}
 			}
 		}
