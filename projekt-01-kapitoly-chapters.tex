@@ -10,7 +10,7 @@ První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou
 
 Kapitola druhá se zabývá návrhem řešení. Je zde popsán způsob reprezentace voxelových dat s~využitím akcelerační struktury a její detaily. Kapitola také vysvětluje navrhovaný způsob vykreslování voxelových scén s~využitím ray casting přístupu pro primární paprsky a představuje způsob výpočtu nepřímého osvětlení za pomocí sond. V~poslední části je vysvětleno jak do sebe jednotlivé části zapadají ve větším celku.
 
-Následující kapitola se zabývá specifikami implementace. V~prvé radě jsou uvedeny nástroje a knihovny využité v~samotné implementaci. Dále jsou popsány knihovny, které byly v~rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s~Vulkan a GLFW, a knihovna pro vytváření a interakci s~uživatelským rozhraním. Také je zde popsána základní struktura výsledného programu společně se specifikami implementace jako je transformace modelů či správa modelů v paměti. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
+Následující kapitola se zabývá specifikami implementace. V~prvé radě jsou uvedeny nástroje a knihovny využité v~samotné implementaci. Dále jsou popsány knihovny, které byly v~rámci práce vytvořeny: knihovna obsahující obecné nástroje, knihovna pro usnadnění práce s~Vulkan a GLFW, a knihovna pro vytváření a interakci s~uživatelským rozhraním. Také je zde popsána základní struktura výsledného programu společně se specifikami implementace jako je transformace modelů či správa modelů v~paměti. Poslední sekce krátce popisuje uživatelské rozhraní demonstrační aplikace.
 
 Poslední kapitola se věnuje vyhodnocením dosažených výsledků. Obsahem je analýza doby převodu scén do interní reprezentace, paměťová náročnost využitých datových struktur a také vyhodnocení dosažených grafických výstupů implementace.
 
@@ -379,7 +379,7 @@ Vhodnější alternativu pro výpočet průsečíku paprsku s~voxelem lze najít
 	\centering
 	\includegraphics[scale=1.3]{obrazky-figures/slab_intersect.png}
 	\captionsetup{justification=centering}
-	\boldcaption[\textbf{Průsečík s obdélníkem metodou dlaždic.}]{ Vizualizace výpočtu ve 2D. Ve 3D se výpočet provádí velice podobně. Převzato z Ray Tracing: intersection and shading \cite{Cunha13}.}
+	\boldcaption[\textbf{Průsečík s~obdélníkem metodou dlaždic.}]{ Vizualizace výpočtu ve 2D. Ve 3D se výpočet provádí velice podobně. Převzato z~Ray Tracing: intersection and shading \cite{Cunha13}.}
 	\label{fig:slabs}
 \end{figure}
 
@@ -619,7 +619,7 @@ Light field probes byly již krátce představeny v~sekci \ref{sec:ray_tracing}.
  \item Informace o~materiálu, barvě či jiná data využitá v~další práci se sondami.
 \end{itemize}
 
-Tato textura má velikost 1024x1024 a každý texel reprezentuje dvě float hodnoty (\texttt{rg32f}). Vzhledem k tomu, že paměťová náročnost je poměrně vysoká, je nutné ukládaná data nějakým vhodným způsobem komprimovat. Radiální vzdálenost ke geometrii je možné logaritmovat pro zachování vyšší přesnosti pro bližší objekty a také kvantovat na snížení paměťové náročnosti. Logaritmizace a linearizace hloubky obsahuje rovnice \ref{eq:depth_econde_decode},
+Tato textura má velikost 1024x1024 a každý texel reprezentuje dvě float hodnoty (\texttt{rg32f}). Vzhledem k~tomu, že paměťová náročnost je poměrně vysoká, je nutné ukládaná data nějakým vhodným způsobem komprimovat. Radiální vzdálenost ke geometrii je možné logaritmovat pro zachování vyšší přesnosti pro bližší objekty a také kvantovat na snížení paměťové náročnosti. Logaritmizace a linearizace hloubky obsahuje rovnice \ref{eq:depth_econde_decode},
 
 \begin{equation} \label{eq:depth_econde_decode}
 	\begin{gathered}
@@ -630,7 +630,7 @@ Tato textura má velikost 1024x1024 a každý texel reprezentuje dvě float hodn
 
 kde $C$ je konstanta modifikující rozložení přesnosti, často nastavena na 1, $depth$ je hloubka a $Far$ je maximální vzdálenost. Po logaritmizaci je hodnota transformována na 16 bitů a uložena do textury sondy.
 
-Dalším parametrem jsou normály. Ty lze zakódovat na 2 float hodnoty mnoha metodami, jak je uvedeno v \cite{Cigolle2014ASO}. Autor zvolil metodu projekce na osmistěn. Po projekci jsou složky výsledného vektoru kvantovány na 8 bitů, čímž je celková potřebná paměť pro uložení těchto hodnot snížena na 16 bitů. Rovnice \ref{eq:normal_encode} popisuje zakódování normály a \ref{eq:normal_decode} její dekódování.
+Dalším parametrem jsou normály. Ty lze zakódovat na 2 float hodnoty mnoha metodami, jak je uvedeno v~\cite{Cigolle2014ASO}. Autor zvolil metodu projekce na osmistěn. Po projekci jsou složky výsledného vektoru kvantovány na 8 bitů, čímž je celková potřebná paměť pro uložení těchto hodnot snížena na 16 bitů. Rovnice \ref{eq:normal_encode} popisuje zakódování normály a \ref{eq:normal_decode} její dekódování.
 
 \begin{equation} \label{eq:normal_encode}
 	\begin{gathered}
@@ -937,7 +937,7 @@ Součástí knihovny je též rozhraní pro kompilaci shader souborů z~disku ne
 	\item Některé elementy navíc, například \texttt{Memo}.
 \end{itemize}
 
-Knihovna je postavena nezávisle na renderovacím backendu, v repository je poskytnut backend pro Vulkan a GLFW. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro Vulkan by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, přičemž jsou implementovány wrappery pro všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
+Knihovna je postavena nezávisle na renderovacím backendu, v~repository je poskytnut backend pro Vulkan a GLFW. Pro vlastní použití je nutné rozšířit hlavní objekt \texttt{ImGuiInterface} a přidat volání do backendu své volby. Například pro Vulkan by se mohlo jednat o~jednoduchou funkci přidání draw command do \texttt{vk::CommandBuffer}. V~knihovně je obsaženo podstatné množství elementů, přičemž jsou implementovány wrappery pro všechny elementy dostupné v~Dear Imgui. Také jsou přidány grafy z~knihoven \texttt{ImGuiFlameGraph}\footnote{\url{https://github.com/bwrsandman/imgui-flame-graph}}, \texttt{implot}\footnote{\url{https://github.com/epezent/implot}} a možnost interagovat se soubory na disku pomocí \texttt{ImGuiFileDialog}\footnote{\url{https://github.com/aiekick/ImGuiFileDialog}}.
 
 V~knihovně je také implementováno podstatné množství layoutů -- grid layout, anchor layout a další.
 
@@ -1148,7 +1148,7 @@ scaleVec = [ 4.0, 4.0, 4.0 ]
 translateVec = [ 0.0, 0.0, 0.0 ]
 \end{lstlisting}
 
-V implementaci je i téměř dokončená logika pro načítání scén připravených pro hru Teardown. Modely ve formátu, které hra využívá, jsou na nejnižší úrovni ve \texttt{VOX} souborech. Definice scény je v samostatném \texttt{XML} souboru, který určuje transformace modelů a umožňuje definovat objekty "otexturované" jiným modelem.
+V~implementaci je i téměř dokončená logika pro načítání scén připravených pro hru Teardown. Modely ve formátu, které hra využívá, jsou na nejnižší úrovni ve \texttt{VOX} souborech. Definice scény je v~samostatném \texttt{XML} souboru, který určuje transformace modelů a umožňuje definovat objekty "otexturované" jiným modelem.
 
 \section{Demonstrační aplikace}\label{sec:demo_app}
 Demonstrační aplikace slouží k~vizualizaci výsledků a práci s~modely/scénami. Aplikace může pracovat ve dvou režimech:
