@@ -4,7 +4,7 @@ Nejpopulárnějším způsobem modelování a reprezentace dat pro vykreslován�
 
 Vzhledem ke změnám možností využití grafické karty, především existenci compute shaderů, je práce s~voxely mnohem jednodušší, než tomu bylo v~dřívějších dobách. Není nutné provádět převod na trojúhelníky a je možné pracovat s~voxelovými primitivy přímo. Tím se odemyká možnost využití optimalizovaných algoritmů. Tato práce se zabývá zobrazováním voxelových scén za pomocí moderních metod a nástrojů, které jsou vývojářům poskytnuty.
 
-Cílem této práce je navrhnout a implementovat systém pro vykreslování voxelových scén. Z~mnoha dostupných metod jsou zde využity dvě -- sparse voxel octree ray tracing z~článku \cite{Laine2011EfficientSV} a light field probes z~článku \cite{light_field_probes}. Pro light field probes byla vytvořena vlastní modifikace k~výpočtu a vykreslení nepřímého osvětlení ve scéně.
+Cílem této práce je navrhnout a implementovat systém pro vykreslování voxelových scén. Z~mnoha dostupných metod jsou zde využity dvě -- sparse voxel octree ray tracing z~článku \cite{Laine2011EfficientSV} a light field probes z~článku \cite{light_field_probes}. Pro light field probes byla vytvořena modifikace k~výpočtu a vykreslení nepřímého osvětlení ve scéně.
 
 První kapitola si dává za cíl seznámit čtenáře s~řešenou problematikou. Vysvětluje základní principy realistického zobrazování a některé populární metody, jimiž je toho možné dosáhnout. Také popisuje, co jsou voxely, jak se s~nimi dá pracovat v~kontextu rozdělení prostoru a základní metody vykreslování. Dále je zde rozebrána problematika vybraných hierarchických struktur, pomocí kterých lze urychlit průchod voxelovým prostorem. V~poslední řadě obsahuje krátký popis moderního API pro práci s~grafickými kartami: Vulkan.
 
@@ -182,13 +182,13 @@ Dle knihy \cite{hunter_harold_1987} lze materiály dělit do několika základn�
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{|l|l|}
-		\hline
-		materiál              & dominantní distribuce \\ \hline
-		průhledný nemetalický & difuzní odraz         \\ \hline
-		metalický             & zrcadlový odraz       \\ \hline
-		průsvitný             & difuzní přenos        \\ \hline
-		průhledný             & běžný přenos          \\ \hline
+	\begin{tabular}{l|l}
+		%\hline
+		materiál              & dominantní distribuce \\ \Xhline{3\arrayrulewidth}
+		průhledný nemetalický & difuzní odraz         \\ %\hline
+		metalický             & zrcadlový odraz       \\ %\hline
+		průsvitný             & difuzní přenos        \\ %\hline
+		průhledný             & běžný přenos          \\ %\hline
 	\end{tabular}
 	\captionsetup{justification=centering}
 	\boldcaption[\textbf{Typy materiálů a jejich interakce se světlem.}]{ }
@@ -327,7 +327,7 @@ Existují další metody, jako například \textbf{marching tetrahedra}, ale tat
 \subsubsection{Ray casting} \label{sec:voxel_intersection}
 Při vykreslování pomocí paprsků lze problém rozdělit na dvě části. První z~nich je výpočet průsečíku s~voxelem a druhým je využití hierarchické struktury pro minimalizaci počtu navštívených voxelů. Hierarchické struktury jsou obsaženy v~samostatné sekci.
 
-\paragraph{Průsečík paprsku s~voxelem} lze počítat mnoha způsoby. Primitivní přístup k~řešení tohoto problému je počítat průsečík s~každou rovinou, která reprezentuje voxel a následně vybrat ten nejbližší (algoritmus \ref{alg:ray_box_primitive}). Tohle řešení je ale poněkud náročné a využívá podmínky, což může podle článku \cite{gpu_branch} značně zpomalit výpočet.
+\paragraph{Průsečík paprsku s~voxelem} lze počítat mnoha způsoby. Primitivní přístup k~řešení tohoto problému je počítat průsečík s~každou rovinou, která reprezentuje voxel a následně vybrat ten nejbližší (algoritmus \ref{alg:ray_box_primitive}). Tohle řešení je ale náročné a využívá podmínky, což může podle článku \cite{gpu_branch} značně zpomalit výpočet.
 
 \begin{center}
 	\begin{czechalgorithm}[H] \label{alg:ray_box_primitive}
@@ -577,7 +577,7 @@ Pro usnadnění práce s~modely a úsporu výpočetního výkonu při jejich tra
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=1]{images/bvh_octree.png}
+	\includegraphics[width=\textwidth]{images/bvh_octree.png}
 	\captionsetup{justification=centering}
 	\boldcaption[\textbf{Rozložení hierarchií scény.}]{ Levá část reprezentuje hierarchii obalových těles, kde se v~každém listu nachází octree.}
 	\label{fig:scene_bvh_repr}
@@ -729,7 +729,7 @@ Pro urychlení tohoto algoritmu je pro každou sondu vytvořena další textura,
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=1]{images/probe_cube.png}
+	\includegraphics[width=\textwidth]{images/probe_cube.png}
 	\captionsetup{justification=centering}
 	\boldcaption[\textbf{Pořadí výběru sondy pro lokální skupinu.}]{Převzato z~Real-Time Global Illumination using Precomputed Light Field Probes \cite{light_field_probes}.}
 	\label{fig:lfp_cube}
@@ -836,7 +836,7 @@ Následně je na základě hodnot v~bufferu dohledáno ze sond a jejich atlasu n
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=1]{images/gbuffer_render.png}
+	\includegraphics[width=\textwidth]{images/gbuffer_render.png}
 	\captionsetup{justification=centering}
 	\boldcaption[\textbf{Složky bufferu vykreslené na začátku rámce.}]{ Zleva se jedná o~index materiálu (zobrazeno jako barva materiálu), normály, pozici ve světe (zobrazeno jako hloubka). }
 	\label{fig:gbuffer_contents}
@@ -849,7 +849,7 @@ Následně je na základě hodnot v~bufferu dohledáno ze sond a jejich atlasu n
 Tato kapitola obsahuje seznam použitých nástrojů a knihoven. Popisuje implementaci knihoven vytvořených při práci na praktické části tohoto projektu, také algoritmy použité ke tvorbě octree a uživatelské rozhraní demonstrační aplikace.
 
 \section{Použité knihovny a nástroje}
-Pro implementaci autor zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli autorově pokročilé znalosti tohoto jazyka a také jako možnost procvičit si nově přidané funkce v~poslední revizi. Pro překlad projektu byl použit \texttt{CMake}\footnote{\url{https://cmake.org/}} v~kombinaci s~\texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí bylo použito \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Kód shaderů je vytvořen v~GLSL\footnote{\url{https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)}}. Při práci na projektu byly taktéž využity tyto knihovny třetích stran:
+Pro implementaci autor zvolil jazyk \texttt{c++}, standard 20\footnote{\url{https://en.cppreference.com/w/cpp/20}}, kvůli autorově pokročilé znalosti tohoto jazyka a také jako možnost procvičit nově přidané funkce v~poslední revizi. Pro překlad projektu byl použit \texttt{CMake}\footnote{\url{https://cmake.org/}} v~kombinaci s~\texttt{Ninja}\footnote{\url{https://ninja-build.org/}} a package management nástroji \texttt{CPM.cmake}\footnote{\url{https://github.com/TheLartians/CPM.cmake}} a \texttt{Hunter}\footnote{\url{https://hunter.readthedocs.io/en/latest/}}. Jako vývojové prostředí bylo použito \texttt{CLion}\footnote{\url{https://www.jetbrains.com/clion/}}. Kód shaderů je vytvořen v~GLSL\footnote{\url{https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)}}. Při práci na projektu byly taktéž využity tyto knihovny třetích stran:
 
 \begin{itemize}
 	\begin{AutoMultiColItemize}
@@ -907,9 +907,9 @@ Třída \texttt{GlfwWindow} umožňuje instanciaci GLFW knihovny a také komunik
 
 Knihovna obsahuje vlastní verzi velkého množství \texttt{Vulkan} objektů a zároveň je plně typově bezpečná. Příkladem může být přístup do \texttt{vk::Buffer}, kdy k~datům přistupujeme pomocí mapovacího objektu, který ve velké míře využívá template funkcí pro kontrolu offsetu a správné práce s~pamětí.
 
-Všechny objekty jsou potomkem \texttt{VulkanObject}, což je rozhraní, které poskytuje základní debug informace o~objektu. Vytváření objektů je vždy prováděno pomocí \texttt{struct} konfiguračních dat. Předpokládá se užití \texttt{designated initialisers}\footnote{\url{https://en.cppreference.com/w/cpp/language/aggregate_initialization#Designated_initializers}}. Ukázka vytvoření logického zařízení:
+Všechny objekty jsou potomkem \texttt{VulkanObject}, což je rozhraní, které poskytuje základní debug informace o~objektu. Vytváření objektů je vždy prováděno pomocí \texttt{struct} konfiguračních dat. Předpokládá se užití \texttt{designated initialisers}\footnote{\url{https://en.cppreference.com/w/cpp/language/aggregate_initialization#Designated_initializers}}. Ukázka vytvoření logického zařízení je ve výpisu \ref{lst:vulkan_glfw}.
 
-\begin{lstlisting}[language=C++, caption={Tvorba logického zařízení}]
+\begin{lstlisting}[language=C++, label={lst:vulkan_glfw}, caption={Tvorba logického zařízení}]
 // tvorba instance vynechana kvuli velkemu mnozstvi argumentu
 device = instance->selectDevice(DefaultDeviceSuitabilityScorer());
 surface = instance->createSurface(window);
@@ -944,11 +944,11 @@ V~knihovně je také implementováno podstatné množství layoutů -- grid layo
 
 Přidání vlastních elementů do knihovny je velice primitivní. Připravená rozhraní pokrývají spoustu potenciální funkčnosti, a to například včetně \textit{drag and drop} a rozhraní pro nastavení stylu/ barvy elementu. 
 
-Kupříkladu implementace \texttt{CheckBox} vyžaduje pouze \textasciitilde10 řádků kódu -- nepočítaje deklarace funkcí a tělo konstruktoru -- s~tím, že dědí z~\texttt{ItemElement}, \texttt{Labellable}, \texttt{Savable}, \texttt{ValueObservable<bool>}, \texttt{ColorCustomizable<...>} a \texttt{StyleCustomizable<...>}.
+Kupříkladu implementace \texttt{CheckBox} vyžaduje pouze \textasciitilde10 řádků kódu -- nepočítaje deklarace funkcí a tělo konstruktoru -- s~tím, že dědí z~\texttt{ItemElement}, \texttt{Labellable}, \texttt{Savable}, \texttt{ValueObservable<bool>}, \texttt{ColorCustomizable<..>} a \texttt{StyleCustomizable<..>}.
 
-Ukázka vytvoření tlačítka, které reaguje na kliknutí otevřením dialogu pro výběr \texttt{txt} souboru:
+Ukázka vytvoření tlačítka, které reaguje na kliknutí otevřením dialogu pro výběr \texttt{txt} souboru je ve výpisu \ref{lst:imgui}.
 
-\begin{lstlisting}[language=C++, caption={Vytvoření tlačítka pro výběr souboru}]
+\begin{lstlisting}[language=C++, label={lst:imgui}, caption={Vytvoření tlačítka pro výběr souboru}]
 imgui.createChild<Button>("btn_id", "Open file")
     .addClickListener([&imgui] {
         imgui.openFileDialog("Select file", 
@@ -964,7 +964,7 @@ Na obrázku \ref{fig:program_flow} je diagram hlavní struktury programu. V~diag
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.7]{images/program_flow.png}
+	\includegraphics[width=\textwidth]{images/program_flow.png}
 	\captionsetup{justification=centering}
 	\boldcaption[\textbf{Základní rozdělení programu.}]{}
 	\label{fig:program_flow}
@@ -1070,10 +1070,10 @@ Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využit�
 		            intersection\_b = IntersectNode(node.right\_child)\;
 		            swap intersections so that the closer one is in instersection\_a\;
 		            \If{intersection\_b hit \textbf{and} intersection\_b is closer than nearest geometry hit}{
-		                stack.Push(node.right\_child)\;
+		                push(stack, node.right\_child)\;
 		            }
 		            \If{neither node hit \textbf{and} \textbf{not} stack.Empty()}{
-		                intersection\_a = stack.Pop()\;
+		                intersection\_a = pop(stack)\;
 		            }
 		        }
 		        \If{intersected is leaf}{
@@ -1081,10 +1081,10 @@ Algoritmus \ref{alg:traverse_bvh_impl} popisuje průchod BVH stromem za využit�
         		        calculate model intersection and save distance if hit\;
         		    }
         		}
-        		\eIf{stack.Empty()}{
+        		\eIf{empty(stack)}{
         		    intersected = false\;
         		} {
-        		    node = stack.Pop()\;
+        		    node = pop(stack)\;
         		}
 			}
 		}
@@ -1121,7 +1121,7 @@ Celý proces načtení nového modelu z~disku je popsán v~obrázku \ref{fig:loa
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.7]{images/load_diagram.png}
+	\includegraphics[width=\textwidth]{images/load_diagram.png}
 	\captionsetup{justification=centering}
 	\boldcaption[\textbf{Diagram načítání dat modelů.}]{ }
 	\label{fig:load_model_diagram}
@@ -1262,15 +1262,15 @@ Každý uzel octree zabírá v~prvé řadě 4 bajty (15 bitů \texttt{child poin
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{|r|r|}
-		\hline
-		\multicolumn{1}{|c|}{hloubka stromu} & \multicolumn{1}{c|}{obsazená paměť {[}B{]}} \\ \hline
-		1                                    & 4                                           \\ \hline
-		2                                    & 36                                          \\ \hline
-		3                                    & 292                                         \\ \hline
-		4                                    & 2340                                        \\ \hline
-		5                                    & 18724                                       \\ \hline
-		6                                    & 149796                                      \\ \hline
+	\begin{tabular}{r|r}
+		%\hline
+		\multicolumn{1}{c|}{hloubka stromu} & \multicolumn{1}{c}{obsazená paměť {[}B{]}} \\ \Xhline{3\arrayrulewidth}
+		1                                    & 4                                           \\ %\hline
+		2                                    & 36                                          \\ %\hline
+		3                                    & 292                                         \\ %\hline
+		4                                    & 2340                                        \\ %\hline
+		5                                    & 18724                                       \\ %\hline
+		6                                    & 149796                                      \\ %\hline
 	\end{tabular}
 	\captionsetup{justification=centering}
 	\boldcaption[\textbf{Využití paměti podle hloubky stromu při maximální nepříznivosti podmínek.}]{ }
@@ -1284,15 +1284,15 @@ Celková paměťová náročnost pro octree se zmíněnými parametry je tedy:
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{|r|r|}
-		\hline
-		\multicolumn{1}{|c|}{hloubka stromu} & \multicolumn{1}{c|}{využití paměti {[}B{]}} \\ \hline
-		1                                    & 20                                          \\ \hline
-		2                                    & 164                                         \\ \hline
-		3                                    & 1316                                        \\ \hline
-		4                                    & 10532                                       \\ \hline
-		5                                    & 84260                                       \\ \hline
-		6                                    & 674084                                      \\ \hline
+	\begin{tabular}{r|r}
+		%\hline
+		\multicolumn{1}{c|}{hloubka stromu} & \multicolumn{1}{c}{využití paměti {[}B{]}} \\ \Xhline{3\arrayrulewidth}
+		1                                    & 20                                          \\ %\hline
+		2                                    & 164                                         \\ %\hline
+		3                                    & 1316                                        \\ %\hline
+		4                                    & 10532                                       \\ %\hline
+		5                                    & 84260                                       \\ %\hline
+		6                                    & 674084                                      \\ %\hline
 	\end{tabular}
 	\captionsetup{justification=centering}
 	\boldcaption[\textbf{Využití paměti podle hloubky stromu při využití barevných parametrů pro voxely.}]{ }
@@ -1308,14 +1308,14 @@ Samozřejmě není použita jen jedna sonda. Množství sond je kvůli implement
 
 \begin{table}[H]
 	\centering
-    \begin{tabular}{|l|l|}
-    \hline
-    počet sond & využití paměti {[}MB{]} \\ \hline
-    1          & 8.4                     \\ \hline
-    4          & 33.5                    \\ \hline
-    16         & 134.3                   \\ \hline
-    128        & 1074.8                  \\ \hline
-    512        & 4299.1                  \\ \hline
+    \begin{tabular}{r|r}
+    %\hline
+    počet sond & využití paměti {[}MB{]} \\ \Xhline{3\arrayrulewidth}
+    1          & 8.4                     \\ %\hline
+    4          & 33.5                    \\ %\hline
+    16         & 134.3                   \\ %\hline
+    128        & 1074.8                  \\ %\hline
+    512        & 4299.1                  \\ %\hline
     \end{tabular}
 	\captionsetup{justification=centering}
 	\boldcaption[\textbf{Využití paměti pro časté velikosti mřížky.}]{ }
@@ -1327,23 +1327,23 @@ Samozřejmě není použita jen jedna sonda. Množství sond je kvůli implement
 \begin{figure}[H]
 	\centering
 	\captionsetup{justification=centering}
-	\includegraphics[scale=0.2]{images/12M_scene.png}
+	\includegraphics[width=\textwidth]{images/12M_scene.png}
 	\boldcaption[\textbf{Scéna vykreslena pomocí sparse voxel octree ray tracing.}]{ V~horní části obrázku se nachází vykreslená scéna se stíny, v~dolní části je počet iterací nutný k~výpočtu hodnot jednotlivých pixelů -- bílá barva v~tomto případě znamená 200 iterací.}
 	\label{fig:12M_render}
 \end{figure}
 
 
-Na obrázku \ref{fig:12M_render} je vykreslena scéna pomocí sparse voxel octree ray tracing. Scéna obsahuje 36 modelů složených z~12-ti milionů voxelů. Hierarchie obalových těles této scény obsahuje 71 uzlů, má tedy hloubku 7 úrovní. Nejvyšší počet iterací nutných k~výpočtu průsečíku zde bylo \textasciitilde{}200 iterací (kroků průchodu stromu). Ve scéně je prováděn výpočet ostrých stínů. Na hardware, který byl zmíněn na začátku kapitoly, a při rozlišení 1920x1080 pixelů byla tato scéna vykreslena rychlostí 100 snímků za sekundu. Při vypnutí paprsků pro stíny došlo ke zrychlení o~20\%, tedy 120 snímků za sekundu. Samozřejmě na snímku dochází k~nejhoršímu možnému případu -- všechny modely jsou viditelné a plocha, která je naspod, je velice neefektivní, jelikož se jedná o~velký model, který má výšku pouze jednoho voxelu. Dělba prostoru pomocí octree je v~tomto případě poněkud neefektivní.  Po jeho odstranění dojde ke zrychlení na 300 snímků za sekundu.
+Na obrázku \ref{fig:12M_render} je vykreslena scéna pomocí sparse voxel octree ray tracing. Scéna obsahuje 36 modelů složených z~12-ti milionů voxelů. Hierarchie obalových těles této scény obsahuje 71 uzlů, má tedy hloubku 7 úrovní. Nejvyšší počet iterací nutných k~výpočtu průsečíku zde bylo \textasciitilde{}200 iterací (kroků průchodu stromu). Ve scéně je prováděn výpočet ostrých stínů. Na hardware, který byl zmíněn na začátku kapitoly, a při rozlišení 1920x1080 pixelů byla tato scéna vykreslena rychlostí 100 snímků za sekundu. Při vypnutí paprsků pro stíny došlo ke zrychlení o~20\%, tedy 120 snímků za sekundu. Samozřejmě na snímku dochází k~nejhoršímu možnému případu -- všechny modely jsou viditelné a plocha, která je naspod, je velice neefektivní, jelikož se jedná o~velký model, který má výšku pouze jednoho voxelu. Dělba prostoru pomocí octree je v~tomto případě neefektivní.  Po jeho odstranění dojde ke zrychlení na 300 snímků za sekundu.
 
 \begin{figure}[H]
 	\centering
 	\captionsetup{justification=centering}
-	\includegraphics[scale=1]{images/render_probe_vs_svo.png}
+	\includegraphics[width=\textwidth]{images/render_probe_vs_svo.png}
 	\boldcaption[\textbf{Srovnání scény vykreslené pomocí light field probes a sparse voxel octree.}]{ V~levé části obrázku je scéna vykreslena pomocí light field probe ray tracing. Zelené oblasti zobrazují minutí scény, červené nemožnost zjistit výsledek pro paprsek. Pravá část je stejná scéna vykreslena pomocí sparse voxel octree.}
 	\label{fig:probe_vs_svo_render}
 \end{figure}
 
-Obrázek \ref{fig:probe_vs_svo_render} obsahuje porovnání vykreslení scény z~pohledu kamery pomocí light field probe ray tracing a sparse voxel octree ray tracing. Z~obrázku je jasně vidět, že metoda není vhodná jako primární vykreslovací algoritmus. Výsledek obsahuje spoustu pixelů, kde nebyl nalezen výsledek a dochází k~mnoha nepřesnostem, jak je lépe vidět na obrázku \ref{fig:probes_inaccuracy}.
+Obrázek \ref{fig:probe_vs_svo_render} obsahuje porovnání vykreslení scény z~pohledu kamery pomocí light field probe ray tracing a sparse voxel octree ray tracing. Z~obrázku je jasně vidět, že metoda není vhodná jako primární vykreslovací algoritmus. Výsledek obsahuje spoustu pixelů, kde nebyl nalezen výsledek a dochází k~mnoha nepřesnostem, jak je lépe vidět na obrázku \ref{fig:probes_inaccuracy}. Tyto problémy mohou vznikat buď nedostatečným množstvím informací v sondách -- žádná ze sond není schopna poskytnout optimální výsledek -- nebo nevhodným výběrem sondy.
 
 \begin{figure}[H]
 	\centering
@@ -1368,7 +1368,7 @@ Při kombinaci zmíněných algoritmů je vykreslena scéna pomocí sparse voxel
 \begin{figure}[H]
 	\centering
 	\captionsetup{justification=centering}
-	\includegraphics[scale=0.9]{images/render_svo_indirect_1.png}
+	\includegraphics[width=\textwidth]{images/render_svo_indirect_1.png}
 	\boldcaption[\textbf{Scéna vykreslena kombinací light field probes a sparse voxel octree.}]{}
 	\label{fig:render_indirect_1}
 \end{figure}
@@ -1387,24 +1387,24 @@ Tento přístup je tedy vhodnější pro scény, kde nedochází k~častému př
 \begin{figure}[H]
 	\centering
 	\captionsetup{justification=centering}
-	\includegraphics[scale=0.9]{images/indirect_render_2.png}
+	\includegraphics[width=\textwidth]{images/indirect_render_2.png}
 	\boldcaption[\textbf{Ukázka scény s~emisivním a reflektivním materiálem.}]{Oranžové objekty jsou zdroji světla. Ve středu spodní části obrázku se nachází reflektivní materiál. Ve scéně se nenachází zdaleka tolik artefaktů jako v~té předchozí díky její jednoduchosti.}
 	\label{fig:indirect_render_2}
 \end{figure}
 
 
 \chapter{Závěr}\label{zaver}
-Cílem práce bylo navrhnout systém pro zobrazování voxelových modelů v~reálném čase za využití GPU akcelerace a implementovat jej. K~dosažení tohoto cíle bylo nejdříve nutné si nastudovat již existující algoritmy řešící podobné problémy. Algoritmů pro realistické vykreslování existuje poměrně velké množství, některé z~nich byly představeny v~první kapitole. Bylo také nutné se seznámit s~možnostmi reprezentace voxelových dat a možné interakce s~nimi -- například výpočet průsečíku. V~neposlední řadě bylo potřeba představit užitečné datové struktury pro dělbu prostoru, díky kterým je možné optimalizovat různé algoritmy.
+Cílem práce bylo navrhnout systém pro zobrazování voxelových modelů v~reálném čase za využití GPU akcelerace a implementovat jej. K~dosažení tohoto cíle bylo nejdříve nutné nastudovat již existující algoritmy řešící podobné problémy. Algoritmů pro realistické vykreslování existuje poměrně velké množství, některé z~nich byly představeny v~první kapitole. Bylo také nutné se seznámit s~možnostmi reprezentace voxelových dat a možné interakce s~nimi -- například výpočet průsečíku. V~neposlední řadě bylo potřeba představit užitečné datové struktury pro dělbu prostoru, díky kterým je možné optimalizovat různé algoritmy.
 
 Následný návrh se zabýval specifickou reprezentací voxelových dat k~možnosti efektivního nalezení průsečíku s~paprskem. Metoda reprezentace těchto dat byla založena na článku \cite{Laine2011EfficientSV}. Jako způsob uložení voxelových dat byla navržena úsporná struktura sparse voxel octree. Dále zde byly představeny některé metody pro vykreslování scén. První z~nich je založena na sledování paprsku ve výše zmíněné datové struktuře, přičemž bylo navrženo rozšíření využívající hierarchie obalových těles ke snazší práci s~modely a urychlení jejich vykreslování. Dalším důležitým zdrojem byl článek \cite{light_field_probes}, který představil koncept light field probes. V~návrhu byl popsán způsob reprezentace dat sond za pomocí atlasu textur obsahující informace pro možnost sledování paprsku skrze tyto struktury. Byla vysvětlena též zmíněná metoda pro vykreslování a vlastní optimalizace za použití voxelového pole, která umožňuje algoritmus zrychlit a zlepšuje jeho úspěšnost pro nalezení průsečíku se scénou. Pro přípravu nepřímého osvětlení scény byla navržena metoda založená na light field probes, která využívá atlasu textur k~uložení dat o~nepřímém osvětlení -- tato data lze využít v~dalším algoritmu. Byla též popsána struktura výsledného vykreslovacího řetězce, která byla rozdělena na samotné vykreslení scény a aplikace nepřímého osvětlení ze sond.
 
 Pro implementaci aplikace bylo využito API Vulkan společně s~mnoha dalšími knihovnami zmíněnými v~kapitole \ref{implementace}. V~průběhu implementace návrhu vznikly tři knihovny, které byly krátce popsány. Specificky se týkaly obecné funkčnosti, práce s~okny a grafickou kartou a uživatelského rozhraní. Kapitola specifikovala některé zajímavé části implementace, jako je budování octree pro modely a správa modelů uvnitř programu.
 
-Výsledná demonstrační aplikace umožňuje uživateli vytvořit si vlastní scénu či nahrát již scény připravené. Demonstruje funkčnost sparse voxel octree ray tracing, pro který zobrazuje i informace pro evaluaci scény, a také light field probes, kdy je možné zkoumat obsah jednotlivých sond. V alternativním režimu vykresluje scény kombinací těchto dvou algoritmů.
+Výsledná demonstrační aplikace umožňuje uživateli vytvořit si vlastní scénu či nahrát již scény připravené. Aplikace též zobrazuje informace o zobrazovaných modelech a umožňuje uživateli s nimi manipulovat. Také zobrazuje metriky scény a rychlost vykreslování.  Demonstruje funkčnost sparse voxel octree ray tracing, pro který zobrazuje i informace pro evaluaci scény, a také light field probes, kdy je možné zkoumat obsah jednotlivých sond. V alternativním režimu vykresluje scény kombinací těchto dvou algoritmů.
 
-Z pohledu efektivity algoritmů je načítání scén poměrně pomalé, díky implementaci vlastního formátu je ale možné tomuto zpomalení předejít. Náročnost algoritmů na paměť je pro reprezentaci voxelových modelů poměrně přijatelná, lze vykreslovat scény o velikosti desítek milionů voxelů s využitím paměti, se kterou by neměly problémy ani starší grafické karty. Paměťová náročnost sond je poněkud vyšší, realistické využití s dalšími strukturami je pro maximální velikost mřížky sond přibližně 8x8x8. Paměťové omezení dané sondami implikuje, že navržený systém je vhodnější spíše pro scény v menší škále, ovšem s vysokou úrovní detailu.
+Z pohledu efektivity algoritmů je načítání scén z formátů třetích stran poměrně pomalé, uživatel může čekat i několik vteřin u větších souborů, díky implementaci vlastního formátu je ale možné tomuto zpomalení předejít. Náročnost algoritmů na paměť je pro reprezentaci voxelových modelů je přijatelná, lze vykreslovat scény o velikosti desítek milionů voxelů s využitím paměti, se kterou by neměly problémy ani starší grafické karty -- například scéna obsahující \textasciitilde{}12 milionů voxelů využívá \textasciitilde{}92 MB paměti. Paměťová náročnost sond je výrazně vyšší, realistické využití s dalšími strukturami je pro maximální velikost mřížky sond přibližně 8x8x8. Paměťové omezení dané sondami implikuje, že navržený systém je vhodnější spíše pro scény v menší škále, ovšem s vysokou úrovní detailu.
 
-Výsledné grafické výstupy tedy mohou obsahovat rozsáhlé scény, dochází ovšem ke vzniku artefaktů. Tyto artefakty jsou poměrně rušivé a s využitím použitých metod jim pravděpodobně nelze předejít. Alternativou k použitému přístupu by mohla být metoda uvedena v článku \textit{Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields}, která navíc umožňuje využívat dynamických scén, na rozdíl od metody použité zde, která zvládá pouze scény statické. Mezi další rozšíření by mohla patři implementace anti-aliasingu, specificky nějaká temporální metoda by byla zajímavá. Dalším vhodným rozšířením by byla implementace datové struktury, která by umožňovala optimalizované streamování dat scény z disku, aby bylo možné zobrazovat rozsáhlé scény bez nutnosti čekat na načtení modelů.
+Výsledné grafické výstupy tedy mohou obsahovat rozsáhlé scény, dochází ovšem ke vzniku artefaktů. Tyto artefakty jsou ovšem rušivé a s využitím použitých metod jim nejspíše nelze předejít. Alternativou k použitému přístupu by mohla být metoda uvedena v článku \textit{Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields}, která navíc umožňuje využívat dynamických scén, na rozdíl od metody použité zde, která zvládá pouze scény statické. Mezi další rozšíření by mohla patřit implementace anti-aliasingu, specificky nějaká temporální metoda by byla zajímavá. Dalším vhodným rozšířením by byla implementace datové struktury, která by umožňovala optimalizované streamování dat scény z disku, aby bylo možné zobrazovat rozsáhlé scény bez nutnosti čekat na načtení modelů.
 
 
 

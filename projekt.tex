@@ -72,13 +72,14 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{eqexpl}
+\usepackage{makecell}
 \eqexplSetDelim{=}
 % set the default code style
 \lstset{
     frame=tb, % draw a frame at the top and bottom of the code block
     tabsize=2, % tab space width
     showstringspaces=false, % don't mark spaces in strings
-    numbers=left, % display line numbers on the left
+    %numbers=left, % display line numbers on the left
     commentstyle=\color{green}, % comment color
     keywordstyle=\color{blue}, % keyword color
     stringstyle=\color{red} % string color
@@ -246,13 +247,13 @@
   
   % Seznam obrazku a tabulek (pokud prace obsahuje velke mnozstvi obrazku, tak se to hodi)
   % List of figures and list of tables (if the thesis contains a lot of pictures, it is good)
-  \ifczech
-    \renewcommand\listfigurename{Seznam obrázků}
-  \fi
-  \ifslovak
-    \renewcommand\listfigurename{Zoznam obrázkov}
-  \fi
-   {\hypersetup{hidelinks}\listoffigures}
+  %\ifczech
+  %  \renewcommand\listfigurename{Seznam obrázků}
+  %\fi
+  %\ifslovak
+  %  \renewcommand\listfigurename{Zoznam obrázkov}
+  %\fi
+  % {\hypersetup{hidelinks}\listoffigures}
   
   \ifczech
     \renewcommand\listtablename{Seznam tabulek}
